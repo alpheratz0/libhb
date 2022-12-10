@@ -145,6 +145,27 @@ hb_stadium_parse(const char *in)
 		}
 	}
 
+	/////////////spawnDistance
+	{
+		jv                  spawn_distance;
+		jv_kind        spawn_distance_kind;
+
+		spawn_distance = jv_object_get(jv_copy(root), jv_string("spawnDistance"));
+		spawn_distance_kind = jv_get_kind(spawn_distance);
+
+		if (spawn_distance_kind != JV_KIND_INVALID &&
+				spawn_distance_kind != JV_KIND_NUMBER) {
+			_err_unmatched_property_type("spawnDistance", JV_KIND_NUMBER, spawn_distance_kind);
+			goto err;
+		}
+
+		if (spawn_distance_kind != JV_KIND_NUMBER) {
+			s->spawn_distance = 0.0f;
+		} else {
+			s->spawn_distance = jv_number_value(spawn_distance);
+		}
+	}
+
 	jv_free(root);
 	return s;
 
@@ -194,6 +215,7 @@ main(void)
 	printf("CameraHeight: %f\n", big->camera_height);
 	printf("MaxViewWidth: %f\n", big->max_view_width);
 	printf("CameraFollow: %s\n", big->camera_follow == HB_CAMERA_FOLLOW_BALL ? "ball" : "player");
+	printf("SpawnDistance: %f\n", big->spawn_distance);
 
 	return 0;
 }

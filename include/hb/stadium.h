@@ -12,6 +12,7 @@ struct hb_stadium {
 	float                     camera_height;
 	float                    max_view_width;
 	enum hb_camera_follow     camera_follow;
+	float                    spawn_distance;
 };
 
 extern struct hb_stadium *
