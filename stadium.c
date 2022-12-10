@@ -309,22 +309,63 @@ hb_stadium_free(struct hb_stadium *s)
 	free(s);
 }
 
+static const char *
+_hb_camera_follow_to_string(enum hb_camera_follow cf)
+{
+	switch (cf) {
+	case HB_CAMERA_FOLLOW_BALL: return "ball";
+	case HB_CAMERA_FOLLOW_PLAYER: return "player";
+	default: return "unknown";
+	}
+}
+
+static const char *
+_hb_kick_off_reset_to_string(enum hb_kick_off_reset kor)
+{
+	switch (kor) {
+		case HB_KICK_OFF_RESET_FULL: return "full";
+		case HB_KICK_OFF_RESET_PARTIAL: return "partial";
+		default: return "unknown";
+	}
+}
+
+static const char *
+_hb_bool_yes_no_to_string(bool b)
+{
+	if (b) return "yes";
+	return "no";
+}
+
+static const char *
+_hb_background_type_to_string(enum hb_background_type bt)
+{
+	switch (bt) {
+		case HB_BACKGROUND_TYPE_NONE: return "none";
+		case HB_BACKGROUND_TYPE_GRASS: return "grass";
+		case HB_BACKGROUND_TYPE_HOCKEY: return "hockey";
+		default: return "unknown";
+	}
+}
+
+extern const char *
+hb_stadium_print(struct hb_stadium *s)
+{
+	printf("Name: %s\n", s->name);
+	printf("CameraWidth: %.2f\n", s->camera_width);
+	printf("CameraHeight: %.2f\n", s->camera_height);
+	printf("MaxViewWidth: %.2f\n", s->max_view_width);
+	printf("CameraFollow: %s\n", _hb_camera_follow_to_string(s->camera_follow));
+	printf("SpawnDistance: %.2f\n", s->spawn_distance);
+	printf("CanBeStored: %s\n", _hb_bool_yes_no_to_string(s->can_be_stored));
+	printf("KickOffReset: %s\n", _hb_kick_off_reset_to_string(s->kick_off_reset));
+	printf("Background.Type: %s\n", _hb_background_type_to_string(s->bg->type));
+}
+
 int
 main(void)
 {
 	struct hb_stadium *big;
-
 	big = hb_stadium_from_file("stadiums/big.hbs");
-
-	printf("Name: %s\n", big->name);
-	printf("CameraWidth: %f\n", big->camera_width);
-	printf("CameraHeight: %f\n", big->camera_height);
-	printf("MaxViewWidth: %f\n", big->max_view_width);
-	printf("CameraFollow: %s\n", big->camera_follow == HB_CAMERA_FOLLOW_BALL ? "ball" : "player");
-	printf("SpawnDistance: %f\n", big->spawn_distance);
-	printf("CanBeStored: %s\n", big->can_be_stored ? "yes" : "no");
-	printf("KickOffReset: %s\n", big->kick_off_reset == HB_KICK_OFF_RESET_FULL ? "full" : "partial");
-	printf("Background.Type: %s\n", big->bg->type == HB_BACKGROUND_TYPE_NONE ? "none" : big->bg->type == HB_BACKGROUND_TYPE_GRASS ? "grass" : "hockey");
-
+	hb_stadium_print(big);
 	return 0;
 }
