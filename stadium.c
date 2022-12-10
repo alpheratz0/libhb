@@ -1,3 +1,4 @@
+#include "include/hb/stadium.h"
 #include <hb/stadium.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -213,6 +214,61 @@ hb_stadium_parse(const char *in)
 		}
 	}
 
+	/////////////bg
+	{
+		jv                  bg;
+		jv_kind        bg_kind;
+
+		s->bg = malloc(sizeof(struct hb_background));
+
+		bg = jv_object_get(jv_copy(root), jv_string("bg"));
+		bg_kind = jv_get_kind(bg);
+
+		if (bg_kind != JV_KIND_INVALID && bg_kind != JV_KIND_OBJECT) {
+			_err_unmatched_property_type("bg", JV_KIND_OBJECT, bg_kind);
+			goto err;
+		}
+
+		if (bg_kind == JV_KIND_INVALID) {
+			s->bg->type = HB_BACKGROUND_TYPE_NONE;
+			s->bg->width = 0.0f;
+			s->bg->height = 0.0f;
+			s->bg->kick_off_radius = 0.0f;
+			s->bg->corner_radius = 0.0f;
+			s->bg->goal_line = 0.0f;
+			s->bg->color = 0x718c5a;
+		} else {
+			/////////////type
+			{
+				jv                  type;
+				jv_kind        type_kind;
+				const char     *type_str;
+
+				type = jv_object_get(jv_copy(bg), jv_string("type"));
+				type_kind = jv_get_kind(type);
+
+				if (type_kind != JV_KIND_INVALID &&
+						type_kind != JV_KIND_STRING) {
+					_err_unmatched_property_type("bg.type", JV_KIND_STRING, type_kind);
+					goto err;
+				}
+
+				if (type_kind != JV_KIND_STRING) {
+					s->bg->type = HB_BACKGROUND_TYPE_NONE;
+				} else {
+					type_str = jv_string_value(type);
+					if (!strcmp(type_str, "none")) s->bg->type = HB_BACKGROUND_TYPE_NONE;
+					else if (!strcmp(type_str, "grass")) s->bg->type = HB_BACKGROUND_TYPE_GRASS;
+					else if (!strcmp(type_str, "hockey")) s->bg->type = HB_BACKGROUND_TYPE_NONE;
+					else {
+						_err_unmatched_property_value("bg.type", "[none, grass, hockey]", type_str);
+						goto err;
+					}
+				}
+			}
+		}
+	}
+
 	jv_free(root);
 	return s;
 
@@ -268,6 +324,7 @@ main(void)
 	printf("SpawnDistance: %f\n", big->spawn_distance);
 	printf("CanBeStored: %s\n", big->can_be_stored ? "yes" : "no");
 	printf("KickOffReset: %s\n", big->kick_off_reset == HB_KICK_OFF_RESET_FULL ? "full" : "partial");
+	printf("Background.Type: %s\n", big->bg->type == HB_BACKGROUND_TYPE_NONE ? "none" : big->bg->type == HB_BACKGROUND_TYPE_GRASS ? "grass" : "hockey");
 
 	return 0;
 }
