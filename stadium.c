@@ -226,9 +226,10 @@ err:
 extern struct hb_stadium *
 hb_stadium_from_file(const char *file)
 {
-	FILE          *fp;
-	long    file_size;
-	char    *raw_data;
+	FILE                         *fp;
+	long                   file_size;
+	char                   *raw_data;
+	struct hb_stadium             *s;
 
 	fp = fopen(file, "r");
 	file_size = _get_file_size(fp);
@@ -236,10 +237,12 @@ hb_stadium_from_file(const char *file)
 
 	fread(raw_data, 1, file_size, fp);
 	raw_data[file_size] = '\0';
+	s = hb_stadium_parse(raw_data);
 
 	fclose(fp);
+	free(raw_data);
 
-	return hb_stadium_parse(raw_data);
+	return s;
 }
 
 extern void
