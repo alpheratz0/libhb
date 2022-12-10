@@ -536,6 +536,7 @@ main(void)
 {
 	struct hb_stadium *big;
 	big = hb_stadium_from_file("stadiums/big.hbs");
-	hb_stadium_print(big);
+	if (!big) fprintf(stderr, "Bad stadium file!\n");
+	else hb_stadium_print(big);
 	return 0;
 }
