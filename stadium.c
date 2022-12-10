@@ -266,6 +266,42 @@ hb_stadium_parse(const char *in)
 					}
 				}
 			}
+
+			/////////////width
+			{
+				jv                  width;
+				jv_kind        width_kind;
+
+				width = jv_object_get(jv_copy(bg), jv_string("width"));
+				width_kind = jv_get_kind(width);
+
+				if (width_kind == JV_KIND_INVALID) {
+					s->bg->width = 0.0f;
+				} else if (width_kind == JV_KIND_NUMBER) {
+					s->bg->width = jv_number_value(width);
+				} else {
+					_err_unmatched_property_type("bg.width", JV_KIND_NUMBER, width_kind);
+					goto err;
+				}
+			}
+
+			/////////////height
+			{
+				jv                  height;
+				jv_kind        height_kind;
+
+				height = jv_object_get(jv_copy(bg), jv_string("height"));
+				height_kind = jv_get_kind(height);
+
+				if (height_kind == JV_KIND_INVALID) {
+					s->bg->height = 0.0f;
+				} else if (height_kind == JV_KIND_NUMBER) {
+					s->bg->height = jv_number_value(height);
+				} else {
+					_err_unmatched_property_type("bg.height", JV_KIND_NUMBER, height_kind);
+					goto err;
+				}
+			}
 		}
 	}
 
@@ -361,6 +397,8 @@ hb_stadium_print(struct hb_stadium *s)
 	printf("CanBeStored: %s\n", _hb_bool_yes_no_to_string(s->can_be_stored));
 	printf("KickOffReset: %s\n", _hb_kick_off_reset_to_string(s->kick_off_reset));
 	printf("Background.Type: %s\n", _hb_background_type_to_string(s->bg->type));
+	printf("Background.Width: %.2f\n", s->bg->width);
+	printf("Background.Height: %.2f\n", s->bg->height);
 }
 
 int
