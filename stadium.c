@@ -399,18 +399,20 @@ hb_stadium_parse(const char *in)
 								((int)(jv_number_value(b)) <<  0);
 
 						} else {
+							// FIXME: convert the array to string in an error func
 							_err_unmatched_property_value("bg.color",
-									"[R, G, B]", color_str);
+									"[R, G, B]", "unknown");
 							goto err;
 						}
 					} else {
+						// FIXME: convert the array to string in an error func
 						_err_unmatched_property_value("bg.color",
-								"[R, G, B]", color_str);
+								"[R, G, B]", "unknown");
 						goto err;
 					}
 				} else {
-					_err_unmatched_property_value("bg.color",
-							"[RRGGBB, [R, G, B]]", color_str);
+					_err_unmatched_property_type("bg.color",
+							JV_KIND_STRING, color_kind);
 					goto err;
 				}
 			}
