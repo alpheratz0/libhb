@@ -306,6 +306,8 @@ hb_stadium_free(struct hb_stadium *s)
 {
 	if (s->name)
 		free(s->name);
+	if (s->bg)
+		free(s->bg);
 	free(s);
 }
 
