@@ -87,6 +87,27 @@ hb_stadium_parse(const char *in)
 		}
 	}
 
+	/////////////maxViewWidth
+	{
+		jv             max_view_width;
+		jv_kind   max_view_width_kind;
+
+		max_view_width = jv_object_get(jv_copy(root), jv_string("maxViewWidth"));
+		max_view_width_kind = jv_get_kind(max_view_width);
+
+		if (max_view_width_kind != JV_KIND_INVALID &&
+				max_view_width_kind != JV_KIND_NUMBER) {
+			_err_unmatched_property_type("maxViewWidth", JV_KIND_NUMBER, max_view_width_kind);
+			goto err;
+		}
+
+		if (max_view_width_kind != JV_KIND_NUMBER) {
+			s->max_view_width = 0.0f;
+		} else {
+			s->max_view_width = jv_number_value(max_view_width);
+		}
+	}
+
 	jv_free(root);
 	return s;
 
@@ -134,6 +155,7 @@ main(void)
 	printf("Name: %s\n", big->name);
 	printf("CameraWidth: %f\n", big->camera_width);
 	printf("CameraHeight: %f\n", big->camera_height);
+	printf("MaxViewWidth: %f\n", big->max_view_width);
 
 	return 0;
 }
