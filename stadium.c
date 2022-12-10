@@ -532,10 +532,10 @@ hb_stadium_print(struct hb_stadium *s)
 }
 
 int
-main(void)
+main(int argc, char **argv)
 {
 	struct hb_stadium *big;
-	big = hb_stadium_from_file("stadiums/big.hbs");
+	big = hb_stadium_from_file(argc > 1 ? argv[1] : "stadiums/big.hbs");
 	if (!big) fprintf(stderr, "Bad stadium file!\n");
 	else hb_stadium_print(big);
 	return 0;
