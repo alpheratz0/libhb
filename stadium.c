@@ -289,6 +289,25 @@ hb_stadium_parse(const char *in)
 					goto err;
 				}
 			}
+
+			/////////////kickOffRadius
+			{
+				jv                  kick_off_radius;
+				jv_kind        kick_off_radius_kind;
+
+				kick_off_radius = jv_object_get(jv_copy(bg), jv_string("kickOffRadius"));
+				kick_off_radius_kind = jv_get_kind(kick_off_radius);
+
+				if (kick_off_radius_kind == JV_KIND_NUMBER) {
+					s->bg->kick_off_radius = jv_number_value(kick_off_radius);
+				} else if (kick_off_radius_kind == JV_KIND_INVALID) {
+					s->bg->kick_off_radius = 0.0f;
+				} else {
+					_err_unmatched_property_type("bg.kickOffRadius",
+							JV_KIND_NUMBER, kick_off_radius_kind);
+					goto err;
+				}
+			}
 		} else if (bg_kind == JV_KIND_INVALID) {
 			s->bg->type = HB_BACKGROUND_TYPE_NONE;
 			s->bg->width = 0.0f;
@@ -398,6 +417,7 @@ hb_stadium_print(struct hb_stadium *s)
 	printf("Background.Type: %s\n", _hb_background_type_to_string(s->bg->type));
 	printf("Background.Width: %.2f\n", s->bg->width);
 	printf("Background.Height: %.2f\n", s->bg->height);
+	printf("Background.KickOffRadius: %.2f\n", s->bg->kick_off_radius);
 }
 
 int
