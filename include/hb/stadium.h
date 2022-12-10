@@ -2,7 +2,9 @@
 #define __LIBHB_STADIUM_H__
 
 struct hb_stadium {
-	char    *name;
+	char           *name;
+	float   camera_width;
+	float  camera_height;
 };
 
 extern struct hb_stadium *

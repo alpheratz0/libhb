@@ -53,6 +53,28 @@ hb_stadium_parse(const char *in)
 		s->name = strdup(jv_string_value(name));
 	}
 
+	/////////////cameraWidth & cameraHeight
+	{
+		jv             camera_width;
+		jv            camera_height;
+		jv_kind   camera_width_kind;
+		jv_kind  camera_height_kind;
+
+		camera_width = jv_object_get(jv_copy(root), jv_string("cameraWidth"));
+		camera_height = jv_object_get(jv_copy(root), jv_string("cameraHeight"));
+
+		camera_width_kind = jv_get_kind(camera_width);
+		camera_height_kind = jv_get_kind(camera_height);
+
+		if (camera_width_kind != JV_KIND_NUMBER ||
+				camera_height_kind != JV_KIND_NUMBER) {
+			s->camera_width = s->camera_height = 0.0f;
+		} else {
+			s->camera_width = jv_number_value(camera_width);
+			s->camera_height = jv_number_value(camera_height);
+		}
+	}
+
 	jv_free(root);
 	return s;
 
@@ -94,8 +116,12 @@ int
 main(void)
 {
 	struct hb_stadium *big;
-	big = hb_stadium_from_file("stadiums/bad.hbs");
-	if (NULL != big)
-		printf("Name: %s\n", big->name);
+
+	big = hb_stadium_from_file("stadiums/big.hbs");
+
+	printf("Name: %s\n", big->name);
+	printf("CameraWidth: %f\n", big->camera_width);
+	printf("CameraHeight: %f\n", big->camera_height);
+
 	return 0;
 }
