@@ -327,6 +327,25 @@ hb_stadium_parse(const char *in)
 					goto err;
 				}
 			}
+
+			/////////////goalLine
+			{
+				jv                  goal_line;
+				jv_kind        goal_line_kind;
+
+				goal_line = jv_object_get(jv_copy(bg), jv_string("goalLine"));
+				goal_line_kind = jv_get_kind(goal_line);
+
+				if (goal_line_kind == JV_KIND_NUMBER) {
+					s->bg->goal_line = jv_number_value(goal_line);
+				} else if (goal_line_kind == JV_KIND_INVALID) {
+					s->bg->goal_line = 0.0f;
+				} else {
+					_err_unmatched_property_type("bg.goalLine",
+							JV_KIND_NUMBER, goal_line_kind);
+					goto err;
+				}
+			}
 		} else if (bg_kind == JV_KIND_INVALID) {
 			s->bg->type = HB_BACKGROUND_TYPE_NONE;
 			s->bg->width = 0.0f;
@@ -438,6 +457,7 @@ hb_stadium_print(struct hb_stadium *s)
 	printf("Background.Height: %.2f\n", s->bg->height);
 	printf("Background.KickOffRadius: %.2f\n", s->bg->kick_off_radius);
 	printf("Background.CornerRadius: %.2f\n", s->bg->corner_radius);
+	printf("Background.GoalLine: %.2f\n", s->bg->goal_line);
 }
 
 int
