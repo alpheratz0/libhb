@@ -185,6 +185,34 @@ hb_stadium_parse(const char *in)
 		s->can_be_stored = can_be_stored_kind != JV_KIND_FALSE;
 	}
 
+	/////////////kickOffReset
+	{
+		jv                  kick_off_reset;
+		jv_kind        kick_off_reset_kind;
+		const char     *kick_off_reset_str;
+
+		kick_off_reset = jv_object_get(jv_copy(root), jv_string("kickOffReset"));
+		kick_off_reset_kind = jv_get_kind(kick_off_reset);
+
+		if (kick_off_reset_kind != JV_KIND_INVALID &&
+				kick_off_reset_kind != JV_KIND_STRING) {
+			_err_unmatched_property_type("kickOffReset", JV_KIND_STRING, kick_off_reset_kind);
+			goto err;
+		}
+
+		if (kick_off_reset_kind != JV_KIND_STRING) {
+			s->kick_off_reset = HB_KICK_OFF_RESET_PARTIAL;
+		} else {
+			kick_off_reset_str = jv_string_value(kick_off_reset);
+			if (!strcmp(kick_off_reset_str, "partial")) s->kick_off_reset = HB_KICK_OFF_RESET_PARTIAL;
+			else if (!strcmp(kick_off_reset_str, "full")) s->kick_off_reset = HB_KICK_OFF_RESET_FULL;
+			else {
+				_err_unmatched_property_value("kickOffReset", "[partial, full]", kick_off_reset_str);
+				goto err;
+			}
+		}
+	}
+
 	jv_free(root);
 	return s;
 
@@ -236,6 +264,7 @@ main(void)
 	printf("CameraFollow: %s\n", big->camera_follow == HB_CAMERA_FOLLOW_BALL ? "ball" : "player");
 	printf("SpawnDistance: %f\n", big->spawn_distance);
 	printf("CanBeStored: %s\n", big->can_be_stored ? "yes" : "no");
+	printf("KickOffReset: %s\n", big->kick_off_reset == HB_KICK_OFF_RESET_FULL ? "full" : "partial");
 
 	return 0;
 }

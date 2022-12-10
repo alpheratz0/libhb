@@ -8,6 +8,11 @@ enum hb_camera_follow {
 	HB_CAMERA_FOLLOW_BALL
 };
 
+enum hb_kick_off_reset {
+	HB_KICK_OFF_RESET_PARTIAL,
+	HB_KICK_OFF_RESET_FULL
+};
+
 struct hb_stadium {
 	char                              *name;
 	float                      camera_width;
@@ -16,6 +21,7 @@ struct hb_stadium {
 	enum hb_camera_follow     camera_follow;
 	float                    spawn_distance;
 	bool                      can_be_stored;
+	enum hb_kick_off_reset   kick_off_reset;
 };
 
 extern struct hb_stadium *
