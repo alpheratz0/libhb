@@ -308,6 +308,25 @@ hb_stadium_parse(const char *in)
 					goto err;
 				}
 			}
+
+			/////////////cornerRadius
+			{
+				jv                  corner_radius;
+				jv_kind        corner_radius_kind;
+
+				corner_radius = jv_object_get(jv_copy(bg), jv_string("cornerRadius"));
+				corner_radius_kind = jv_get_kind(corner_radius);
+
+				if (corner_radius_kind == JV_KIND_NUMBER) {
+					s->bg->corner_radius = jv_number_value(corner_radius);
+				} else if (corner_radius_kind == JV_KIND_INVALID) {
+					s->bg->corner_radius = 0.0f;
+				} else {
+					_err_unmatched_property_type("bg.cornerRadius",
+							JV_KIND_NUMBER, corner_radius_kind);
+					goto err;
+				}
+			}
 		} else if (bg_kind == JV_KIND_INVALID) {
 			s->bg->type = HB_BACKGROUND_TYPE_NONE;
 			s->bg->width = 0.0f;
@@ -418,6 +437,7 @@ hb_stadium_print(struct hb_stadium *s)
 	printf("Background.Width: %.2f\n", s->bg->width);
 	printf("Background.Height: %.2f\n", s->bg->height);
 	printf("Background.KickOffRadius: %.2f\n", s->bg->kick_off_radius);
+	printf("Background.CornerRadius: %.2f\n", s->bg->corner_radius);
 }
 
 int
