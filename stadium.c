@@ -1,4 +1,5 @@
 #include <hb/stadium.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -166,6 +167,24 @@ hb_stadium_parse(const char *in)
 		}
 	}
 
+	/////////////canBeStored
+	{
+		jv                  can_be_stored;
+		jv_kind        can_be_stored_kind;
+
+		can_be_stored = jv_object_get(jv_copy(root), jv_string("canBeStored"));
+		can_be_stored_kind = jv_get_kind(can_be_stored);
+
+		if (can_be_stored_kind != JV_KIND_INVALID &&
+				can_be_stored_kind != JV_KIND_TRUE &&
+				can_be_stored_kind != JV_KIND_FALSE) {
+			_err_unmatched_property_value("canBeStored", "[true, false]", jv_kind_name(can_be_stored_kind));
+			goto err;
+		}
+
+		s->can_be_stored = can_be_stored_kind != JV_KIND_FALSE;
+	}
+
 	jv_free(root);
 	return s;
 
@@ -216,6 +235,7 @@ main(void)
 	printf("MaxViewWidth: %f\n", big->max_view_width);
 	printf("CameraFollow: %s\n", big->camera_follow == HB_CAMERA_FOLLOW_BALL ? "ball" : "player");
 	printf("SpawnDistance: %f\n", big->spawn_distance);
+	printf("CanBeStored: %s\n", big->can_be_stored ? "yes" : "no");
 
 	return 0;
 }
