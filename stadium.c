@@ -346,6 +346,74 @@ hb_stadium_parse(const char *in)
 					goto err;
 				}
 			}
+
+			/////////////color
+			{
+				jv                  color;
+				jv_kind        color_kind;
+				const char     *color_str;
+				char           *parse_end;
+				jv                r, g, b;
+				jv_kind            r_kind;
+				jv_kind            g_kind;
+				jv_kind            b_kind;
+				int               arr_len;
+
+				color = jv_object_get(jv_copy(bg), jv_string("color"));
+				color_kind = jv_get_kind(color);
+
+				if (color_kind == JV_KIND_STRING) {
+					color_str = jv_string_value(color);
+
+					if (!strcmp(color_str, "transparent")) {
+						s->bg->color = 0x00000000;
+					} else {
+						s->bg->color = strtol(color_str, &parse_end, 16);
+
+						if (parse_end - color_str != 6 ||
+								parse_end[1] != '\0') {
+							_err_unmatched_property_value("bg.color",
+									"RRGGBB", color_str);
+							goto err;
+						}
+					}
+				} else if (color_kind == JV_KIND_INVALID) {
+					s->bg->color = 0xff718c5a;
+				} else if (color_kind == JV_KIND_ARRAY) {
+					if (jv_array_length(color) == 3) {
+						r = jv_array_get(color, 0);
+						g = jv_array_get(color, 1);
+						b = jv_array_get(color, 2);
+
+						r_kind = jv_get_kind(r);
+						g_kind = jv_get_kind(g);
+						b_kind = jv_get_kind(b);
+
+						if (r_kind == JV_KIND_NUMBER &&
+								g_kind == JV_KIND_NUMBER &&
+								b_kind == JV_KIND_NUMBER) {
+							s->bg->color =
+								                     (0xff << 24) |
+								((int)(jv_number_value(r)) << 16) |
+								((int)(jv_number_value(g)) <<  8) |
+								((int)(jv_number_value(b)) <<  0);
+
+						} else {
+							_err_unmatched_property_value("bg.color",
+									"[R, G, B]", color_str);
+							goto err;
+						}
+					} else {
+						_err_unmatched_property_value("bg.color",
+								"[R, G, B]", color_str);
+						goto err;
+					}
+				} else {
+					_err_unmatched_property_value("bg.color",
+							"[RRGGBB, [R, G, B]]", color_str);
+					goto err;
+				}
+			}
 		} else if (bg_kind == JV_KIND_INVALID) {
 			s->bg->type = HB_BACKGROUND_TYPE_NONE;
 			s->bg->width = 0.0f;
@@ -353,7 +421,7 @@ hb_stadium_parse(const char *in)
 			s->bg->kick_off_radius = 0.0f;
 			s->bg->corner_radius = 0.0f;
 			s->bg->goal_line = 0.0f;
-			s->bg->color = 0x718c5a;
+			s->bg->color = 0xff718c5a;
 		} else {
 			_err_unmatched_property_type("bg",
 					JV_KIND_OBJECT, bg_kind);
@@ -458,6 +526,7 @@ hb_stadium_print(struct hb_stadium *s)
 	printf("Background.KickOffRadius: %.2f\n", s->bg->kick_off_radius);
 	printf("Background.CornerRadius: %.2f\n", s->bg->corner_radius);
 	printf("Background.GoalLine: %.2f\n", s->bg->goal_line);
+	printf("Background.Color: %08x\n", s->bg->color);
 }
 
 int
