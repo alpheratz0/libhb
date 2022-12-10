@@ -27,6 +27,15 @@ _err_unmatched_property_type(const char *prop_name,
 		prop_name, jv_kind_name(expected), jv_kind_name(got));
 }
 
+static void
+_err_unmatched_property_value(const char *prop_name,
+                              const char *valid_values, const char *got_value)
+{
+	fprintf(stderr, "hb_stadium: unmatched value "
+		"for property \"%s\" expected %s got %s\n",
+		prop_name, valid_values, got_value);
+}
+
 extern struct hb_stadium *
 hb_stadium_parse(const char *in)
 {
@@ -108,6 +117,34 @@ hb_stadium_parse(const char *in)
 		}
 	}
 
+	/////////////cameraFollow
+	{
+		jv                  camera_follow;
+		jv_kind        camera_follow_kind;
+		const char     *camera_follow_str;
+
+		camera_follow = jv_object_get(jv_copy(root), jv_string("cameraFollow"));
+		camera_follow_kind = jv_get_kind(camera_follow);
+
+		if (camera_follow_kind != JV_KIND_INVALID &&
+				camera_follow_kind != JV_KIND_STRING) {
+			_err_unmatched_property_type("cameraFollow", JV_KIND_STRING, camera_follow_kind);
+			goto err;
+		}
+
+		if (camera_follow_kind != JV_KIND_STRING) {
+			s->camera_follow = HB_CAMERA_FOLLOW_BALL;
+		} else {
+			camera_follow_str = jv_string_value(camera_follow);
+			if (!strcmp(camera_follow_str, "ball")) s->camera_follow = HB_CAMERA_FOLLOW_BALL;
+			else if (!strcmp(camera_follow_str, "player")) s->camera_follow = HB_CAMERA_FOLLOW_PLAYER;
+			else {
+				_err_unmatched_property_value("cameraFollow", "[ball, player]", camera_follow_str);
+				goto err;
+			}
+		}
+	}
+
 	jv_free(root);
 	return s;
 
@@ -156,6 +193,7 @@ main(void)
 	printf("CameraWidth: %f\n", big->camera_width);
 	printf("CameraHeight: %f\n", big->camera_height);
 	printf("MaxViewWidth: %f\n", big->max_view_width);
+	printf("CameraFollow: %s\n", big->camera_follow == HB_CAMERA_FOLLOW_BALL ? "ball" : "player");
 
 	return 0;
 }
