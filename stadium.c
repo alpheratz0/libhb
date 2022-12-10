@@ -66,6 +66,18 @@ hb_stadium_parse(const char *in)
 		camera_width_kind = jv_get_kind(camera_width);
 		camera_height_kind = jv_get_kind(camera_height);
 
+		if (camera_width_kind != JV_KIND_INVALID &&
+				camera_width_kind != JV_KIND_NUMBER) {
+			_err_unmatched_property_type("cameraWidth", JV_KIND_NUMBER, camera_width_kind);
+			goto err;
+		}
+
+		if (camera_height_kind != JV_KIND_INVALID &&
+				camera_height_kind != JV_KIND_NUMBER) {
+			_err_unmatched_property_type("cameraHeight", JV_KIND_NUMBER, camera_height_kind);
+			goto err;
+		}
+
 		if (camera_width_kind != JV_KIND_NUMBER ||
 				camera_height_kind != JV_KIND_NUMBER) {
 			s->camera_width = s->camera_height = 0.0f;
