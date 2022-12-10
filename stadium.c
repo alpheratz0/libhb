@@ -237,7 +237,7 @@ hb_stadium_parse(const char *in)
 					} else if (!strcmp(type_str, "grass")) {
 						s->bg->type = HB_BACKGROUND_TYPE_GRASS;
 					} else if (!strcmp(type_str, "hockey")) {
-						s->bg->type = HB_BACKGROUND_TYPE_NONE;
+						s->bg->type = HB_BACKGROUND_TYPE_HOCKEY;
 					} else {
 						_err_unmatched_property_value("bg.type",
 								"[none, grass, hockey]", type_str);
