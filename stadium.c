@@ -369,6 +369,9 @@ hb_stadium_parse(const char *in)
 	s = calloc(1, sizeof(struct hb_stadium));
 	root = jv_parse(in);
 
+	if (jv_get_kind(root) == JV_KIND_INVALID)
+		goto err;
+
 	/////////////name
 	{
 		jv name;
