@@ -37,7 +37,7 @@ enum hb_collision_flags {
 	HB_COLLISION_RED_KO =         1 << 3,
 	HB_COLLISION_BLUE_KO =        1 << 4,
 	HB_COLLISION_WALL =           1 << 5,
-	HB_COLLISION_ALL =       (1 << 6) - 1,
+	HB_COLLISION_ALL =      (1 << 6) - 1,
 	HB_COLLISION_KICK =           1 << 6,
 	HB_COLLISION_SCORE =          1 << 7,
 	HB_COLLISION_C0 =            1 << 28,
