@@ -1,0 +1,5 @@
+#!/bin/sh
+
+cc ../stadium.c test.c -o test -I../include -ljq
+./test
+rm test
