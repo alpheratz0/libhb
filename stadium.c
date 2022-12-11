@@ -8,8 +8,8 @@
 static long
 _get_file_size(FILE *fp)
 {
-	long   current_pos;
-	long     file_size;
+	long current_pos;
+	long file_size;
 
 	current_pos = ftell(fp);
 	fseek(fp, 0, SEEK_END);
