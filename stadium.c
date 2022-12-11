@@ -22,20 +22,15 @@ _get_file_size(FILE *fp)
 static int
 _hb_jv_parse_string(jv from, char **to, const char *fallback)
 {
-	jv_kind kind;
-
-	kind = jv_get_kind(from);
-
-	switch (kind) {
+	switch (jv_get_kind(from)) {
 	case JV_KIND_STRING:
 		*to = strdup(jv_string_value(from));
 		return 0;
 	case JV_KIND_INVALID:
-		if (fallback != NULL) {
-			*to = strdup(fallback);
-			return 0;
-		}
-		return -1;
+		if (fallback == NULL)
+			return -1;
+		*to = strdup(fallback);
+		return 0;
 	default:
 		return -1;
 	}
@@ -44,20 +39,15 @@ _hb_jv_parse_string(jv from, char **to, const char *fallback)
 static int
 _hb_jv_parse_number(jv from, float *to, const float *fallback)
 {
-	jv_kind kind;
-
-	kind = jv_get_kind(from);
-
-	switch (kind) {
+	switch (jv_get_kind(from)) {
 	case JV_KIND_NUMBER:
 		*to = jv_number_value(from);
 		return 0;
 	case JV_KIND_INVALID:
-		if (fallback != NULL) {
-			*to = *fallback;
-			return 0;
-		}
-		return -1;
+		if (fallback == NULL)
+			return -1;
+		*to = *fallback;
+		return 0;
 	default:
 		return -1;
 	}
@@ -66,11 +56,7 @@ _hb_jv_parse_number(jv from, float *to, const float *fallback)
 static int
 _hb_jv_parse_boolean(jv from, bool *to, const bool *fallback)
 {
-	jv_kind kind;
-
-	kind = jv_get_kind(from);
-
-	switch (kind) {
+	switch (jv_get_kind(from)) {
 	case JV_KIND_FALSE:
 		*to = false;
 		return 0;
@@ -78,11 +64,10 @@ _hb_jv_parse_boolean(jv from, bool *to, const bool *fallback)
 		*to = true;
 		return 0;
 	case JV_KIND_INVALID:
-		if (NULL != fallback) {
-			*to = *fallback;
-			return 0;
-		}
-		return -1;
+		if (NULL == fallback)
+			return -1;
+		*to = *fallback;
+		return 0;
 	default:
 		return -1;
 	}
@@ -98,11 +83,10 @@ _hb_jv_parse_color(jv from, uint32_t *color, const uint32_t *fallback)
 	kind = jv_get_kind(from);
 
 	if (kind == JV_KIND_INVALID) {
-		if (NULL != fallback) {
-			*color = *fallback;
-			return 0;
-		}
-		return -1;
+		if (NULL == fallback)
+			return -1;
+		*color = *fallback;
+		return 0;
 	}
 
 	if (kind == JV_KIND_STRING) {
