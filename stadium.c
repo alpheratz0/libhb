@@ -232,11 +232,10 @@ _hb_jv_parse_collision_flags(jv from, enum hb_collision_flags *cf,
 	enum hb_collision_flags flag;
 	kind = jv_get_kind(from);
 	if (kind == JV_KIND_INVALID) {
-		if (NULL != fallback) {
-			*cf = *fallback;
-			return 0;
-		}
-		return -1;
+		if (NULL == fallback)
+			return -1;
+		*cf = *fallback;
+		return 0;
 	}
 	if (kind != JV_KIND_ARRAY)
 		return -1;
