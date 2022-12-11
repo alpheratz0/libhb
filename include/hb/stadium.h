@@ -68,6 +68,14 @@ struct hb_trait {
 	enum hb_collision_flags          c_mask;
 };
 
+struct hb_vertex {
+	float                                 x;
+	float                                 y;
+	float                            b_coef;
+	enum hb_collision_flags         c_group;
+	enum hb_collision_flags          c_mask;
+};
+
 struct hb_stadium {
 	char                              *name;
 	float                      camera_width;
@@ -79,6 +87,7 @@ struct hb_stadium {
 	enum hb_kick_off_reset   kick_off_reset;
 	struct hb_background                *bg;
 	struct hb_trait                **traits;
+	struct hb_vertex             **vertexes;
 };
 
 extern struct hb_stadium *

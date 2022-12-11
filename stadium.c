@@ -358,6 +358,98 @@ _hb_jv_parse_trait(jv from, struct hb_trait *trait)
 	return 0;
 }
 
+static int
+_hb_get_trait(struct hb_trait **traits, struct hb_trait **trait, const char *name)
+{
+	struct hb_trait **cur;
+	for (cur = traits; *cur; ++cur) {
+		if (!strcmp((*cur)->name, name)) {
+			*trait = *cur;
+			return 0;
+		}
+	}
+
+	return -1;
+}
+
+static int
+_hb_jv_parse_vertex(jv from, struct hb_vertex *to, struct hb_trait **traits)
+{
+	struct hb_trait *vertex_trait;
+
+	/////////////x
+	{
+		jv x;
+		x = jv_object_get(jv_copy(from), jv_string("x"));
+		if (_hb_jv_parse_number(x, &to->x, NULL) < 0)
+			return -1;
+	}
+
+	/////////////y
+	{
+		jv y;
+		y = jv_object_get(jv_copy(from), jv_string("y"));
+		if (_hb_jv_parse_number(y, &to->y, NULL) < 0)
+			return -1;
+	}
+
+	/////////////trait
+	{
+		jv trait;
+		char *trait_name;
+		trait = jv_object_get(jv_copy(from), jv_string("trait"));
+		if (_hb_jv_parse_string(trait, &trait_name, "__no_trait__") < 0)
+			return -1;
+		if (!strcmp(trait_name, "__no_trait__"))
+			vertex_trait = NULL;
+		else if (_hb_get_trait(traits, &vertex_trait, trait_name) < 0) {
+			free(trait_name);
+			return -1;
+		}
+		free(trait_name);
+	}
+
+	/////////////bCoef
+	{
+		jv b_coef;
+		b_coef = jv_object_get(jv_copy(from), jv_string("bCoef"));
+		if (jv_get_kind(b_coef) == JV_KIND_INVALID) {
+			if (NULL == vertex_trait || !vertex_trait->has_b_coef)
+				return -1;
+			to->b_coef = vertex_trait->b_coef;
+		} else {
+			if (_hb_jv_parse_number(b_coef, &to->b_coef, NULL) < 0)
+				return -1;
+		}
+	}
+
+	/////////////cGroup
+	{
+		jv c_group;
+		enum hb_collision_flags fallback_c_group;
+		fallback_c_group = 0;
+		if (NULL != vertex_trait && vertex_trait->has_c_group)
+			fallback_c_group = vertex_trait->c_group;
+		c_group = jv_object_get(jv_copy(from), jv_string("cGroup"));
+		if (_hb_jv_parse_collision_flags(c_group, &to->c_group, &fallback_c_group) < 0)
+			return -1;
+	}
+
+	/////////////cMask
+	{
+		jv c_mask;
+		enum hb_collision_flags fallback_c_mask;
+		fallback_c_mask = 0;
+		if (NULL != vertex_trait && vertex_trait->has_c_mask)
+			fallback_c_mask = vertex_trait->c_mask;
+		c_mask = jv_object_get(jv_copy(from), jv_string("cMask"));
+		if (_hb_jv_parse_collision_flags(c_mask, &to->c_mask, &fallback_c_mask) < 0)
+			return -1;
+	}
+
+	return 0;
+}
+
 extern struct hb_stadium *
 hb_stadium_parse(const char *in)
 {
@@ -464,20 +556,46 @@ hb_stadium_parse(const char *in)
 		int trait_index;
 
 		traits = jv_object_get(jv_copy(root), jv_string("traits"));
+		traits_kind = jv_get_kind(traits);
 
-		if (jv_get_kind(traits) == JV_KIND_OBJECT) {
+		if (traits_kind == JV_KIND_OBJECT) {
 			trait_index = 0;
 			traits_len = jv_object_length(jv_copy(traits));
 			s->traits = calloc(traits_len + 1, sizeof(struct hb_trait *));
 
-			jv_object_foreach(traits, key, value) {
+			jv_object_foreach(traits, name, trait) {
 				s->traits[trait_index] = calloc(1, sizeof(struct hb_trait));
-				s->traits[trait_index]->name = strdup(jv_string_value(key));
-				if (_hb_jv_parse_trait(value, s->traits[trait_index++]) < 0)
+				s->traits[trait_index]->name = strdup(jv_string_value(name));
+				if (_hb_jv_parse_trait(trait, s->traits[trait_index++]) < 0)
 					goto err;
 			}
-		} else if (jv_get_kind(traits) == JV_KIND_INVALID) {
+		} else if (traits_kind == JV_KIND_INVALID) {
 			s->traits = calloc(1, sizeof(struct hb_trait *));
+		} else {
+			goto err;
+		}
+	}
+
+	/////////////vertexes
+	{
+		jv vertexes;
+		jv_kind vertexes_kind;
+		int vertexes_len;
+
+		vertexes = jv_object_get(jv_copy(root), jv_string("vertexes"));
+		vertexes_kind = jv_get_kind(vertexes);
+
+		if (vertexes_kind == JV_KIND_ARRAY) {
+			vertexes_len = jv_array_length(jv_copy(vertexes));
+			s->vertexes = calloc(vertexes_len + 1, sizeof(struct hb_vertex *));
+
+			jv_array_foreach(vertexes, index, vertex) {
+				s->vertexes[index] = calloc(1, sizeof(struct hb_vertex));
+				if (_hb_jv_parse_vertex(vertex, s->vertexes[index], s->traits) < 0)
+					goto err;
+			}
+		} else if (vertexes_kind == JV_KIND_INVALID) {
+			s->vertexes = calloc(1, sizeof(struct hb_vertex *));
 		} else {
 			goto err;
 		}
@@ -577,10 +695,21 @@ _hb_trait_print(struct hb_trait *t)
 	if (t->has_c_mask) printf("Trait[%s].cMask: %d\n", t->name, t->c_mask);
 }
 
+static void
+_hb_vertex_print(int index, struct hb_vertex *v)
+{
+	printf("Vertex[%d].x: %.2f\n", index, v->x);
+	printf("Vertex[%d].y: %.2f\n", index, v->y);
+	printf("Vertex[%d].bCoef: %.2f\n", index, v->b_coef);
+	printf("Vertex[%d].cGroup: %d\n", index, v->c_group);
+	printf("Vertex[%d].cMask: %d\n", index, v->c_mask);
+}
+
 extern const char *
 hb_stadium_print(struct hb_stadium *s)
 {
 	struct hb_trait **trait;
+	struct hb_vertex **vertex;
 
 	printf("Name: %s\n", s->name);
 	printf("CameraWidth: %.2f\n", s->camera_width);
@@ -600,6 +729,9 @@ hb_stadium_print(struct hb_stadium *s)
 
 	for (trait = s->traits; *trait; ++trait)
 		_hb_trait_print(*trait);
+
+	for (vertex = s->vertexes; *vertex; ++vertex)
+		_hb_vertex_print(vertex - s->vertexes, *vertex);
 }
 
 int
