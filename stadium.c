@@ -307,10 +307,209 @@ _hb_trait_parse(jv root, struct hb_trait *trait)
 	return 0;
 }
 
+static int
+_hb_jv_parse_string(jv from, char **to, const char *fallback)
+{
+	jv_kind kind;
+
+	kind = jv_get_kind(from);
+
+	switch (kind) {
+	case JV_KIND_STRING:
+		*to = strdup(jv_string_value(from));
+		return 0;
+	case JV_KIND_INVALID:
+		if (fallback != NULL) {
+			*to = strdup(fallback);
+			return 0;
+		}
+		return -1;
+	default:
+		return -1;
+	}
+}
+
+static int
+_hb_jv_parse_number(jv from, float *to, const float *fallback)
+{
+	jv_kind kind;
+
+	kind = jv_get_kind(from);
+
+	switch (kind) {
+	case JV_KIND_NUMBER:
+		*to = jv_number_value(from);
+		return 0;
+	case JV_KIND_INVALID:
+		if (fallback != NULL) {
+			*to = *fallback;
+			return 0;
+		}
+		return -1;
+	default:
+		return -1;
+	}
+}
+
+static int
+_hb_jv_parse_boolean(jv from, bool *to, const bool *fallback)
+{
+	jv_kind kind;
+
+	kind = jv_get_kind(from);
+
+	switch (kind) {
+	case JV_KIND_FALSE:
+		*to = false;
+		return 0;
+	case JV_KIND_TRUE:
+		*to = true;
+		return 0;
+	case JV_KIND_INVALID:
+		if (NULL != fallback) {
+			*to = *fallback;
+			return 0;
+		}
+		return -1;
+	default:
+		return -1;
+	}
+}
+
+static int
+_hb_jv_parse_color(jv from, uint32_t *color, const uint32_t *fallback)
+{
+	jv_kind kind;
+	const char *color_str;
+	char *color_str_end;
+
+	kind = jv_get_kind(from);
+
+	if (kind == JV_KIND_INVALID) {
+		if (NULL != fallback) {
+			*color = *fallback;
+			return 0;
+		}
+		return -1;
+	}
+
+	if (kind == JV_KIND_STRING) {
+		color_str = jv_string_value(from);
+		if (!strcmp(color_str, "transparent")) *color = 0x00000000;
+		else {
+			*color = strtol(color_str, &color_str_end, 16);
+			if (color_str_end - color_str != 6 ||
+					color_str_end[1] != '\0')
+				return -1;
+		}
+		return 0;
+	}
+
+	if (kind == JV_KIND_ARRAY) {
+		if (jv_array_length(from) != 3)
+			return -1;
+		*color = 0xff << 24;
+		jv_array_foreach(from, index, value) {
+			if (jv_get_kind(value) != JV_KIND_NUMBER)
+				return -1;
+			*color |= ((int)(jv_number_value(value)) & 0xff) << (8*(2-index));
+		}
+		return 0;
+	}
+
+	return -1;
+}
+
+static int
+_hb_jv_parse_bg(jv from, struct hb_background **bg_ref)
+{
+	struct hb_background *bg;
+	const float zero = 0.0f;
+	const uint32_t def_color = 0xff718c5a;
+	jv_kind kind;
+
+	kind = jv_get_kind(from);
+
+	bg = *bg_ref = malloc(sizeof(struct hb_background));
+
+	bg->type = HB_BACKGROUND_TYPE_NONE;
+	bg->width = 0.0f;
+	bg->height = 0.0f;
+	bg->kick_off_radius = 0.0f;
+	bg->corner_radius = 0.0f;
+	bg->goal_line = 0.0f;
+	bg->color = 0xff718c5a;
+
+	if (kind == JV_KIND_INVALID)
+		return 0;
+	if (kind != JV_KIND_OBJECT)
+		return -1;
+
+	/////////////type
+	{
+		jv type;
+		char *type_str;
+		type = jv_object_get(jv_copy(from), jv_string("type"));
+		if (_hb_jv_parse_string(type, &type_str, "none") < 0)
+			return -1;
+		if (!strcmp(type_str, "none")) bg->type = HB_BACKGROUND_TYPE_NONE;
+		else if (!strcmp(type_str, "grass")) bg->type = HB_BACKGROUND_TYPE_GRASS;
+		else if (!strcmp(type_str, "hockey")) bg->type = HB_BACKGROUND_TYPE_HOCKEY;
+		else { free(type_str); return -1; }
+		free(type_str);
+	}
+
+	/////////////width & height
+	{
+		jv width, height;
+		width = jv_object_get(jv_copy(from), jv_string("width"));
+		height = jv_object_get(jv_copy(from), jv_string("height"));
+		if (_hb_jv_parse_number(width, &bg->width, &zero) < 0 ||
+				_hb_jv_parse_number(height, &bg->height, &zero) < 0)
+			return -1;
+	}
+
+	/////////////kickOffRadius
+	{
+		jv kick_off_radius;
+		kick_off_radius = jv_object_get(jv_copy(from), jv_string("kickOffRadius"));
+		if (_hb_jv_parse_number(kick_off_radius, &bg->kick_off_radius, &zero) < 0)
+			return -1;
+	}
+
+	/////////////cornerRadius
+	{
+		jv corner_radius;
+		corner_radius = jv_object_get(jv_copy(from), jv_string("cornerRadius"));
+		if (_hb_jv_parse_number(corner_radius, &bg->corner_radius, &zero) < 0)
+			return -1;
+	}
+
+	/////////////goalLine
+	{
+		jv goal_line;
+		goal_line = jv_object_get(jv_copy(from), jv_string("goalLine"));
+		if (_hb_jv_parse_number(goal_line, &bg->goal_line, &zero) < 0)
+			return -1;
+	}
+
+	/////////////color
+	{
+		jv color;
+		color = jv_object_get(jv_copy(from), jv_string("color"));
+		if (_hb_jv_parse_color(color, &bg->color, &def_color) < 0)
+			return -1;
+	}
+
+	return 0;
+}
+
 extern struct hb_stadium *
 hb_stadium_parse(const char *in)
 {
 	struct hb_stadium *s;
+	const float zero = 0.0f;
+	const bool _true = true;
 	jv root;
 
 	/////////////setup
@@ -319,385 +518,86 @@ hb_stadium_parse(const char *in)
 
 	/////////////name
 	{
-		jv            name;
-		jv_kind  name_kind;
-
+		jv name;
 		name = jv_object_get(jv_copy(root), jv_string("name"));
-		name_kind = jv_get_kind(name);
-
-		if (name_kind == JV_KIND_STRING) {
-			s->name = strdup(jv_string_value(name));
-		} else {
-			_err_unmatched_property_type("name", JV_KIND_STRING, name_kind);
+		if (_hb_jv_parse_string(name, &s->name, NULL) < 0)
 			goto err;
-		}
 	}
 
 	/////////////cameraWidth & cameraHeight
 	{
-		jv             camera_width;
-		jv            camera_height;
-		jv_kind   camera_width_kind;
-		jv_kind  camera_height_kind;
-
-		camera_width = jv_object_get(jv_copy(root), jv_string("cameraWidth"));
-		camera_height = jv_object_get(jv_copy(root), jv_string("cameraHeight"));
-
-		camera_width_kind = jv_get_kind(camera_width);
-		camera_height_kind = jv_get_kind(camera_height);
-
-		if (camera_width_kind == JV_KIND_NUMBER &&
-				camera_height_kind == JV_KIND_NUMBER) {
-			s->camera_width = jv_number_value(camera_width);
-			s->camera_height = jv_number_value(camera_height);
-		} else if (camera_width_kind != JV_KIND_INVALID) {
-			_err_unmatched_property_type("cameraWidth",
-					JV_KIND_NUMBER, camera_width_kind);
+		jv cam_width, cam_height;
+		cam_width = jv_object_get(jv_copy(root), jv_string("cameraWidth"));
+		cam_height = jv_object_get(jv_copy(root), jv_string("cameraHeight"));
+		if (_hb_jv_parse_number(cam_width, &s->camera_width, &zero) < 0
+				&& _hb_jv_parse_number(cam_height, &s->camera_height, &zero) < 0)
 			goto err;
-		} else if (camera_height_kind != JV_KIND_INVALID) {
-			_err_unmatched_property_type("cameraHeight",
-					JV_KIND_NUMBER, camera_height_kind);
-			goto err;
-		} else {
-			s->camera_width = s->camera_height = 0.0f;
-		}
 	}
 
 	/////////////maxViewWidth
 	{
-		jv             max_view_width;
-		jv_kind   max_view_width_kind;
-
+		jv max_view_width;
 		max_view_width = jv_object_get(jv_copy(root), jv_string("maxViewWidth"));
-		max_view_width_kind = jv_get_kind(max_view_width);
-
-		if (max_view_width_kind == JV_KIND_NUMBER) {
-			s->max_view_width = jv_number_value(max_view_width);
-		} else if (max_view_width_kind == JV_KIND_INVALID) {
-			s->max_view_width = 0.0f;
-		} else {
-			_err_unmatched_property_type("maxViewWidth",
-					JV_KIND_NUMBER, max_view_width_kind);
+		if (_hb_jv_parse_number(max_view_width, &s->max_view_width, &zero) < 0)
 			goto err;
-		}
 	}
 
 	/////////////cameraFollow
 	{
-		jv                  camera_follow;
-		jv_kind        camera_follow_kind;
-		const char     *camera_follow_str;
-
+		jv camera_follow;
+		char *camera_follow_str;
 		camera_follow = jv_object_get(jv_copy(root), jv_string("cameraFollow"));
-		camera_follow_kind = jv_get_kind(camera_follow);
-
-		if (camera_follow_kind == JV_KIND_STRING) {
-			camera_follow_str = jv_string_value(camera_follow);
-			if (!strcmp(camera_follow_str, "ball")) {
-				s->camera_follow = HB_CAMERA_FOLLOW_BALL;
-			} else if (!strcmp(camera_follow_str, "player")) {
-				s->camera_follow = HB_CAMERA_FOLLOW_PLAYER;
-			} else {
-				_err_unmatched_property_value("cameraFollow",
-						"[ball, player]", camera_follow_str);
-				goto err;
-			}
-		} else if (camera_follow_kind == JV_KIND_INVALID) {
+		if (_hb_jv_parse_string(camera_follow, &camera_follow_str, "ball") < 0)
+			goto err;
+		if (!strcmp(camera_follow_str, "ball")) {
 			s->camera_follow = HB_CAMERA_FOLLOW_BALL;
+		} else if (!strcmp(camera_follow_str, "player")) {
+			s->camera_follow = HB_CAMERA_FOLLOW_PLAYER;
 		} else {
-			_err_unmatched_property_type("cameraFollow",
-					JV_KIND_STRING, camera_follow_kind);
 			goto err;
 		}
+		free(camera_follow_str);
 	}
 
 	/////////////spawnDistance
 	{
-		jv                  spawn_distance;
-		jv_kind        spawn_distance_kind;
-
+		jv spawn_distance;
 		spawn_distance = jv_object_get(jv_copy(root), jv_string("spawnDistance"));
-		spawn_distance_kind = jv_get_kind(spawn_distance);
-
-		if (spawn_distance_kind == JV_KIND_NUMBER) {
-			s->spawn_distance = jv_number_value(spawn_distance);
-		} else if (spawn_distance_kind == JV_KIND_INVALID) {
-			s->spawn_distance = 0.0f;
-		} else {
-			_err_unmatched_property_type("spawnDistance",
-					JV_KIND_NUMBER, spawn_distance_kind);
+		if (_hb_jv_parse_number(spawn_distance, &s->spawn_distance, &zero) < 0)
 			goto err;
-		}
 	}
 
 	/////////////canBeStored
 	{
-		jv                  can_be_stored;
-		jv_kind        can_be_stored_kind;
-
+		jv can_be_stored;
 		can_be_stored = jv_object_get(jv_copy(root), jv_string("canBeStored"));
-		can_be_stored_kind = jv_get_kind(can_be_stored);
-
-		if (can_be_stored_kind == JV_KIND_TRUE ||
-				can_be_stored_kind == JV_KIND_FALSE) {
-			s->can_be_stored = can_be_stored_kind == JV_KIND_TRUE;
-		} else if (can_be_stored_kind == JV_KIND_INVALID) {
-			s->can_be_stored = true;
-		} else {
-			_err_unmatched_property_value("canBeStored",
-					"[true, false]", jv_kind_name(can_be_stored_kind));
+		if (_hb_jv_parse_boolean(can_be_stored, &s->can_be_stored, &_true) < 0)
 			goto err;
-		}
 	}
 
 	/////////////kickOffReset
 	{
-		jv                  kick_off_reset;
-		jv_kind        kick_off_reset_kind;
-		const char     *kick_off_reset_str;
-
+		jv kick_off_reset;
+		char *kick_off_reset_str;
 		kick_off_reset = jv_object_get(jv_copy(root), jv_string("kickOffReset"));
-		kick_off_reset_kind = jv_get_kind(kick_off_reset);
-
-		if (kick_off_reset_kind == JV_KIND_STRING) {
-			kick_off_reset_str = jv_string_value(kick_off_reset);
-			if (!strcmp(kick_off_reset_str, "partial")) {
-				s->kick_off_reset = HB_KICK_OFF_RESET_PARTIAL;
-			} else if (!strcmp(kick_off_reset_str, "full")) {
-				s->kick_off_reset = HB_KICK_OFF_RESET_FULL;
-			} else {
-				_err_unmatched_property_value("kickOffReset",
-						"[partial, full]", kick_off_reset_str);
-				goto err;
-			}
-		} else if (kick_off_reset_kind == JV_KIND_INVALID) {
+		if (_hb_jv_parse_string(kick_off_reset, &kick_off_reset_str, "partial") < 0)
+			goto err;
+		if (!strcmp(kick_off_reset_str, "partial")) {
 			s->kick_off_reset = HB_KICK_OFF_RESET_PARTIAL;
+		} else if (!strcmp(kick_off_reset_str, "full")) {
+			s->kick_off_reset = HB_KICK_OFF_RESET_FULL;
 		} else {
-			_err_unmatched_property_type("kickOffReset",
-					JV_KIND_STRING, kick_off_reset_kind);
 			goto err;
 		}
+		free(kick_off_reset_str);
 	}
 
 	/////////////bg
 	{
-		jv                  bg;
-		jv_kind        bg_kind;
-
-		s->bg = malloc(sizeof(struct hb_background));
-
+		jv bg;
 		bg = jv_object_get(jv_copy(root), jv_string("bg"));
-		bg_kind = jv_get_kind(bg);
-
-		if (bg_kind == JV_KIND_OBJECT) {
-			/////////////type
-			{
-				jv                  type;
-				jv_kind        type_kind;
-				const char     *type_str;
-
-				type = jv_object_get(jv_copy(bg), jv_string("type"));
-				type_kind = jv_get_kind(type);
-
-				if (type_kind == JV_KIND_STRING) {
-					type_str = jv_string_value(type);
-					if (!strcmp(type_str, "none")) {
-						s->bg->type = HB_BACKGROUND_TYPE_NONE;
-					} else if (!strcmp(type_str, "grass")) {
-						s->bg->type = HB_BACKGROUND_TYPE_GRASS;
-					} else if (!strcmp(type_str, "hockey")) {
-						s->bg->type = HB_BACKGROUND_TYPE_HOCKEY;
-					} else {
-						_err_unmatched_property_value("bg.type",
-								"[none, grass, hockey]", type_str);
-						goto err;
-					}
-				} else if (type_kind == JV_KIND_INVALID) {
-					s->bg->type = HB_BACKGROUND_TYPE_NONE;
-				} else {
-					_err_unmatched_property_type("bg.type",
-							JV_KIND_STRING, type_kind);
-					goto err;
-				}
-			}
-
-			/////////////width
-			{
-				jv                  width;
-				jv_kind        width_kind;
-
-				width = jv_object_get(jv_copy(bg), jv_string("width"));
-				width_kind = jv_get_kind(width);
-
-				if (width_kind == JV_KIND_NUMBER) {
-					s->bg->width = jv_number_value(width);
-				} else if (width_kind == JV_KIND_INVALID) {
-					s->bg->width = 0.0f;
-				} else {
-					_err_unmatched_property_type("bg.width",
-							JV_KIND_NUMBER, width_kind);
-					goto err;
-				}
-			}
-
-			/////////////height
-			{
-				jv                  height;
-				jv_kind        height_kind;
-
-				height = jv_object_get(jv_copy(bg), jv_string("height"));
-				height_kind = jv_get_kind(height);
-
-				if (height_kind == JV_KIND_NUMBER) {
-					s->bg->height = jv_number_value(height);
-				} else if (height_kind == JV_KIND_INVALID) {
-					s->bg->height = 0.0f;
-				} else {
-					_err_unmatched_property_type("bg.height",
-							JV_KIND_NUMBER, height_kind);
-					goto err;
-				}
-			}
-
-			/////////////kickOffRadius
-			{
-				jv                  kick_off_radius;
-				jv_kind        kick_off_radius_kind;
-
-				kick_off_radius = jv_object_get(jv_copy(bg), jv_string("kickOffRadius"));
-				kick_off_radius_kind = jv_get_kind(kick_off_radius);
-
-				if (kick_off_radius_kind == JV_KIND_NUMBER) {
-					s->bg->kick_off_radius = jv_number_value(kick_off_radius);
-				} else if (kick_off_radius_kind == JV_KIND_INVALID) {
-					s->bg->kick_off_radius = 0.0f;
-				} else {
-					_err_unmatched_property_type("bg.kickOffRadius",
-							JV_KIND_NUMBER, kick_off_radius_kind);
-					goto err;
-				}
-			}
-
-			/////////////cornerRadius
-			{
-				jv                  corner_radius;
-				jv_kind        corner_radius_kind;
-
-				corner_radius = jv_object_get(jv_copy(bg), jv_string("cornerRadius"));
-				corner_radius_kind = jv_get_kind(corner_radius);
-
-				if (corner_radius_kind == JV_KIND_NUMBER) {
-					s->bg->corner_radius = jv_number_value(corner_radius);
-				} else if (corner_radius_kind == JV_KIND_INVALID) {
-					s->bg->corner_radius = 0.0f;
-				} else {
-					_err_unmatched_property_type("bg.cornerRadius",
-							JV_KIND_NUMBER, corner_radius_kind);
-					goto err;
-				}
-			}
-
-			/////////////goalLine
-			{
-				jv                  goal_line;
-				jv_kind        goal_line_kind;
-
-				goal_line = jv_object_get(jv_copy(bg), jv_string("goalLine"));
-				goal_line_kind = jv_get_kind(goal_line);
-
-				if (goal_line_kind == JV_KIND_NUMBER) {
-					s->bg->goal_line = jv_number_value(goal_line);
-				} else if (goal_line_kind == JV_KIND_INVALID) {
-					s->bg->goal_line = 0.0f;
-				} else {
-					_err_unmatched_property_type("bg.goalLine",
-							JV_KIND_NUMBER, goal_line_kind);
-					goto err;
-				}
-			}
-
-			/////////////color
-			{
-				jv                  color;
-				jv_kind        color_kind;
-				const char     *color_str;
-				char           *parse_end;
-				jv                r, g, b;
-				jv_kind            r_kind;
-				jv_kind            g_kind;
-				jv_kind            b_kind;
-				int               arr_len;
-
-				color = jv_object_get(jv_copy(bg), jv_string("color"));
-				color_kind = jv_get_kind(color);
-
-				if (color_kind == JV_KIND_STRING) {
-					color_str = jv_string_value(color);
-
-					if (!strcmp(color_str, "transparent")) {
-						s->bg->color = 0x00000000;
-					} else {
-						s->bg->color = strtol(color_str, &parse_end, 16);
-
-						if (parse_end - color_str != 6 ||
-								parse_end[1] != '\0') {
-							_err_unmatched_property_value("bg.color",
-									"RRGGBB", color_str);
-							goto err;
-						}
-					}
-				} else if (color_kind == JV_KIND_INVALID) {
-					s->bg->color = 0xff718c5a;
-				} else if (color_kind == JV_KIND_ARRAY) {
-					if (jv_array_length(color) == 3) {
-						r = jv_array_get(color, 0);
-						g = jv_array_get(color, 1);
-						b = jv_array_get(color, 2);
-
-						r_kind = jv_get_kind(r);
-						g_kind = jv_get_kind(g);
-						b_kind = jv_get_kind(b);
-
-						if (r_kind == JV_KIND_NUMBER &&
-								g_kind == JV_KIND_NUMBER &&
-								b_kind == JV_KIND_NUMBER) {
-							s->bg->color =
-								                     (0xff << 24) |
-								((int)(jv_number_value(r)) << 16) |
-								((int)(jv_number_value(g)) <<  8) |
-								((int)(jv_number_value(b)) <<  0);
-
-						} else {
-							// FIXME: convert the array to string in an error func
-							_err_unmatched_property_value("bg.color",
-									"[R, G, B]", "unknown");
-							goto err;
-						}
-					} else {
-						// FIXME: convert the array to string in an error func
-						_err_unmatched_property_value("bg.color",
-								"[R, G, B]", "unknown");
-						goto err;
-					}
-				} else {
-					_err_unmatched_property_type("bg.color",
-							JV_KIND_STRING, color_kind);
-					goto err;
-				}
-			}
-		} else if (bg_kind == JV_KIND_INVALID) {
-			s->bg->type = HB_BACKGROUND_TYPE_NONE;
-			s->bg->width = 0.0f;
-			s->bg->height = 0.0f;
-			s->bg->kick_off_radius = 0.0f;
-			s->bg->corner_radius = 0.0f;
-			s->bg->goal_line = 0.0f;
-			s->bg->color = 0xff718c5a;
-		} else {
-			_err_unmatched_property_type("bg",
-					JV_KIND_OBJECT, bg_kind);
+		if (_hb_jv_parse_bg(bg, &s->bg) < 0)
 			goto err;
-		}
 	}
 
 	/////////////traits
