@@ -458,6 +458,46 @@ _hb_jv_parse_vertex(jv from, struct hb_vertex *to, struct hb_trait **traits)
 	return 0;
 }
 
+static int
+_hb_jv_parse_segment(jv from, struct hb_segment *to,
+		struct hb_vertex **vertexes, struct hb_trait **traits)
+{
+	struct hb_trait *vertex_trait;
+	int num_vertexes;
+
+	num_vertexes = 0;
+	while (*vertexes) {
+		++num_vertexes;
+		++vertexes;
+	}
+
+	/////////////v0
+	{
+		jv v0;
+		float f;
+		v0 = jv_object_get(jv_copy(from), jv_string("v0"));
+		if (_hb_jv_parse_number(v0, &f, NULL) < 0)
+			return -1;
+		to->v0 = f;
+		if (to->v0 < 0 || to->v0 >= num_vertexes)
+			return -1;
+	}
+
+	/////////////v1
+	{
+		jv v1;
+		float f;
+		v1 = jv_object_get(jv_copy(from), jv_string("v1"));
+		if (_hb_jv_parse_number(v1, &f, NULL) < 0)
+			return -1;
+		to->v1 = f;
+		if (to->v1 < 0 || to->v1 >= num_vertexes)
+			return -1;
+	}
+
+	return 0;
+}
+
 extern struct hb_stadium *
 hb_stadium_parse(const char *in)
 {
@@ -609,6 +649,31 @@ hb_stadium_parse(const char *in)
 		}
 	}
 
+	/////////////segments
+	{
+		jv segments;
+		jv_kind segments_kind;
+		int segments_len;
+
+		segments = jv_object_get(jv_copy(root), jv_string("segments"));
+		segments_kind = jv_get_kind(segments);
+
+		if (segments_kind == JV_KIND_ARRAY) {
+			segments_len = jv_array_length(jv_copy(segments));
+			s->segments = calloc(segments_len + 1, sizeof(struct hb_segment *));
+
+			jv_array_foreach(segments, index, segment) {
+				s->segments[index] = calloc(1, sizeof(struct hb_segment));
+				if (_hb_jv_parse_segment(segment, s->segments[index], s->vertexes, s->traits) < 0)
+					goto err;
+			}
+		} else if (segments_kind == JV_KIND_INVALID) {
+			s->segments = calloc(1, sizeof(struct hb_segment *));
+		} else {
+			goto err;
+		}
+	}
+
 	jv_free(root);
 	return s;
 
@@ -713,11 +778,19 @@ _hb_vertex_print(int index, struct hb_vertex *v)
 	printf("Vertex[%d].cMask: %d\n", index, v->c_mask);
 }
 
+static void
+_hb_segment_print(int index, struct hb_segment *s)
+{
+	printf("Segment[%d].v0: %d\n", index, s->v0);
+	printf("Segment[%d].v1: %d\n", index, s->v1);
+}
+
 extern const char *
 hb_stadium_print(struct hb_stadium *s)
 {
 	struct hb_trait **trait;
 	struct hb_vertex **vertex;
+	struct hb_segment **segment;
 
 	printf("Name: %s\n", s->name);
 	printf("CameraWidth: %.2f\n", s->camera_width);
@@ -740,6 +813,9 @@ hb_stadium_print(struct hb_stadium *s)
 
 	for (vertex = s->vertexes; *vertex; ++vertex)
 		_hb_vertex_print(vertex - s->vertexes, *vertex);
+
+	for (segment = s->segments; *segment; ++segment)
+		_hb_segment_print(segment - s->segments, *segment);
 }
 
 int

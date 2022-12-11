@@ -76,6 +76,18 @@ struct hb_vertex {
 	enum hb_collision_flags          c_mask;
 };
 
+struct hb_segment {
+	int                                  v0;
+	int                                  v1;
+	float                            b_coef;
+	float                             curve;
+	float                              bias;
+	enum hb_collision_flags         c_group;
+	enum hb_collision_flags          c_mask;
+	bool                                vis;
+	uint32_t                          color;
+};
+
 struct hb_stadium {
 	char                              *name;
 	float                      camera_width;
@@ -88,6 +100,7 @@ struct hb_stadium {
 	struct hb_background                *bg;
 	struct hb_trait                **traits;
 	struct hb_vertex             **vertexes;
+	struct hb_segment            **segments;
 };
 
 extern struct hb_stadium *
