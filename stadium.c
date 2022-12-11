@@ -430,6 +430,38 @@ hb_stadium_parse(const char *in)
 		}
 	}
 
+	/////////////traits
+	{
+		jv                  traits;
+		jv_kind        traits_kind;
+		int             traits_len;
+		int            trait_index;
+
+		traits = jv_object_get(jv_copy(root), jv_string("traits"));
+		traits_kind = jv_get_kind(traits);
+
+		if (traits_kind == JV_KIND_OBJECT) {
+			trait_index = 0;
+			traits_len = jv_object_length(jv_copy(traits));
+			s->traits = calloc(traits_len + 1, sizeof(struct hb_trait *));
+
+			jv_object_foreach(traits, key, value) {
+				s->traits[trait_index] = calloc(1, sizeof(struct hb_trait));
+				s->traits[trait_index]->name = strdup(jv_string_value(key));
+
+				// TODO: parse all traits properties
+
+				trait_index++;
+			}
+		} else if (traits_kind == JV_KIND_INVALID) {
+			s->traits = calloc(1, sizeof(struct hb_trait *));
+		} else {
+			_err_unmatched_property_type("traits",
+					JV_KIND_OBJECT, traits_kind);
+			goto err;
+		}
+	}
+
 	jv_free(root);
 	return s;
 
