@@ -261,7 +261,7 @@ _hb_jv_parse_trait(jv from, struct hb_trait *trait)
 	{
 		jv curve;
 		curve = jv_object_get(jv_copy(from), jv_string("curve"));
-		if (jv_get_kind(curve) == JV_KIND_NUMBER) {
+		if (jv_get_kind(curve) != JV_KIND_INVALID) {
 			if (_hb_jv_parse_number(curve, &trait->curve, NULL) < 0)
 				return -1;
 			trait->has_curve = true;
@@ -272,7 +272,7 @@ _hb_jv_parse_trait(jv from, struct hb_trait *trait)
 	{
 		jv damping;
 		damping = jv_object_get(jv_copy(from), jv_string("damping"));
-		if (jv_get_kind(damping) == JV_KIND_NUMBER) {
+		if (jv_get_kind(damping) != JV_KIND_INVALID) {
 			if (_hb_jv_parse_number(damping, &trait->damping, NULL) < 0)
 				return -1;
 			trait->has_damping = true;
@@ -283,7 +283,7 @@ _hb_jv_parse_trait(jv from, struct hb_trait *trait)
 	{
 		jv inv_mass;
 		inv_mass = jv_object_get(jv_copy(from), jv_string("invMass"));
-		if (jv_get_kind(inv_mass) == JV_KIND_NUMBER) {
+		if (jv_get_kind(inv_mass) != JV_KIND_INVALID) {
 			if (_hb_jv_parse_number(inv_mass, &trait->inv_mass, NULL) < 0)
 				return -1;
 			trait->has_inv_mass = true;
@@ -294,7 +294,7 @@ _hb_jv_parse_trait(jv from, struct hb_trait *trait)
 	{
 		jv radius;
 		radius = jv_object_get(jv_copy(from), jv_string("radius"));
-		if (jv_get_kind(radius) == JV_KIND_NUMBER) {
+		if (jv_get_kind(radius) != JV_KIND_INVALID) {
 			if (_hb_jv_parse_number(radius, &trait->radius, NULL) < 0)
 				return -1;
 			trait->has_radius = true;
@@ -305,7 +305,7 @@ _hb_jv_parse_trait(jv from, struct hb_trait *trait)
 	{
 		jv b_coef;
 		b_coef = jv_object_get(jv_copy(from), jv_string("bCoef"));
-		if (jv_get_kind(b_coef) == JV_KIND_NUMBER) {
+		if (jv_get_kind(b_coef) != JV_KIND_INVALID) {
 			if (_hb_jv_parse_number(b_coef, &trait->b_coef, NULL) < 0)
 				return -1;
 			trait->has_b_coef = true;
@@ -316,8 +316,7 @@ _hb_jv_parse_trait(jv from, struct hb_trait *trait)
 	{
 		jv color;
 		color = jv_object_get(jv_copy(from), jv_string("color"));
-		if (jv_get_kind(color) == JV_KIND_STRING ||
-				jv_get_kind(color) == JV_KIND_ARRAY) {
+		if (jv_get_kind(color) != JV_KIND_INVALID) {
 			if (_hb_jv_parse_color(color, &trait->color, NULL) < 0)
 				return -1;
 			trait->has_color = true;
@@ -337,7 +336,7 @@ _hb_jv_parse_trait(jv from, struct hb_trait *trait)
 	{
 		jv c_group;
 		c_group = jv_object_get(jv_copy(from), jv_string("cGroup"));
-		if (jv_get_kind(c_group) == JV_KIND_ARRAY) {
+		if (jv_get_kind(c_group) != JV_KIND_INVALID) {
 			if (_hb_jv_parse_collision_flags(c_group, &trait->c_group, NULL) < 0)
 				return -1;
 			trait->has_c_group = true;
@@ -348,7 +347,7 @@ _hb_jv_parse_trait(jv from, struct hb_trait *trait)
 	{
 		jv c_mask;
 		c_mask = jv_object_get(jv_copy(from), jv_string("cMask"));
-		if (jv_get_kind(c_mask) == JV_KIND_ARRAY) {
+		if (jv_get_kind(c_mask) != JV_KIND_INVALID) {
 			if (_hb_jv_parse_collision_flags(c_mask, &trait->c_mask, NULL) < 0)
 				return -1;
 			trait->has_c_mask = true;
