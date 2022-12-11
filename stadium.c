@@ -5,6 +5,10 @@
 #include <string.h>
 #include <jv.h>
 
+static const float      HB_F_ZERO         = 0.0f;
+static const bool       HB_B_TRUE         = true;
+static const uint32_t   HB_COLOR_DEFAULT  = 0xff718c5a;
+
 static long
 _get_file_size(FILE *fp)
 {
@@ -119,8 +123,6 @@ _hb_jv_parse_color(jv from, uint32_t *color, const uint32_t *fallback)
 static int
 _hb_jv_parse_bg(jv from, struct hb_background *bg)
 {
-	const float zero = 0.0f;
-	const uint32_t def_color = 0xff718c5a;
 	jv_kind kind;
 
 	kind = jv_get_kind(from);
@@ -157,8 +159,8 @@ _hb_jv_parse_bg(jv from, struct hb_background *bg)
 		jv width, height;
 		width = jv_object_get(jv_copy(from), jv_string("width"));
 		height = jv_object_get(jv_copy(from), jv_string("height"));
-		if (_hb_jv_parse_number(width, &bg->width, &zero) < 0 ||
-				_hb_jv_parse_number(height, &bg->height, &zero) < 0)
+		if (_hb_jv_parse_number(width, &bg->width, &HB_F_ZERO) < 0 ||
+				_hb_jv_parse_number(height, &bg->height, &HB_F_ZERO) < 0)
 			return -1;
 	}
 
@@ -166,7 +168,7 @@ _hb_jv_parse_bg(jv from, struct hb_background *bg)
 	{
 		jv kick_off_radius;
 		kick_off_radius = jv_object_get(jv_copy(from), jv_string("kickOffRadius"));
-		if (_hb_jv_parse_number(kick_off_radius, &bg->kick_off_radius, &zero) < 0)
+		if (_hb_jv_parse_number(kick_off_radius, &bg->kick_off_radius, &HB_F_ZERO) < 0)
 			return -1;
 	}
 
@@ -174,7 +176,7 @@ _hb_jv_parse_bg(jv from, struct hb_background *bg)
 	{
 		jv corner_radius;
 		corner_radius = jv_object_get(jv_copy(from), jv_string("cornerRadius"));
-		if (_hb_jv_parse_number(corner_radius, &bg->corner_radius, &zero) < 0)
+		if (_hb_jv_parse_number(corner_radius, &bg->corner_radius, &HB_F_ZERO) < 0)
 			return -1;
 	}
 
@@ -182,7 +184,7 @@ _hb_jv_parse_bg(jv from, struct hb_background *bg)
 	{
 		jv goal_line;
 		goal_line = jv_object_get(jv_copy(from), jv_string("goalLine"));
-		if (_hb_jv_parse_number(goal_line, &bg->goal_line, &zero) < 0)
+		if (_hb_jv_parse_number(goal_line, &bg->goal_line, &HB_F_ZERO) < 0)
 			return -1;
 	}
 
@@ -190,7 +192,7 @@ _hb_jv_parse_bg(jv from, struct hb_background *bg)
 	{
 		jv color;
 		color = jv_object_get(jv_copy(from), jv_string("color"));
-		if (_hb_jv_parse_color(color, &bg->color, &def_color) < 0)
+		if (_hb_jv_parse_color(color, &bg->color, &HB_COLOR_DEFAULT) < 0)
 			return -1;
 	}
 
@@ -361,8 +363,6 @@ extern struct hb_stadium *
 hb_stadium_parse(const char *in)
 {
 	struct hb_stadium *s;
-	const float zero = 0.0f;
-	const bool _true = true;
 	jv root;
 
 	/////////////setup
@@ -385,8 +385,8 @@ hb_stadium_parse(const char *in)
 		jv cam_width, cam_height;
 		cam_width = jv_object_get(jv_copy(root), jv_string("cameraWidth"));
 		cam_height = jv_object_get(jv_copy(root), jv_string("cameraHeight"));
-		if (_hb_jv_parse_number(cam_width, &s->camera_width, &zero) < 0
-				&& _hb_jv_parse_number(cam_height, &s->camera_height, &zero) < 0)
+		if (_hb_jv_parse_number(cam_width, &s->camera_width, &HB_F_ZERO) < 0
+				&& _hb_jv_parse_number(cam_height, &s->camera_height, &HB_F_ZERO) < 0)
 			goto err;
 	}
 
@@ -394,7 +394,7 @@ hb_stadium_parse(const char *in)
 	{
 		jv max_view_width;
 		max_view_width = jv_object_get(jv_copy(root), jv_string("maxViewWidth"));
-		if (_hb_jv_parse_number(max_view_width, &s->max_view_width, &zero) < 0)
+		if (_hb_jv_parse_number(max_view_width, &s->max_view_width, &HB_F_ZERO) < 0)
 			goto err;
 	}
 
@@ -419,7 +419,7 @@ hb_stadium_parse(const char *in)
 	{
 		jv spawn_distance;
 		spawn_distance = jv_object_get(jv_copy(root), jv_string("spawnDistance"));
-		if (_hb_jv_parse_number(spawn_distance, &s->spawn_distance, &zero) < 0)
+		if (_hb_jv_parse_number(spawn_distance, &s->spawn_distance, &HB_F_ZERO) < 0)
 			goto err;
 	}
 
@@ -427,7 +427,7 @@ hb_stadium_parse(const char *in)
 	{
 		jv can_be_stored;
 		can_be_stored = jv_object_get(jv_copy(root), jv_string("canBeStored"));
-		if (_hb_jv_parse_boolean(can_be_stored, &s->can_be_stored, &_true) < 0)
+		if (_hb_jv_parse_boolean(can_be_stored, &s->can_be_stored, &HB_B_TRUE) < 0)
 			goto err;
 	}
 
