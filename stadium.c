@@ -19,294 +19,6 @@ _get_file_size(FILE *fp)
 	return file_size;
 }
 
-static void
-_err_unmatched_property_type(const char *prop_name,
-                             jv_kind expected, jv_kind got)
-{
-	fprintf(stderr, "hb_stadium: unmatched type "
-		"for property \"%s\" expected %s got %s\n",
-		prop_name, jv_kind_name(expected), jv_kind_name(got));
-}
-
-static void
-_err_unmatched_property_value(const char *prop_name,
-                              const char *valid_values, const char *got_value)
-{
-	fprintf(stderr, "hb_stadium: unmatched value "
-		"for property \"%s\" expected %s got %s\n",
-		prop_name, valid_values, got_value);
-}
-
-static int
-_hb_collision_flags_parse(const char *str, enum hb_collision_flags *flags)
-{
-	if (!strcmp(str, "ball")) *flags = HB_COLLISION_BALL;
-	else if (!strcmp(str, "red")) *flags = HB_COLLISION_RED;
-	else if (!strcmp(str, "blue")) *flags = HB_COLLISION_BLUE;
-	else if (!strcmp(str, "redKO")) *flags = HB_COLLISION_RED_KO;
-	else if (!strcmp(str, "blueKO")) *flags = HB_COLLISION_BLUE_KO;
-	else if (!strcmp(str, "wall")) *flags = HB_COLLISION_WALL;
-	else if (!strcmp(str, "all")) *flags = HB_COLLISION_ALL;
-	else if (!strcmp(str, "kick")) *flags = HB_COLLISION_KICK;
-	else if (!strcmp(str, "score")) *flags = HB_COLLISION_SCORE;
-	else if (!strcmp(str, "c0")) *flags = HB_COLLISION_C0;
-	else if (!strcmp(str, "c1")) *flags = HB_COLLISION_C1;
-	else if (!strcmp(str, "c2")) *flags = HB_COLLISION_C2;
-	else if (!strcmp(str, "c3")) *flags = HB_COLLISION_C3;
-	else {
-		_err_unmatched_property_value("collision_flags",
-				"<collision_flags>", str);
-		return -1;
-	}
-
-	return 0;
-}
-
-static int
-_hb_trait_parse(jv root, struct hb_trait *trait)
-{
-	/////////////curve
-	{
-		jv             curve;
-		jv_kind   curve_kind;
-
-		curve = jv_object_get(jv_copy(root), jv_string("curve"));
-		curve_kind = jv_get_kind(curve);
-
-		if (curve_kind == JV_KIND_NUMBER) {
-			trait->has_curve = true;
-			trait->curve = jv_number_value(curve);
-		} else if (curve_kind != JV_KIND_INVALID) {
-			_err_unmatched_property_type("trait.curve",
-					JV_KIND_NUMBER, curve_kind);
-			return -1;
-		}
-	}
-
-	/////////////damping
-	{
-		jv             damping;
-		jv_kind   damping_kind;
-
-		damping = jv_object_get(jv_copy(root), jv_string("damping"));
-		damping_kind = jv_get_kind(damping);
-
-		if (damping_kind == JV_KIND_NUMBER) {
-			trait->has_damping = true;
-			trait->damping = jv_number_value(damping);
-		} else if (damping_kind != JV_KIND_INVALID) {
-			_err_unmatched_property_type("trait.damping",
-					JV_KIND_NUMBER, damping_kind);
-			return -1;
-		}
-	}
-
-	/////////////invMass
-	{
-		jv             inv_mass;
-		jv_kind   inv_mass_kind;
-
-		inv_mass = jv_object_get(jv_copy(root), jv_string("invMass"));
-		inv_mass_kind = jv_get_kind(inv_mass);
-
-		if (inv_mass_kind == JV_KIND_NUMBER) {
-			trait->has_inv_mass = true;
-			trait->inv_mass = jv_number_value(inv_mass);
-		} else if (inv_mass_kind != JV_KIND_INVALID) {
-			_err_unmatched_property_type("trait.invMass",
-					JV_KIND_NUMBER, inv_mass_kind);
-			return -1;
-		}
-	}
-
-	/////////////radius
-	{
-		jv             radius;
-		jv_kind   radius_kind;
-
-		radius = jv_object_get(jv_copy(root), jv_string("radius"));
-		radius_kind = jv_get_kind(radius);
-
-		if (radius_kind == JV_KIND_NUMBER) {
-			trait->has_radius = true;
-			trait->radius = jv_number_value(radius);
-		} else if (radius_kind != JV_KIND_INVALID) {
-			_err_unmatched_property_type("trait.radius",
-					JV_KIND_NUMBER, radius_kind);
-			return -1;
-		}
-	}
-
-	/////////////bCoef
-	{
-		jv             b_coef;
-		jv_kind   b_coef_kind;
-
-		b_coef = jv_object_get(jv_copy(root), jv_string("bCoef"));
-		b_coef_kind = jv_get_kind(b_coef);
-
-		if (b_coef_kind == JV_KIND_NUMBER) {
-			trait->has_b_coef = true;
-			trait->b_coef = jv_number_value(b_coef);
-		} else if (b_coef_kind != JV_KIND_INVALID) {
-			_err_unmatched_property_type("trait.bCoef",
-					JV_KIND_NUMBER, b_coef_kind);
-			return -1;
-		}
-	}
-
-	/////////////color
-	{
-		jv                  color;
-		jv_kind        color_kind;
-		const char     *color_str;
-		char           *parse_end;
-		jv                r, g, b;
-		jv_kind            r_kind;
-		jv_kind            g_kind;
-		jv_kind            b_kind;
-		int               arr_len;
-
-		color = jv_object_get(jv_copy(root), jv_string("color"));
-		color_kind = jv_get_kind(color);
-
-		if (color_kind == JV_KIND_STRING) {
-			color_str = jv_string_value(color);
-
-			if (!strcmp(color_str, "transparent")) {
-				trait->has_color = true;
-				trait->color = 0x00000000;
-			} else {
-				trait->color = strtol(color_str, &parse_end, 16);
-
-				if (parse_end - color_str != 6 ||
-						parse_end[1] != '\0') {
-					_err_unmatched_property_value("trait.color",
-							"RRGGBB", color_str);
-					return -1;
-				}
-
-				trait->has_color = true;
-			}
-		} else if (color_kind == JV_KIND_ARRAY) {
-			if (jv_array_length(color) == 3) {
-				r = jv_array_get(color, 0);
-				g = jv_array_get(color, 1);
-				b = jv_array_get(color, 2);
-
-				r_kind = jv_get_kind(r);
-				g_kind = jv_get_kind(g);
-				b_kind = jv_get_kind(b);
-
-				if (r_kind == JV_KIND_NUMBER &&
-						g_kind == JV_KIND_NUMBER &&
-						b_kind == JV_KIND_NUMBER) {
-					trait->has_color = true;
-					trait->color =
-											 (0xff << 24) |
-						((int)(jv_number_value(r)) << 16) |
-						((int)(jv_number_value(g)) <<  8) |
-						((int)(jv_number_value(b)) <<  0);
-
-				} else {
-					// FIXME: convert the array to string in an error func
-					_err_unmatched_property_value("trait.color",
-							"[R, G, B]", "unknown");
-					return -1;
-				}
-			} else {
-				// FIXME: convert the array to string in an error func
-				_err_unmatched_property_value("trait.color",
-						"[R, G, B]", "unknown");
-				return -1;
-			}
-		} else if (color_kind != JV_KIND_INVALID) {
-			_err_unmatched_property_value("trait.color",
-					"[R, G, B]", "unknown");
-			return -1;
-		}
-	}
-
-	/////////////vis
-	{
-		jv             vis;
-		jv_kind   vis_kind;
-
-		vis = jv_object_get(jv_copy(root), jv_string("vis"));
-		vis_kind = jv_get_kind(vis);
-
-		if (vis_kind == JV_KIND_TRUE ||
-				vis_kind == JV_KIND_FALSE) {
-			trait->has_vis = true;
-			trait->vis = vis_kind == JV_KIND_TRUE;
-		} else if (vis_kind != JV_KIND_INVALID) {
-			_err_unmatched_property_value("trait.vis",
-					"[true, false]", jv_kind_name(vis_kind));
-			return -1;
-		}
-	}
-
-	/////////////cGroup
-	{
-		jv                               c_group;
-		jv_kind                     c_group_kind;
-		enum hb_collision_flags      c_group_val;
-
-		c_group = jv_object_get(jv_copy(root), jv_string("cGroup"));
-		c_group_kind = jv_get_kind(c_group);
-
-		if (c_group_kind == JV_KIND_ARRAY) {
-			jv_array_foreach(c_group, idx, value) {
-				if (jv_get_kind(value) == JV_KIND_STRING) {
-					if (_hb_collision_flags_parse(jv_string_value(value), &c_group_val) < 0)
-						return -1;
-					trait->has_c_group = true;
-					trait->c_group |= c_group_val;
-				} else {
-					_err_unmatched_property_value("trait.cGroup",
-							"[collision_flags...]", jv_kind_name(c_group_kind));
-					return -1;
-				}
-			}
-		} else if (c_group_kind != JV_KIND_INVALID) {
-			_err_unmatched_property_value("trait.cGroup",
-					"[collision_flags...]", jv_kind_name(c_group_kind));
-			return -1;
-		}
-	}
-
-	/////////////cMask
-	{
-		jv                               c_mask;
-		jv_kind                     c_mask_kind;
-		enum hb_collision_flags      c_mask_val;
-
-		c_mask = jv_object_get(jv_copy(root), jv_string("cMask"));
-		c_mask_kind = jv_get_kind(c_mask);
-
-		if (c_mask_kind == JV_KIND_ARRAY) {
-			jv_array_foreach(c_mask, idx, value) {
-				if (jv_get_kind(value) == JV_KIND_STRING) {
-					if (_hb_collision_flags_parse(jv_string_value(value), &c_mask_val) < 0)
-						return -1;
-					trait->has_c_mask = true;
-					trait->c_mask |= c_mask_val;
-				} else {
-					_err_unmatched_property_value("trait.cMask",
-							"[collision_flags...]", jv_kind_name(c_mask_kind));
-					return -1;
-				}
-			}
-		} else if (c_mask_kind != JV_KIND_INVALID) {
-			_err_unmatched_property_value("trait.cMask",
-					"[collision_flags...]", jv_kind_name(c_mask_kind));
-			return -1;
-		}
-	}
-
-	return 0;
-}
-
 static int
 _hb_jv_parse_string(jv from, char **to, const char *fallback)
 {
@@ -421,16 +133,13 @@ _hb_jv_parse_color(jv from, uint32_t *color, const uint32_t *fallback)
 }
 
 static int
-_hb_jv_parse_bg(jv from, struct hb_background **bg_ref)
+_hb_jv_parse_bg(jv from, struct hb_background *bg)
 {
-	struct hb_background *bg;
 	const float zero = 0.0f;
 	const uint32_t def_color = 0xff718c5a;
 	jv_kind kind;
 
 	kind = jv_get_kind(from);
-
-	bg = *bg_ref = malloc(sizeof(struct hb_background));
 
 	bg->type = HB_BACKGROUND_TYPE_NONE;
 	bg->width = 0.0f;
@@ -499,6 +208,166 @@ _hb_jv_parse_bg(jv from, struct hb_background **bg_ref)
 		color = jv_object_get(jv_copy(from), jv_string("color"));
 		if (_hb_jv_parse_color(color, &bg->color, &def_color) < 0)
 			return -1;
+	}
+
+	return 0;
+}
+
+static int
+_hb_jv_parse_collision_flag(jv from, enum hb_collision_flags *flag)
+{
+	jv_kind kind;
+	const char *str;
+	kind = jv_get_kind(from);
+	if (kind != JV_KIND_STRING) return -1;
+	str = jv_string_value(from);
+	if (!strcmp(str, "ball")) *flag = HB_COLLISION_BALL;
+	else if (!strcmp(str, "red")) *flag = HB_COLLISION_RED;
+	else if (!strcmp(str, "blue")) *flag = HB_COLLISION_BLUE;
+	else if (!strcmp(str, "redKO")) *flag = HB_COLLISION_RED_KO;
+	else if (!strcmp(str, "blueKO")) *flag = HB_COLLISION_BLUE_KO;
+	else if (!strcmp(str, "wall")) *flag = HB_COLLISION_WALL;
+	else if (!strcmp(str, "all")) *flag = HB_COLLISION_ALL;
+	else if (!strcmp(str, "kick")) *flag = HB_COLLISION_KICK;
+	else if (!strcmp(str, "score")) *flag = HB_COLLISION_SCORE;
+	else if (!strcmp(str, "c0")) *flag = HB_COLLISION_C0;
+	else if (!strcmp(str, "c1")) *flag = HB_COLLISION_C1;
+	else if (!strcmp(str, "c2")) *flag = HB_COLLISION_C2;
+	else if (!strcmp(str, "c3")) *flag = HB_COLLISION_C3;
+	else return -1;
+	return 0;
+}
+
+static int
+_hb_jv_parse_collision_flags(jv from, enum hb_collision_flags *cf,
+		const enum hb_collision_flags *fallback)
+{
+	jv_kind kind;
+	enum hb_collision_flags flag;
+	kind = jv_get_kind(from);
+	if (kind == JV_KIND_INVALID) {
+		if (NULL != fallback) {
+			*cf = *fallback;
+			return 0;
+		}
+		return -1;
+	}
+	if (kind != JV_KIND_ARRAY)
+		return -1;
+	jv_array_foreach(from, index, value) {
+		if (_hb_jv_parse_collision_flag(value, &flag) < 0)
+			return -1;
+		*cf |= flag;
+	}
+	return 0;
+}
+
+static int
+_hb_jv_parse_trait(jv from, struct hb_trait *trait)
+{
+	jv_kind kind;
+
+	kind = jv_get_kind(from);
+
+	if (kind != JV_KIND_OBJECT)
+		return -1;
+
+	/////////////curve
+	{
+		jv curve;
+		curve = jv_object_get(jv_copy(from), jv_string("curve"));
+		if (jv_get_kind(curve) == JV_KIND_NUMBER) {
+			if (_hb_jv_parse_number(curve, &trait->curve, NULL) < 0)
+				return -1;
+			trait->has_curve = true;
+		}
+	}
+
+	/////////////damping
+	{
+		jv damping;
+		damping = jv_object_get(jv_copy(from), jv_string("damping"));
+		if (jv_get_kind(damping) == JV_KIND_NUMBER) {
+			if (_hb_jv_parse_number(damping, &trait->damping, NULL) < 0)
+				return -1;
+			trait->has_damping = true;
+		}
+	}
+
+	/////////////invMass
+	{
+		jv inv_mass;
+		inv_mass = jv_object_get(jv_copy(from), jv_string("invMass"));
+		if (jv_get_kind(inv_mass) == JV_KIND_NUMBER) {
+			if (_hb_jv_parse_number(inv_mass, &trait->inv_mass, NULL) < 0)
+				return -1;
+			trait->has_inv_mass = true;
+		}
+	}
+
+	/////////////radius
+	{
+		jv radius;
+		radius = jv_object_get(jv_copy(from), jv_string("radius"));
+		if (jv_get_kind(radius) == JV_KIND_NUMBER) {
+			if (_hb_jv_parse_number(radius, &trait->radius, NULL) < 0)
+				return -1;
+			trait->has_radius = true;
+		}
+	}
+
+	/////////////bCoef
+	{
+		jv b_coef;
+		b_coef = jv_object_get(jv_copy(from), jv_string("bCoef"));
+		if (jv_get_kind(b_coef) == JV_KIND_NUMBER) {
+			if (_hb_jv_parse_number(b_coef, &trait->b_coef, NULL) < 0)
+				return -1;
+			trait->has_b_coef = true;
+		}
+	}
+
+	/////////////color
+	{
+		jv color;
+		color = jv_object_get(jv_copy(from), jv_string("color"));
+		if (jv_get_kind(color) == JV_KIND_STRING ||
+				jv_get_kind(color) == JV_KIND_ARRAY) {
+			if (_hb_jv_parse_color(color, &trait->color, NULL) < 0)
+				return -1;
+			trait->has_color = true;
+		}
+	}
+
+	/////////////vis
+	{
+		jv vis;
+		vis = jv_object_get(jv_copy(from), jv_string("vis"));
+		trait->has_vis = jv_get_kind(vis) == JV_KIND_TRUE ||
+			jv_get_kind(vis) == JV_KIND_FALSE;
+		trait->vis = jv_get_kind(vis) == JV_KIND_TRUE;
+	}
+
+	/////////////cGroup
+	{
+		jv c_group;
+		c_group = jv_object_get(jv_copy(from), jv_string("cGroup"));
+		if (jv_get_kind(c_group) == JV_KIND_ARRAY) {
+			if (_hb_jv_parse_collision_flags(c_group, &trait->c_group, NULL) < 0)
+				return -1;
+			trait->has_c_group = true;
+		}
+	}
+
+	/////////////cMask
+	{
+		jv c_mask;
+		c_mask = jv_object_get(jv_copy(from), jv_string("cMask"));
+		if (jv_get_kind(c_mask) == JV_KIND_ARRAY) {
+			if (_hb_jv_parse_collision_flags(c_mask, &trait->c_mask, NULL) < 0)
+				return -1;
+			trait->has_c_mask = true;
+		}
 	}
 
 	return 0;
@@ -596,21 +465,21 @@ hb_stadium_parse(const char *in)
 	{
 		jv bg;
 		bg = jv_object_get(jv_copy(root), jv_string("bg"));
-		if (_hb_jv_parse_bg(bg, &s->bg) < 0)
+		s->bg = malloc(sizeof(struct hb_background));
+		if (_hb_jv_parse_bg(bg, s->bg) < 0)
 			goto err;
 	}
 
 	/////////////traits
 	{
-		jv                  traits;
-		jv_kind        traits_kind;
-		int             traits_len;
-		int            trait_index;
+		jv traits;
+		jv_kind traits_kind;
+		int traits_len;
+		int trait_index;
 
 		traits = jv_object_get(jv_copy(root), jv_string("traits"));
-		traits_kind = jv_get_kind(traits);
 
-		if (traits_kind == JV_KIND_OBJECT) {
+		if (jv_get_kind(traits) == JV_KIND_OBJECT) {
 			trait_index = 0;
 			traits_len = jv_object_length(jv_copy(traits));
 			s->traits = calloc(traits_len + 1, sizeof(struct hb_trait *));
@@ -618,15 +487,12 @@ hb_stadium_parse(const char *in)
 			jv_object_foreach(traits, key, value) {
 				s->traits[trait_index] = calloc(1, sizeof(struct hb_trait));
 				s->traits[trait_index]->name = strdup(jv_string_value(key));
-				if (_hb_trait_parse(value, s->traits[trait_index++]) < 0) {
+				if (_hb_jv_parse_trait(value, s->traits[trait_index++]) < 0)
 					goto err;
-				}
 			}
-		} else if (traits_kind == JV_KIND_INVALID) {
+		} else if (jv_get_kind(traits) == JV_KIND_INVALID) {
 			s->traits = calloc(1, sizeof(struct hb_trait *));
 		} else {
-			_err_unmatched_property_type("traits",
-					JV_KIND_OBJECT, traits_kind);
 			goto err;
 		}
 	}
