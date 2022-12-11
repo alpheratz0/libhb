@@ -38,6 +38,31 @@ _err_unmatched_property_value(const char *prop_name,
 }
 
 static int
+_hb_collision_flags_parse(const char *str, enum hb_collision_flags *flags)
+{
+	if (!strcmp(str, "ball")) *flags = HB_COLLISION_BALL;
+	else if (!strcmp(str, "red")) *flags = HB_COLLISION_RED;
+	else if (!strcmp(str, "blue")) *flags = HB_COLLISION_BLUE;
+	else if (!strcmp(str, "redKO")) *flags = HB_COLLISION_RED_KO;
+	else if (!strcmp(str, "blueKO")) *flags = HB_COLLISION_BLUE_KO;
+	else if (!strcmp(str, "wall")) *flags = HB_COLLISION_WALL;
+	else if (!strcmp(str, "all")) *flags = HB_COLLISION_ALL;
+	else if (!strcmp(str, "kick")) *flags = HB_COLLISION_KICK;
+	else if (!strcmp(str, "score")) *flags = HB_COLLISION_SCORE;
+	else if (!strcmp(str, "c0")) *flags = HB_COLLISION_C0;
+	else if (!strcmp(str, "c1")) *flags = HB_COLLISION_C1;
+	else if (!strcmp(str, "c2")) *flags = HB_COLLISION_C2;
+	else if (!strcmp(str, "c3")) *flags = HB_COLLISION_C3;
+	else {
+		_err_unmatched_property_value("collision_flags",
+				"<collision_flags>", str);
+		return -1;
+	}
+
+	return 0;
+}
+
+static int
 _hb_trait_parse(jv root, struct hb_trait *trait)
 {
 	/////////////curve
@@ -223,12 +248,60 @@ _hb_trait_parse(jv root, struct hb_trait *trait)
 
 	/////////////cGroup
 	{
-		// TODO: not implemented
+		jv                               c_group;
+		jv_kind                     c_group_kind;
+		enum hb_collision_flags      c_group_val;
+
+		c_group = jv_object_get(jv_copy(root), jv_string("cGroup"));
+		c_group_kind = jv_get_kind(c_group);
+
+		if (c_group_kind == JV_KIND_ARRAY) {
+			jv_array_foreach(c_group, idx, value) {
+				if (jv_get_kind(value) == JV_KIND_STRING) {
+					if (_hb_collision_flags_parse(jv_string_value(value), &c_group_val) < 0)
+						return -1;
+					trait->has_c_group = true;
+					trait->c_group |= c_group_val;
+				} else {
+					_err_unmatched_property_value("trait.cGroup",
+							"[collision_flags...]", jv_kind_name(c_group_kind));
+					return -1;
+				}
+			}
+		} else if (c_group_kind != JV_KIND_INVALID) {
+			_err_unmatched_property_value("trait.cGroup",
+					"[collision_flags...]", jv_kind_name(c_group_kind));
+			return -1;
+		}
 	}
 
 	/////////////cMask
 	{
-		// TODO: not implemented
+		jv                               c_mask;
+		jv_kind                     c_mask_kind;
+		enum hb_collision_flags      c_mask_val;
+
+		c_mask = jv_object_get(jv_copy(root), jv_string("cMask"));
+		c_mask_kind = jv_get_kind(c_mask);
+
+		if (c_mask_kind == JV_KIND_ARRAY) {
+			jv_array_foreach(c_mask, idx, value) {
+				if (jv_get_kind(value) == JV_KIND_STRING) {
+					if (_hb_collision_flags_parse(jv_string_value(value), &c_mask_val) < 0)
+						return -1;
+					trait->has_c_mask = true;
+					trait->c_mask |= c_mask_val;
+				} else {
+					_err_unmatched_property_value("trait.cMask",
+							"[collision_flags...]", jv_kind_name(c_mask_kind));
+					return -1;
+				}
+			}
+		} else if (c_mask_kind != JV_KIND_INVALID) {
+			_err_unmatched_property_value("trait.cMask",
+					"[collision_flags...]", jv_kind_name(c_mask_kind));
+			return -1;
+		}
 	}
 
 	return 0;
@@ -748,8 +821,8 @@ _hb_trait_print(struct hb_trait *t)
 	if (t->has_b_coef) printf("Trait[%s].bCoef: %.2f\n", t->name, t->b_coef);
 	if (t->has_color) printf("Trait[%s].color: %08x\n", t->name, t->color);
 	if (t->has_vis) printf("Trait[%s].vis: %s\n", t->name, _hb_bool_yes_no_to_string(t->vis));
-	/* if (t->has_c_group) printf("Trait::%s.cGroup: %.2f\n", t->name, t->c_group); */
-	/* if (t->has_c_mask) printf("Trait::%s.cMask: %.2f\n", t->name, t->c_mask); */
+	if (t->has_c_group) printf("Trait[%s].cGroup: %d\n", t->name, t->c_group);
+	if (t->has_c_mask) printf("Trait[%s].cMask: %d\n", t->name, t->c_mask);
 }
 
 extern const char *
