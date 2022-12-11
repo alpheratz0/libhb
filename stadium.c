@@ -462,7 +462,7 @@ static int
 _hb_jv_parse_segment(jv from, struct hb_segment *to,
 		struct hb_vertex **vertexes, struct hb_trait **traits)
 {
-	struct hb_trait *vertex_trait;
+	struct hb_trait *segment_trait;
 	int num_vertexes;
 
 	num_vertexes = 0;
@@ -492,6 +492,109 @@ _hb_jv_parse_segment(jv from, struct hb_segment *to,
 			return -1;
 		to->v1 = f;
 		if (to->v1 < 0 || to->v1 >= num_vertexes)
+			return -1;
+	}
+
+	/////////////trait
+	{
+		jv trait;
+		char *trait_name;
+		trait = jv_object_get(jv_copy(from), jv_string("trait"));
+		if (_hb_jv_parse_string(trait, &trait_name, "__no_trait__") < 0)
+			return -1;
+		if (!strcmp(trait_name, "__no_trait__"))
+			segment_trait = NULL;
+		else if (_hb_get_trait(traits, &segment_trait, trait_name) < 0) {
+			free(trait_name);
+			return -1;
+		}
+		free(trait_name);
+	}
+
+	/////////////bCoef
+	{
+		// FIXME: is bCoef required?
+		// FIXME: is bCoef required?
+		// FIXME: is bCoef required?
+		jv b_coef;
+		b_coef = jv_object_get(jv_copy(from), jv_string("bCoef"));
+		if (jv_get_kind(b_coef) == JV_KIND_INVALID) {
+			if (NULL == segment_trait || !segment_trait->has_b_coef)
+				return -1;
+			to->b_coef = segment_trait->b_coef;
+		} else {
+			if (_hb_jv_parse_number(b_coef, &to->b_coef, NULL) < 0)
+				return -1;
+		}
+	}
+
+	/////////////curve
+	{
+		jv curve;
+		curve = jv_object_get(jv_copy(from), jv_string("curve"));
+		if (_hb_jv_parse_number(curve, &to->curve, &HB_F_ZERO) < 0)
+			return -1;
+	}
+
+	/////////////bias
+	{
+		jv bias;
+		bias = jv_object_get(jv_copy(from), jv_string("bias"));
+		if (_hb_jv_parse_number(bias, &to->bias, &HB_F_ZERO) < 0)
+			return -1;
+	}
+
+	/////////////cGroup
+	{
+		// FIXME: is cGroup fallback/default value 0?
+		// FIXME: is cGroup fallback/default value 0?
+		// FIXME: is cGroup fallback/default value 0?
+		jv c_group;
+		enum hb_collision_flags fallback_c_group;
+		fallback_c_group = 0;
+		if (NULL != segment_trait && segment_trait->has_c_group)
+			fallback_c_group = segment_trait->c_group;
+		c_group = jv_object_get(jv_copy(from), jv_string("cGroup"));
+		if (_hb_jv_parse_collision_flags(c_group, &to->c_group, &fallback_c_group) < 0)
+			return -1;
+	}
+
+	/////////////cMask
+	{
+		// FIXME: is cMask fallback/default value 0?
+		// FIXME: is cMask fallback/default value 0?
+		// FIXME: is cMask fallback/default value 0?
+		jv c_mask;
+		enum hb_collision_flags fallback_c_mask;
+		fallback_c_mask = 0;
+		if (NULL != segment_trait && segment_trait->has_c_mask)
+			fallback_c_mask = segment_trait->c_mask;
+		c_mask = jv_object_get(jv_copy(from), jv_string("cMask"));
+		if (_hb_jv_parse_collision_flags(c_mask, &to->c_mask, &fallback_c_mask) < 0)
+			return -1;
+	}
+
+	/////////////vis
+	{
+		jv vis;
+		bool fallback_vis;
+		fallback_vis = true;
+		if (NULL != segment_trait && segment_trait->has_vis)
+			fallback_vis = segment_trait->vis;
+		vis = jv_object_get(jv_copy(from), jv_string("vis"));
+		if (_hb_jv_parse_boolean(vis, &to->vis, &fallback_vis) < 0)
+			return -1;
+	}
+
+	/////////////color
+	{
+		jv color;
+		uint32_t fallback_color;
+		fallback_color = 0xff000000;
+		if (NULL != segment_trait && segment_trait->has_color)
+			fallback_color = segment_trait->color;
+		color = jv_object_get(jv_copy(from), jv_string("color"));
+		if (_hb_jv_parse_color(color, &to->color, &fallback_color) < 0)
 			return -1;
 	}
 
@@ -783,6 +886,13 @@ _hb_segment_print(int index, struct hb_segment *s)
 {
 	printf("Segment[%d].v0: %d\n", index, s->v0);
 	printf("Segment[%d].v1: %d\n", index, s->v1);
+	printf("Segment[%d].bCoef: %.2f\n", index, s->b_coef);
+	printf("Segment[%d].curve: %.2f\n", index, s->curve);
+	printf("Segment[%d].bias: %.2f\n", index, s->bias);
+	printf("Segment[%d].cGroup: %d\n", index, s->c_group);
+	printf("Segment[%d].cMask: %d\n", index, s->c_mask);
+	printf("Segment[%d].vis: %s\n", index, _hb_bool_yes_no_to_string(s->vis));
+	printf("Segment[%d].color: %08x\n", index, s->color);
 }
 
 extern const char *
