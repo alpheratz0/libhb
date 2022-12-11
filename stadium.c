@@ -410,6 +410,9 @@ _hb_jv_parse_vertex(jv from, struct hb_vertex *to, struct hb_trait **traits)
 
 	/////////////bCoef
 	{
+		// FIXME: is bCoef required?
+		// FIXME: is bCoef required?
+		// FIXME: is bCoef required?
 		jv b_coef;
 		b_coef = jv_object_get(jv_copy(from), jv_string("bCoef"));
 		if (jv_get_kind(b_coef) == JV_KIND_INVALID) {
@@ -424,6 +427,9 @@ _hb_jv_parse_vertex(jv from, struct hb_vertex *to, struct hb_trait **traits)
 
 	/////////////cGroup
 	{
+		// FIXME: is cGroup fallback/default value 0?
+		// FIXME: is cGroup fallback/default value 0?
+		// FIXME: is cGroup fallback/default value 0?
 		jv c_group;
 		enum hb_collision_flags fallback_c_group;
 		fallback_c_group = 0;
@@ -436,6 +442,9 @@ _hb_jv_parse_vertex(jv from, struct hb_vertex *to, struct hb_trait **traits)
 
 	/////////////cMask
 	{
+		// FIXME: is cMask fallback/default value 0?
+		// FIXME: is cMask fallback/default value 0?
+		// FIXME: is cMask fallback/default value 0?
 		jv c_mask;
 		enum hb_collision_flags fallback_c_mask;
 		fallback_c_mask = 0;
