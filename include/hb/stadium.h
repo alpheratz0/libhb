@@ -30,6 +30,44 @@ struct hb_background {
 	uint32_t                          color;
 };
 
+enum hb_collision_flags {
+	HB_COLLISION_BALL =           1 << 0,
+	HB_COLLISION_RED =            1 << 1,
+	HB_COLLISION_BLUE =           1 << 2,
+	HB_COLLISION_RED_KO =         1 << 3,
+	HB_COLLISION_BLUE_KO =        1 << 4,
+	HB_COLLISION_WALL =           1 << 5,
+	HB_COLLISION_ALL =       (1 << 6) - 1,
+	HB_COLLISION_KICK =           1 << 6,
+	HB_COLLISION_SCORE =          1 << 7,
+	HB_COLLISION_C0 =            1 << 28,
+	HB_COLLISION_C1 =            1 << 29,
+	HB_COLLISION_C2 =            1 << 30,
+	HB_COLLISION_C3 =            1 << 31
+};
+
+struct hb_trait {
+	char                              *name;
+	bool                          has_curve;
+	float                             curve;
+	bool                        has_damping;
+	float                           damping;
+	bool                       has_inv_mass;
+	float                          inv_mass;
+	bool                         has_radius;
+	float                            radius;
+	bool                         has_b_coef;
+	float                            b_coef;
+	bool                          has_color;
+	uint32_t                          color;
+	bool                            has_vis;
+	bool                                vis;
+	bool                        has_c_group;
+	enum hb_collision_flags         c_group;
+	bool                         has_c_mask;
+	enum hb_collision_flags          c_mask;
+};
+
 struct hb_stadium {
 	char                              *name;
 	float                      camera_width;
@@ -40,6 +78,7 @@ struct hb_stadium {
 	bool                      can_be_stored;
 	enum hb_kick_off_reset   kick_off_reset;
 	struct hb_background                *bg;
+	struct hb_trait                **traits;
 };
 
 extern struct hb_stadium *
