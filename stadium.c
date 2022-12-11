@@ -37,6 +37,203 @@ _err_unmatched_property_value(const char *prop_name,
 		prop_name, valid_values, got_value);
 }
 
+static int
+_hb_trait_parse(jv root, struct hb_trait *trait)
+{
+	/////////////curve
+	{
+		jv             curve;
+		jv_kind   curve_kind;
+
+		curve = jv_object_get(jv_copy(root), jv_string("curve"));
+		curve_kind = jv_get_kind(curve);
+
+		if (curve_kind == JV_KIND_NUMBER) {
+			trait->has_curve = true;
+			trait->curve = jv_number_value(curve);
+		} else if (curve_kind != JV_KIND_INVALID) {
+			_err_unmatched_property_type("trait.curve",
+					JV_KIND_NUMBER, curve_kind);
+			return -1;
+		}
+	}
+
+	/////////////damping
+	{
+		jv             damping;
+		jv_kind   damping_kind;
+
+		damping = jv_object_get(jv_copy(root), jv_string("damping"));
+		damping_kind = jv_get_kind(damping);
+
+		if (damping_kind == JV_KIND_NUMBER) {
+			trait->has_damping = true;
+			trait->damping = jv_number_value(damping);
+		} else if (damping_kind != JV_KIND_INVALID) {
+			_err_unmatched_property_type("trait.damping",
+					JV_KIND_NUMBER, damping_kind);
+			return -1;
+		}
+	}
+
+	/////////////invMass
+	{
+		jv             inv_mass;
+		jv_kind   inv_mass_kind;
+
+		inv_mass = jv_object_get(jv_copy(root), jv_string("invMass"));
+		inv_mass_kind = jv_get_kind(inv_mass);
+
+		if (inv_mass_kind == JV_KIND_NUMBER) {
+			trait->has_inv_mass = true;
+			trait->inv_mass = jv_number_value(inv_mass);
+		} else if (inv_mass_kind != JV_KIND_INVALID) {
+			_err_unmatched_property_type("trait.invMass",
+					JV_KIND_NUMBER, inv_mass_kind);
+			return -1;
+		}
+	}
+
+	/////////////radius
+	{
+		jv             radius;
+		jv_kind   radius_kind;
+
+		radius = jv_object_get(jv_copy(root), jv_string("radius"));
+		radius_kind = jv_get_kind(radius);
+
+		if (radius_kind == JV_KIND_NUMBER) {
+			trait->has_radius = true;
+			trait->radius = jv_number_value(radius);
+		} else if (radius_kind != JV_KIND_INVALID) {
+			_err_unmatched_property_type("trait.radius",
+					JV_KIND_NUMBER, radius_kind);
+			return -1;
+		}
+	}
+
+	/////////////bCoef
+	{
+		jv             b_coef;
+		jv_kind   b_coef_kind;
+
+		b_coef = jv_object_get(jv_copy(root), jv_string("bCoef"));
+		b_coef_kind = jv_get_kind(b_coef);
+
+		if (b_coef_kind == JV_KIND_NUMBER) {
+			trait->has_b_coef = true;
+			trait->b_coef = jv_number_value(b_coef);
+		} else if (b_coef_kind != JV_KIND_INVALID) {
+			_err_unmatched_property_type("trait.bCoef",
+					JV_KIND_NUMBER, b_coef_kind);
+			return -1;
+		}
+	}
+
+	/////////////color
+	{
+		jv                  color;
+		jv_kind        color_kind;
+		const char     *color_str;
+		char           *parse_end;
+		jv                r, g, b;
+		jv_kind            r_kind;
+		jv_kind            g_kind;
+		jv_kind            b_kind;
+		int               arr_len;
+
+		color = jv_object_get(jv_copy(root), jv_string("color"));
+		color_kind = jv_get_kind(color);
+
+		if (color_kind == JV_KIND_STRING) {
+			color_str = jv_string_value(color);
+
+			if (!strcmp(color_str, "transparent")) {
+				trait->has_color = true;
+				trait->color = 0x00000000;
+			} else {
+				trait->color = strtol(color_str, &parse_end, 16);
+
+				if (parse_end - color_str != 6 ||
+						parse_end[1] != '\0') {
+					_err_unmatched_property_value("trait.color",
+							"RRGGBB", color_str);
+					return -1;
+				}
+
+				trait->has_color = true;
+			}
+		} else if (color_kind == JV_KIND_ARRAY) {
+			if (jv_array_length(color) == 3) {
+				r = jv_array_get(color, 0);
+				g = jv_array_get(color, 1);
+				b = jv_array_get(color, 2);
+
+				r_kind = jv_get_kind(r);
+				g_kind = jv_get_kind(g);
+				b_kind = jv_get_kind(b);
+
+				if (r_kind == JV_KIND_NUMBER &&
+						g_kind == JV_KIND_NUMBER &&
+						b_kind == JV_KIND_NUMBER) {
+					trait->has_color = true;
+					trait->color =
+											 (0xff << 24) |
+						((int)(jv_number_value(r)) << 16) |
+						((int)(jv_number_value(g)) <<  8) |
+						((int)(jv_number_value(b)) <<  0);
+
+				} else {
+					// FIXME: convert the array to string in an error func
+					_err_unmatched_property_value("trait.color",
+							"[R, G, B]", "unknown");
+					return -1;
+				}
+			} else {
+				// FIXME: convert the array to string in an error func
+				_err_unmatched_property_value("trait.color",
+						"[R, G, B]", "unknown");
+				return -1;
+			}
+		} else if (color_kind != JV_KIND_INVALID) {
+			_err_unmatched_property_value("trait.color",
+					"[R, G, B]", "unknown");
+			return -1;
+		}
+	}
+
+	/////////////vis
+	{
+		jv             vis;
+		jv_kind   vis_kind;
+
+		vis = jv_object_get(jv_copy(root), jv_string("vis"));
+		vis_kind = jv_get_kind(vis);
+
+		if (vis_kind == JV_KIND_TRUE ||
+				vis_kind == JV_KIND_FALSE) {
+			trait->has_vis = true;
+			trait->vis = vis_kind == JV_KIND_TRUE;
+		} else if (vis_kind != JV_KIND_INVALID) {
+			_err_unmatched_property_value("trait.vis",
+					"[true, false]", jv_kind_name(vis_kind));
+			return -1;
+		}
+	}
+
+	/////////////cGroup
+	{
+		// TODO: not implemented
+	}
+
+	/////////////cMask
+	{
+		// TODO: not implemented
+	}
+
+	return 0;
+}
+
 extern struct hb_stadium *
 hb_stadium_parse(const char *in)
 {
@@ -448,10 +645,9 @@ hb_stadium_parse(const char *in)
 			jv_object_foreach(traits, key, value) {
 				s->traits[trait_index] = calloc(1, sizeof(struct hb_trait));
 				s->traits[trait_index]->name = strdup(jv_string_value(key));
-
-				// TODO: parse all traits properties
-
-				trait_index++;
+				if (_hb_trait_parse(value, s->traits[trait_index++]) < 0) {
+					goto err;
+				}
 			}
 		} else if (traits_kind == JV_KIND_INVALID) {
 			s->traits = calloc(1, sizeof(struct hb_trait *));
@@ -542,9 +738,25 @@ _hb_background_type_to_string(enum hb_background_type bt)
 	}
 }
 
+static void
+_hb_trait_print(struct hb_trait *t)
+{
+	if (t->has_curve) printf("Trait[%s].curve: %.2f\n", t->name, t->curve);
+	if (t->has_damping) printf("Trait[%s].damping: %.2f\n", t->name, t->damping);
+	if (t->has_inv_mass) printf("Trait[%s].invMass: %.2f\n", t->name, t->inv_mass);
+	if (t->has_radius) printf("Trait[%s].radius: %.2f\n", t->name, t->radius);
+	if (t->has_b_coef) printf("Trait[%s].bCoef: %.2f\n", t->name, t->b_coef);
+	if (t->has_color) printf("Trait[%s].color: %08x\n", t->name, t->color);
+	if (t->has_vis) printf("Trait[%s].vis: %s\n", t->name, _hb_bool_yes_no_to_string(t->vis));
+	/* if (t->has_c_group) printf("Trait::%s.cGroup: %.2f\n", t->name, t->c_group); */
+	/* if (t->has_c_mask) printf("Trait::%s.cMask: %.2f\n", t->name, t->c_mask); */
+}
+
 extern const char *
 hb_stadium_print(struct hb_stadium *s)
 {
+	struct hb_trait **trait;
+
 	printf("Name: %s\n", s->name);
 	printf("CameraWidth: %.2f\n", s->camera_width);
 	printf("CameraHeight: %.2f\n", s->camera_height);
@@ -560,6 +772,9 @@ hb_stadium_print(struct hb_stadium *s)
 	printf("Background.CornerRadius: %.2f\n", s->bg->corner_radius);
 	printf("Background.GoalLine: %.2f\n", s->bg->goal_line);
 	printf("Background.Color: %08x\n", s->bg->color);
+
+	for (trait = s->traits; *trait; ++trait)
+		_hb_trait_print(*trait);
 }
 
 int
