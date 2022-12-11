@@ -510,10 +510,10 @@ err:
 extern struct hb_stadium *
 hb_stadium_from_file(const char *file)
 {
-	FILE                         *fp;
-	long                   file_size;
-	char                   *raw_data;
-	struct hb_stadium             *s;
+	FILE *fp;
+	long file_size;
+	char *raw_data;
+	struct hb_stadium *s;
 
 	fp = fopen(file, "r");
 	file_size = _get_file_size(fp);
