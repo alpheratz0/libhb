@@ -601,6 +601,72 @@ _hb_jv_parse_segment(jv from, struct hb_segment *to,
 	return 0;
 }
 
+static int
+_hb_jv_parse_team(jv from, enum hb_team *to, enum hb_team *fallback)
+{
+	const char *team_str;
+	switch (jv_get_kind(from)) {
+	case JV_KIND_STRING:
+		team_str = jv_string_value(from);
+		if (!strcmp(team_str, "red")) *to = HB_TEAM_RED;
+		else if (!strcmp(team_str, "blue")) *to = HB_TEAM_BLUE;
+		else if (!strcmp(team_str, "spect")) *to = HB_TEAM_SPECTATOR;
+		else return -1;
+		return 0;
+	case JV_KIND_INVALID:
+		if (fallback == NULL)
+			return -1;
+		*to = *fallback;
+		return 0;
+	default:
+		return -1;
+	}
+}
+
+static int
+_hb_jv_parse_goal(jv from, struct hb_goal *to)
+{
+	jv_kind kind;
+	kind = jv_get_kind(from);
+	if (kind != JV_KIND_OBJECT)
+		return -1;
+
+	/////////////p0
+	{
+		jv p0;
+		p0 = jv_object_get(jv_copy(from), jv_string("p0"));
+		if (jv_get_kind(p0) != JV_KIND_ARRAY ||
+				jv_array_length(p0) != 2)
+			return -1;
+		jv_array_foreach(p0, index, v) {
+			if (_hb_jv_parse_number(v, &to->p0[index], NULL) < 0)
+				return -1;
+		}
+	}
+
+	/////////////p1
+	{
+		jv p1;
+		p1 = jv_object_get(jv_copy(from), jv_string("p1"));
+		if (jv_get_kind(p1) != JV_KIND_ARRAY ||
+				jv_array_length(p1) != 2)
+			return -1;
+		jv_array_foreach(p1, index, v) {
+			if (_hb_jv_parse_number(v, &to->p1[index], NULL) < 0)
+				return -1;
+		}
+	}
+
+	/////////////team
+	{
+		jv team;
+		team = jv_object_get(jv_copy(from), jv_string("team"));
+		if (_hb_jv_parse_team(team, &to->team, NULL) < 0 ||
+				to->team == HB_TEAM_SPECTATOR)
+			return -1;
+	}
+}
+
 extern struct hb_stadium *
 hb_stadium_parse(const char *in)
 {
@@ -777,6 +843,31 @@ hb_stadium_parse(const char *in)
 		}
 	}
 
+	/////////////goals
+	{
+		jv goals;
+		jv_kind goals_kind;
+		int goals_len;
+
+		goals = jv_object_get(jv_copy(root), jv_string("goals"));
+		goals_kind = jv_get_kind(goals);
+
+		if (goals_kind == JV_KIND_ARRAY) {
+			goals_len = jv_array_length(jv_copy(goals));
+			s->goals = calloc(goals_len + 1, sizeof(struct hb_goal *));
+
+			jv_array_foreach(goals, index, goal) {
+				s->goals[index] = calloc(1, sizeof(struct hb_goal));
+				if (_hb_jv_parse_goal(goal, s->goals[index]) < 0)
+					goto err;
+			}
+		} else if (goals_kind == JV_KIND_INVALID) {
+			s->goals = calloc(1, sizeof(struct hb_goal *));
+		} else {
+			goto err;
+		}
+	}
+
 	jv_free(root);
 	return s;
 
@@ -857,6 +948,17 @@ _hb_background_type_to_string(enum hb_background_type bt)
 	}
 }
 
+static const char *
+_hb_team_to_string(enum hb_team team)
+{
+	switch (team) {
+	case HB_TEAM_RED: return "red";
+	case HB_TEAM_BLUE: return "blue";
+	case HB_TEAM_SPECTATOR: return "spectator";
+	default: return "unknown";
+	}
+}
+
 static void
 _hb_trait_print(struct hb_trait *t)
 {
@@ -895,12 +997,21 @@ _hb_segment_print(int index, struct hb_segment *s)
 	printf("Segment[%d].color: %08x\n", index, s->color);
 }
 
+static void
+_hb_goal_print(int index, struct hb_goal *g)
+{
+	printf("Goal[%d].p0: (%.2f, %.2f)\n", index, g->p0[0], g->p0[1]);
+	printf("Goal[%d].p1: (%.2f, %.2f)\n", index, g->p1[0], g->p1[1]);
+	printf("Goal[%d].team: %s\n", index, _hb_team_to_string(g->team));
+}
+
 extern const char *
 hb_stadium_print(struct hb_stadium *s)
 {
 	struct hb_trait **trait;
 	struct hb_vertex **vertex;
 	struct hb_segment **segment;
+	struct hb_goal **goal;
 
 	printf("Name: %s\n", s->name);
 	printf("CameraWidth: %.2f\n", s->camera_width);
@@ -926,6 +1037,9 @@ hb_stadium_print(struct hb_stadium *s)
 
 	for (segment = s->segments; *segment; ++segment)
 		_hb_segment_print(segment - s->segments, *segment);
+
+	for (goal = s->goals; *goal; ++goal)
+		_hb_goal_print(goal - s->goals, *goal);
 }
 
 int

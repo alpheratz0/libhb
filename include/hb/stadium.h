@@ -88,6 +88,18 @@ struct hb_segment {
 	uint32_t                          color;
 };
 
+enum hb_team {
+	HB_TEAM_SPECTATOR,
+	HB_TEAM_RED,
+	HB_TEAM_BLUE
+};
+
+struct hb_goal {
+	float                             p0[2];
+	float                             p1[2];
+	enum hb_team                       team;
+};
+
 struct hb_stadium {
 	char                              *name;
 	float                      camera_width;
@@ -101,6 +113,7 @@ struct hb_stadium {
 	struct hb_trait                **traits;
 	struct hb_vertex             **vertexes;
 	struct hb_segment            **segments;
+	struct hb_goal                  **goals;
 };
 
 extern struct hb_stadium *
