@@ -1,4 +1,3 @@
-#include "include/hb/stadium.h"
 #include <hb/stadium.h>
 #include <stdbool.h>
 #include <stdio.h>
