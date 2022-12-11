@@ -6,7 +6,6 @@
 
 static const float      HB_F_ZERO         = 0.0f;
 static const bool       HB_B_TRUE         = true;
-static const uint32_t   HB_COLOR_DEFAULT  = 0xff718c5a;
 
 static long
 _get_file_size(FILE *fp)
@@ -190,8 +189,10 @@ _hb_jv_parse_bg(jv from, struct hb_background *bg)
 	/////////////color
 	{
 		jv color;
+		uint32_t fallback_color;
+		fallback_color = 0xff718c5a;
 		color = jv_object_get(jv_copy(from), jv_string("color"));
-		if (_hb_jv_parse_color(color, &bg->color, &HB_COLOR_DEFAULT) < 0)
+		if (_hb_jv_parse_color(color, &bg->color, &fallback_color) < 0)
 			return -1;
 	}
 
