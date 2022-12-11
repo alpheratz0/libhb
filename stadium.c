@@ -714,9 +714,9 @@ static const char *
 _hb_kick_off_reset_to_string(enum hb_kick_off_reset kor)
 {
 	switch (kor) {
-		case HB_KICK_OFF_RESET_FULL: return "full";
-		case HB_KICK_OFF_RESET_PARTIAL: return "partial";
-		default: return "unknown";
+	case HB_KICK_OFF_RESET_FULL: return "full";
+	case HB_KICK_OFF_RESET_PARTIAL: return "partial";
+	default: return "unknown";
 	}
 }
 
@@ -731,10 +731,10 @@ static const char *
 _hb_background_type_to_string(enum hb_background_type bt)
 {
 	switch (bt) {
-		case HB_BACKGROUND_TYPE_NONE: return "none";
-		case HB_BACKGROUND_TYPE_GRASS: return "grass";
-		case HB_BACKGROUND_TYPE_HOCKEY: return "hockey";
-		default: return "unknown";
+	case HB_BACKGROUND_TYPE_NONE: return "none";
+	case HB_BACKGROUND_TYPE_GRASS: return "grass";
+	case HB_BACKGROUND_TYPE_HOCKEY: return "hockey";
+	default: return "unknown";
 	}
 }
 
