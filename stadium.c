@@ -465,7 +465,6 @@ _hb_jv_parse_segment(jv from, struct hb_segment *to,
 		++vertexes;
 	}
 
-	printf("v0\n");
 	/////////////v0
 	{
 		jv v0;
@@ -478,7 +477,6 @@ _hb_jv_parse_segment(jv from, struct hb_segment *to,
 			return -1;
 	}
 
-	printf("v1\n");
 	/////////////v1
 	{
 		jv v1;
@@ -491,7 +489,6 @@ _hb_jv_parse_segment(jv from, struct hb_segment *to,
 			return -1;
 	}
 
-	printf("trait\n");
 	/////////////trait
 	{
 		jv trait;
@@ -505,7 +502,6 @@ _hb_jv_parse_segment(jv from, struct hb_segment *to,
 		free(trait_name);
 	}
 
-	printf("bCoef\n");
 	/////////////bCoef
 	{
 		jv b_coef;
@@ -518,7 +514,6 @@ _hb_jv_parse_segment(jv from, struct hb_segment *to,
 			return -1;
 	}
 
-	printf("curve\n");
 	/////////////curve
 	{
 		jv curve;
@@ -527,7 +522,6 @@ _hb_jv_parse_segment(jv from, struct hb_segment *to,
 			return -1;
 	}
 
-	printf("bias\n");
 	/////////////bias
 	{
 		jv bias;
@@ -536,7 +530,6 @@ _hb_jv_parse_segment(jv from, struct hb_segment *to,
 			return -1;
 	}
 
-	printf("cGroup\n");
 	/////////////cGroup
 	{
 		// FIXME: is cGroup fallback/default value 0?
@@ -552,7 +545,6 @@ _hb_jv_parse_segment(jv from, struct hb_segment *to,
 			return -1;
 	}
 
-	printf("cMask\n");
 	/////////////cMask
 	{
 		// FIXME: is cMask fallback/default value 0?
@@ -568,7 +560,6 @@ _hb_jv_parse_segment(jv from, struct hb_segment *to,
 			return -1;
 	}
 
-	printf("vis\n");
 	/////////////vis
 	{
 		jv vis;
@@ -581,7 +572,6 @@ _hb_jv_parse_segment(jv from, struct hb_segment *to,
 			return -1;
 	}
 
-	printf("color\n");
 	/////////////color
 	{
 		jv color;
