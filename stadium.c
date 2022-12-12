@@ -1258,7 +1258,6 @@ hb_stadium_parse(const char *in)
 		}
 	}
 
-	printf("vertexes\n");
 	/////////////vertexes
 	{
 		jv vertexes;
@@ -1284,7 +1283,6 @@ hb_stadium_parse(const char *in)
 		}
 	}
 
-	printf("segments\n");
 	/////////////segments
 	{
 		jv segments;
@@ -1310,7 +1308,6 @@ hb_stadium_parse(const char *in)
 		}
 	}
 
-	printf("goals\n");
 	/////////////goals
 	{
 		jv goals;
@@ -1336,7 +1333,6 @@ hb_stadium_parse(const char *in)
 		}
 	}
 
-	printf("ballPhysics\n");
 	/////////////ballPhysics
 	{
 		jv ball_physics;
@@ -1376,7 +1372,6 @@ hb_stadium_parse(const char *in)
 		}
 	}
 
-	printf("discs\n");
 	/////////////discs
 	{
 		jv discs;
@@ -1413,7 +1408,6 @@ hb_stadium_parse(const char *in)
 		}
 	}
 
-	printf("planes\n");
 	/////////////planes
 	{
 		jv planes;
@@ -1439,7 +1433,6 @@ hb_stadium_parse(const char *in)
 		}
 	}
 
-	printf("joints\n");
 	/////////////joints
 	{
 		jv joints;
