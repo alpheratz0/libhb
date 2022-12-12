@@ -145,7 +145,7 @@ _hb_jv_parse_bg(jv from, struct hb_background *bg)
 		type = jv_object_get(jv_copy(from), jv_string("type"));
 		if (_hb_jv_parse_string(type, &type_str, "none") < 0)
 			return -1;
-		if (!strcmp(type_str, "none")) bg->type = HB_BACKGROUND_TYPE_NONE;
+		if (!strcmp(type_str, "none") || !strcmp(type_str, "")) bg->type = HB_BACKGROUND_TYPE_NONE;
 		else if (!strcmp(type_str, "grass")) bg->type = HB_BACKGROUND_TYPE_GRASS;
 		else if (!strcmp(type_str, "hockey")) bg->type = HB_BACKGROUND_TYPE_HOCKEY;
 		else { free(type_str); return -1; }
