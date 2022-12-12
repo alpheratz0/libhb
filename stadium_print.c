@@ -158,7 +158,10 @@ main(int argc, char **argv)
 {
 	struct hb_stadium *big;
 	big = hb_stadium_from_file(argc > 1 ? argv[1] : "stadiums/big.hbs");
-	if (!big) fprintf(stderr, "Bad stadium file!\n");
+	if (!big) {
+		fprintf(stderr, "Bad stadium file!\n");
+		return 1;
+	}
 	else hb_stadium_print(big);
 	return 0;
 }
