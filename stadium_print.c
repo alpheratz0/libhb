@@ -106,6 +106,19 @@ _hb_plane_print(int index, struct hb_plane *p)
 			p->normal[0], p->normal[1], p->dist, p->b_coef, p->c_mask, p->c_group);
 }
 
+static void
+_hb_joint_print(int index, struct hb_joint *j)
+{
+	printf("Joint.%-3d            : D0: %3d, D1: %3d, Color: %08x, ", index,
+			j->d0, j->d1, j->color);
+	if (j->length.kind == HB_JOINT_LENGTH_RANGE)
+		printf("Length: [%5.2f, %5.2f], ", j->length.val.range[0], j->length.val.range[1]);
+	else printf("Length: %5.2f, ", j->length.val.f);
+
+	if (j->strength.is_rigid) printf("Strength: rigid\n");
+	else printf("Strength: %5.2f\n", j->strength.val);
+}
+
 extern const char *
 hb_stadium_print(struct hb_stadium *s)
 {
@@ -115,6 +128,7 @@ hb_stadium_print(struct hb_stadium *s)
 	struct hb_goal **goal;
 	struct hb_disc **disc;
 	struct hb_plane **plane;
+	struct hb_joint **joint;
 
 	printf("Name                 : %s\n", s->name);
 	printf("CameraWidth          : %.2f\n", s->camera_width);
@@ -136,6 +150,7 @@ hb_stadium_print(struct hb_stadium *s)
 	for (goal = s->goals; *goal; ++goal) _hb_goal_print(goal - s->goals, *goal);
 	for (disc = s->discs; *disc; ++disc) _hb_disc_print(disc - s->discs, *disc);
 	for (plane = s->planes; *plane; ++plane) _hb_plane_print(plane - s->planes, *plane);
+	for (joint = s->joints; *joint; ++joint) _hb_joint_print(joint - s->joints, *joint);
 }
 
 int
