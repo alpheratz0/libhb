@@ -829,6 +829,92 @@ _hb_jv_parse_disc(jv from, struct hb_disc *to,
 	return 0;
 }
 
+static int
+_hb_jv_parse_plane(jv from, struct hb_plane *to, struct hb_trait **traits)
+{
+	struct hb_trait *plane_trait;
+
+	if (jv_get_kind(from) != JV_KIND_OBJECT)
+		return -1;
+
+	/////////////normal
+	{
+		jv normal;
+		normal = jv_object_get(jv_copy(from), jv_string("normal"));
+		if (jv_get_kind(normal) != JV_KIND_ARRAY ||
+				jv_array_length(normal) != 2)
+			return -1;
+		jv_array_foreach(normal, index, v) {
+			if (_hb_jv_parse_number(v, &to->normal[index], NULL) < 0)
+				return -1;
+		}
+	}
+
+	/////////////dist
+	{
+		jv dist;
+		dist = jv_object_get(jv_copy(from), jv_string("dist"));
+		if (_hb_jv_parse_number(dist, &to->dist, NULL) < 0)
+			return -1;
+	}
+
+	/////////////trait
+	{
+		jv trait;
+		char *trait_name;
+		trait = jv_object_get(jv_copy(from), jv_string("trait"));
+		if (_hb_jv_parse_string(trait, &trait_name, "__no_trait__") < 0)
+			return -1;
+		if (!strcmp(trait_name, "__no_trait__"))
+			plane_trait = NULL;
+		else if (_hb_get_trait(traits, &plane_trait, trait_name) < 0) {
+			free(trait_name);
+			return -1;
+		}
+		free(trait_name);
+	}
+
+	/////////////bCoef
+	{
+		jv b_coef;
+		b_coef = jv_object_get(jv_copy(from), jv_string("bCoef"));
+		if (jv_get_kind(b_coef) == JV_KIND_INVALID) {
+			if (NULL == plane_trait || !plane_trait->has_b_coef)
+				return -1;
+			to->b_coef = plane_trait->b_coef;
+		} else {
+			if (_hb_jv_parse_number(b_coef, &to->b_coef, NULL) < 0)
+				return -1;
+		}
+	}
+
+	/////////////cMask
+	{
+		jv c_mask;
+		enum hb_collision_flags fallback_c_mask;
+		fallback_c_mask = 0;
+		if (NULL != plane_trait && plane_trait->has_c_mask)
+			fallback_c_mask = plane_trait->c_mask;
+		c_mask = jv_object_get(jv_copy(from), jv_string("cMask"));
+		if (_hb_jv_parse_collision_flags(c_mask, &to->c_mask, &fallback_c_mask) < 0)
+			return -1;
+	}
+
+	/////////////cGroup
+	{
+		jv c_group;
+		enum hb_collision_flags fallback_c_group;
+		fallback_c_group = 0;
+		if (NULL != plane_trait && plane_trait->has_c_group)
+			fallback_c_group = plane_trait->c_group;
+		c_group = jv_object_get(jv_copy(from), jv_string("cGroup"));
+		if (_hb_jv_parse_collision_flags(c_group, &to->c_group, &fallback_c_group) < 0)
+			return -1;
+	}
+
+	return 0;
+}
+
 extern struct hb_stadium *
 hb_stadium_parse(const char *in)
 {
@@ -1050,6 +1136,31 @@ hb_stadium_parse(const char *in)
 			}
 		} else if (discs_kind == JV_KIND_INVALID) {
 			s->discs = calloc(1, sizeof(struct hb_disc *));
+		} else {
+			goto err;
+		}
+	}
+
+	/////////////planes
+	{
+		jv planes;
+		jv_kind planes_kind;
+		int planes_len;
+
+		planes = jv_object_get(jv_copy(root), jv_string("planes"));
+		planes_kind = jv_get_kind(planes);
+
+		if (planes_kind == JV_KIND_ARRAY) {
+			planes_len = jv_array_length(jv_copy(planes));
+			s->planes = calloc(planes_len + 1, sizeof(struct hb_plane *));
+
+			jv_array_foreach(planes, index, plane) {
+				s->planes[index] = calloc(1, sizeof(struct hb_plane));
+				if (_hb_jv_parse_plane(plane, s->planes[index], s->traits) < 0)
+					goto err;
+			}
+		} else if (planes_kind == JV_KIND_INVALID) {
+			s->planes = calloc(1, sizeof(struct hb_plane *));
 		} else {
 			goto err;
 		}
