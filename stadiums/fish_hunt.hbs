@@ -1,0 +1,3585 @@
+{
+  "name": "Fish Hunt by Alf from HaxMaps",
+  "width": 750,
+  "height": 350,
+  "spawnDistance": 720,
+  "bg": {
+    "type": "",
+    "color": "3C7575",
+    "width": 0,
+    "height": 0,
+    "kickOffRadius": 0,
+    "cornerRadius": 0
+  },
+  "redSpawnPoints": [],
+  "blueSpawnPoints": [],
+  "kickOffReset": "full",
+  "cameraFollow": "player",
+  "vertexes": [
+    {
+      "x": -700,
+      "y": -336.5,
+      "bCoef": 2,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622",
+      "damping": 1
+    },
+    {
+      "x": 700,
+      "y": -336.5,
+      "bCoef": 2,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": 700,
+      "y": 335.5,
+      "bCoef": 1,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": -700,
+      "y": 335.5,
+      "bCoef": 1,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622",
+      "damping": 1
+    },
+    {
+      "x": 740.5,
+      "y": 300,
+      "bCoef": 1,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": 740.5,
+      "y": -300,
+      "bCoef": 1,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": -740.5,
+      "y": 300,
+      "bCoef": 1,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622",
+      "damping": 1
+    },
+    {
+      "x": -740.5,
+      "y": -300,
+      "bCoef": 1,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622",
+      "damping": 1
+    },
+    {
+      "x": -700,
+      "y": -334,
+      "bCoef": 0.5,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622",
+      "damping": 1
+    },
+    {
+      "x": 700,
+      "y": -334,
+      "bCoef": 0.5,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": 700,
+      "y": 333,
+      "bCoef": 0.5,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": -700,
+      "y": 333,
+      "bCoef": 0.5,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622",
+      "damping": 1
+    },
+    {
+      "x": 738,
+      "y": 300,
+      "bCoef": 0.5,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": 738,
+      "y": -300,
+      "bCoef": 0.5,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": -738,
+      "y": 300,
+      "bCoef": 0.5,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622",
+      "damping": 1,
+      "vis": false
+    },
+    {
+      "x": -738,
+      "y": -300,
+      "bCoef": 0.5,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622",
+      "damping": 1,
+      "vis": false
+    },
+    {
+      "x": -739,
+      "y": -30,
+      "bCoef": 0.5,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "curve": 180,
+      "color": "212622",
+      "damping": 1
+    },
+    {
+      "x": -739,
+      "y": 30,
+      "bCoef": 0.5,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "curve": 180,
+      "color": "212622",
+      "damping": 1
+    },
+    {
+      "x": -739,
+      "y": -31,
+      "bCoef": 0.5,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "curve": 180,
+      "color": "212622",
+      "damping": 1
+    },
+    {
+      "x": -739,
+      "y": 31,
+      "bCoef": 0.5,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "curve": 180,
+      "color": "212622",
+      "damping": 1
+    },
+    {
+      "x": 739,
+      "y": -30,
+      "bCoef": 0.5,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "curve": 180,
+      "color": "212622"
+    },
+    {
+      "x": 739,
+      "y": 30,
+      "bCoef": 0.5,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "curve": 180,
+      "color": "212622"
+    },
+    {
+      "x": 739,
+      "y": -31,
+      "bCoef": 0.5,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "curve": 180,
+      "color": "212622"
+    },
+    {
+      "x": 739,
+      "y": 31,
+      "bCoef": 0.5,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "curve": 180,
+      "color": "212622"
+    },
+    {
+      "x": 655,
+      "y": -335,
+      "bCoef": 0.5,
+      "cMask": ["blue"],
+      "cGroup": ["redKO", "blueKO"]
+    },
+    {
+      "x": -655,
+      "y": -335,
+      "bCoef": 0.5,
+      "cMask": ["red"],
+      "cGroup": ["redKO", "blueKO"],
+      "damping": 1
+    },
+    {
+      "x": -370,
+      "y": -335,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "color": "45190A"
+    },
+    {
+      "x": -370,
+      "y": 335,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "color": "45190A"
+    },
+    {
+      "x": 370,
+      "y": -333,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "color": "1C4773"
+    },
+    {
+      "x": 370,
+      "y": 332,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "color": "1C4773"
+    },
+    {
+      "x": -94.2464132754746,
+      "y": 51.69090909090909,
+      "cGroup": ["c3"],
+      "curve": 0,
+      "color": "376B6B"
+    },
+    {
+      "x": 93.97245112866976,
+      "y": 51.69090909090909,
+      "cGroup": ["c3"],
+      "curve": 0,
+      "color": "376B6B"
+    },
+    {
+      "x": -0.13698107340240995,
+      "y": -95.74141414141411,
+      "cGroup": ["c3"],
+      "curve": 0,
+      "color": "376B6B"
+    },
+    {
+      "x": -39.34924449093245,
+      "y": 21.24292929292929,
+      "cGroup": ["c3"],
+      "curve": 0,
+      "color": "376B6B"
+    },
+    {
+      "x": 17.253395903713226,
+      "y": -66.49848484848485,
+      "cGroup": ["c3"],
+      "curve": 0,
+      "color": "376B6B"
+    },
+    {
+      "x": -39.34924449093245,
+      "y": 21.24292929292929,
+      "cGroup": ["c3"],
+      "curve": 0,
+      "color": "376B6B"
+    },
+    {
+      "x": 75.28754576165775,
+      "y": 21.24292929292929,
+      "cGroup": ["c3"],
+      "curve": 0,
+      "color": "376B6B"
+    },
+    {
+      "x": 31.232829660621647,
+      "y": 21.24292929292929,
+      "cGroup": ["c3"],
+      "curve": 0,
+      "color": "376B6B"
+    },
+    {
+      "x": -5.469848898186498,
+      "y": -33.563434343434324,
+      "cGroup": ["c3"],
+      "curve": 0,
+      "color": "376B6B"
+    },
+    {
+      "x": -14.253395903713226,
+      "y": -17.217676767676778,
+      "cGroup": ["c3"],
+      "color": "376B6B"
+    },
+    {
+      "x": 12.410943220207201,
+      "y": 21.24292929292929,
+      "cGroup": ["c3"],
+      "color": "376B6B"
+    },
+    {
+      "x": -600,
+      "y": -300,
+      "bCoef": 0,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "color": "212622",
+      "bias": 0
+    },
+    {
+      "x": -600,
+      "y": 300,
+      "bCoef": 0,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "color": "212622",
+      "bias": 50
+    },
+    {
+      "x": 600,
+      "y": -300,
+      "bCoef": 0,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "color": "212622",
+      "bias": -50
+    },
+    {
+      "x": 600,
+      "y": 300,
+      "bCoef": 0,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "color": "212622",
+      "bias": -50
+    },
+    {
+      "x": -650,
+      "y": -333,
+      "bCoef": 0,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "color": "2E362F",
+      "bias": -1018,
+      "vis": false,
+      "damping": 1
+    },
+    {
+      "x": -650,
+      "y": 332,
+      "bCoef": 0,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "color": "2E362F",
+      "bias": -1018,
+      "vis": false,
+      "damping": 1
+    },
+    {
+      "x": 650,
+      "y": -333,
+      "bCoef": 0,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "color": "2E362F",
+      "bias": 1018,
+      "vis": false
+    },
+    {
+      "x": 650,
+      "y": 332,
+      "bCoef": 0,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "color": "2E362F",
+      "bias": 1018,
+      "vis": false
+    },
+    {
+      "x": -701,
+      "y": -336.5,
+      "bCoef": 2,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622",
+      "damping": 1
+    },
+    {
+      "x": -630.5,
+      "y": -336.5,
+      "bCoef": 0,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622",
+      "damping": 1,
+      "bias": 0
+    },
+    {
+      "x": -701,
+      "y": -334,
+      "bCoef": 0.5,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622",
+      "damping": 1
+    },
+    {
+      "x": -630.5,
+      "y": -334,
+      "bCoef": 0,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622",
+      "damping": 1,
+      "bias": 0
+    },
+    {
+      "x": -597.5,
+      "y": -300,
+      "bCoef": 0,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "color": "212622",
+      "bias": 0
+    },
+    {
+      "x": -597.5,
+      "y": 300,
+      "bCoef": 0,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "color": "212622",
+      "bias": 0
+    },
+    {
+      "x": -638,
+      "y": -336.5,
+      "bCoef": 0,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622",
+      "damping": 1,
+      "bias": 0
+    },
+    {
+      "x": -597.5,
+      "y": -300,
+      "bCoef": 0,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622",
+      "bias": 0
+    },
+    {
+      "x": -638,
+      "y": -334,
+      "bCoef": 0,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622",
+      "damping": 1,
+      "bias": 0
+    },
+    {
+      "x": -600,
+      "y": -300,
+      "bCoef": 0,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622",
+      "bias": 0
+    },
+    {
+      "x": 597.5,
+      "y": -300,
+      "bCoef": 0,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "color": "212622",
+      "bias": -10
+    },
+    {
+      "x": 597.5,
+      "y": 300,
+      "bCoef": 0,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "color": "212622",
+      "bias": -10
+    },
+    {
+      "x": 638,
+      "y": -336.5,
+      "bCoef": 0,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": 597.5,
+      "y": -300,
+      "bCoef": 0,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": 638,
+      "y": -334,
+      "bCoef": 0,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": 600,
+      "y": -300,
+      "bCoef": 0,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": 637,
+      "y": -336.5,
+      "bCoef": 0,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": 637,
+      "y": -334,
+      "bCoef": 0,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": -638,
+      "y": 335.5,
+      "bCoef": 0,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622",
+      "bias": 0,
+      "damping": 1
+    },
+    {
+      "x": -597.5,
+      "y": 300,
+      "bCoef": 0,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622",
+      "bias": 0
+    },
+    {
+      "x": -638,
+      "y": 333,
+      "bCoef": 0,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622",
+      "bias": 0,
+      "damping": 1
+    },
+    {
+      "x": -600,
+      "y": 300,
+      "bCoef": 0,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622",
+      "bias": 0
+    },
+    {
+      "x": 638,
+      "y": 335.5,
+      "bCoef": 0,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": 597.5,
+      "y": 300,
+      "bCoef": 0,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": 638,
+      "y": 333,
+      "bCoef": 0,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": 600,
+      "y": 300,
+      "bCoef": 0,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": 560,
+      "y": -334,
+      "bCoef": 0,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": -560,
+      "y": -334,
+      "bCoef": 0,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": 560,
+      "y": -336.5,
+      "bCoef": 0,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": -560,
+      "y": -336.5,
+      "bCoef": 0,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": -559.5,
+      "y": -336.5,
+      "bCoef": 0,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": -600,
+      "y": -300,
+      "bCoef": 0,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622",
+      "bias": 0
+    },
+    {
+      "x": -559.5,
+      "y": -334,
+      "bCoef": 0,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": -597.5,
+      "y": -300,
+      "bCoef": 0,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622",
+      "vis": false,
+      "bias": 0
+    },
+    {
+      "x": -561,
+      "y": -336.5,
+      "bCoef": 0,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": -561,
+      "y": -334,
+      "bCoef": 0,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": 560,
+      "y": -336.5,
+      "bCoef": 0,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": 600.5,
+      "y": -300,
+      "bCoef": 0,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": 560,
+      "y": -334,
+      "bCoef": 0,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": 598,
+      "y": -300,
+      "bCoef": 0,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": 560,
+      "y": 336.5,
+      "bCoef": 0,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": -560,
+      "y": 336.5,
+      "bCoef": 0,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": 560,
+      "y": 334,
+      "bCoef": 0,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": -560,
+      "y": 334,
+      "bCoef": 0,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": -560,
+      "y": 336.5,
+      "bCoef": 0,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": -600.5,
+      "y": 301,
+      "bCoef": 0,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": -560,
+      "y": 334,
+      "bCoef": 0,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": -598,
+      "y": 300,
+      "bCoef": 0,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622",
+      "vis": false
+    },
+    {
+      "x": 559,
+      "y": 336.5,
+      "bCoef": 0,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": 599.5,
+      "y": 301,
+      "bCoef": 0,
+      "cMask": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": 559,
+      "y": 334,
+      "bCoef": 0,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": 597,
+      "y": 301,
+      "bCoef": 0,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": -367.5,
+      "y": -335,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "color": "212622"
+    },
+    {
+      "x": -367.5,
+      "y": 335,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "color": "212622"
+    },
+    {
+      "x": 367.5,
+      "y": -333,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "color": "2E362F"
+    },
+    {
+      "x": 367.5,
+      "y": 332,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "color": "2E362F"
+    },
+    {
+      "x": -727,
+      "y": -452,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "bias": 150,
+      "vis": false,
+      "color": "C90202"
+    },
+    {
+      "x": -613,
+      "y": -452,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "bias": 150,
+      "vis": false,
+      "color": "C90202"
+    },
+    {
+      "x": 738,
+      "y": 300,
+      "bCoef": 0.5,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": 598,
+      "y": 300,
+      "bCoef": 0,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "212622"
+    },
+    {
+      "x": 650,
+      "y": -548,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "bias": 1400,
+      "vis": false,
+      "color": "C90202"
+    },
+    {
+      "x": 650,
+      "y": -450,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "bias": 1400,
+      "vis": false,
+      "color": "C90202"
+    },
+    {
+      "x": 650,
+      "y": -331,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "bias": -400,
+      "vis": false,
+      "color": "C90202"
+    },
+    {
+      "x": 715,
+      "y": -331,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "bias": -400,
+      "vis": false,
+      "color": "C90202"
+    },
+    {
+      "x": -727,
+      "y": 452,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "bias": -150,
+      "color": "C90202",
+      "vis": false
+    },
+    {
+      "x": -613,
+      "y": 452,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "bias": -150,
+      "color": "C90202",
+      "vis": false
+    },
+    {
+      "x": 650,
+      "y": 446,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "bias": 1400,
+      "vis": false,
+      "color": "C90202"
+    },
+    {
+      "x": 650,
+      "y": 544,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "bias": 1400,
+      "vis": false,
+      "color": "C90202"
+    },
+    {
+      "x": 650,
+      "y": 331,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "bias": 400,
+      "color": "C90202",
+      "vis": false
+    },
+    {
+      "x": 715,
+      "y": 331,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "bias": 400,
+      "color": "C90202",
+      "vis": false
+    },
+    {
+      "x": 615,
+      "y": -452,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "bias": 150,
+      "color": "3D0DFF",
+      "vis": false
+    },
+    {
+      "x": 729,
+      "y": -452,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "bias": 150,
+      "color": "3D0DFF",
+      "vis": false
+    },
+    {
+      "x": -650,
+      "y": -548,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "bias": -1400,
+      "color": "3D0DFF",
+      "vis": false
+    },
+    {
+      "x": -650,
+      "y": -450,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "bias": -1400,
+      "color": "3D0DFF",
+      "vis": false
+    },
+    {
+      "x": -716,
+      "y": -331,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "bias": -400,
+      "color": "3D0DFF",
+      "vis": false
+    },
+    {
+      "x": -651,
+      "y": -331,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "bias": -400,
+      "color": "3D0DFF",
+      "vis": false
+    },
+    {
+      "x": 599,
+      "y": 396,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "bias": -95,
+      "vis": false
+    },
+    {
+      "x": 739,
+      "y": 396,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "bias": -95,
+      "vis": false
+    },
+    {
+      "x": -655,
+      "y": 395,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "bias": -1400,
+      "vis": false
+    },
+    {
+      "x": -655,
+      "y": 445,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "bias": -1400,
+      "vis": false
+    },
+    {
+      "x": -719,
+      "y": 331,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "bias": 500,
+      "vis": false
+    },
+    {
+      "x": -656,
+      "y": 331,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "bias": 500,
+      "vis": false
+    },
+    {
+      "x": -595,
+      "y": -300,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "color": "45190A",
+      "curve": 90
+    },
+    {
+      "x": -595,
+      "y": 300,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "color": "45190A",
+      "curve": 90
+    },
+    {
+      "x": -561,
+      "y": -331.5,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "curve": 90
+    },
+    { "x": -370, "y": -331.5, "cMask": ["red"], "cGroup": ["wall"] },
+    {
+      "x": -561,
+      "y": 331.5,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "curve": 90
+    },
+    { "x": -370, "y": 331.5, "cMask": ["red"], "cGroup": ["wall"] },
+    {
+      "x": -365,
+      "y": -335,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "color": "212622"
+    },
+    {
+      "x": -365,
+      "y": 335,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "color": "212622"
+    },
+    {
+      "x": 365,
+      "y": -333,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "color": "2E362F"
+    },
+    {
+      "x": 365,
+      "y": 332,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "color": "2E362F"
+    },
+    {
+      "x": 595,
+      "y": -300,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "color": "1C4773",
+      "curve": -90
+    },
+    {
+      "x": 595,
+      "y": 300,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "color": "1C4773",
+      "curve": -90
+    },
+    {
+      "x": 560,
+      "y": -331.5,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "1C4773"
+    },
+    {
+      "x": 370,
+      "y": -331.5,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "color": "1C4773"
+    },
+    {
+      "x": 560,
+      "y": 331.5,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "curve": -90,
+      "color": "1C4773"
+    },
+    {
+      "x": 370,
+      "y": 331.5,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "color": "1C4773"
+    }
+  ],
+  "segments": [
+    {
+      "v0": 4,
+      "v1": 5,
+      "color": "212622",
+      "bCoef": 1,
+      "cMask": ["wall"],
+      "x": 612.5
+    },
+    {
+      "v0": 6,
+      "v1": 7,
+      "color": "212622",
+      "bCoef": 1,
+      "cMask": ["wall"],
+      "x": -612.5,
+      "damping": 1
+    },
+    {
+      "v0": 5,
+      "v1": 1,
+      "curve": -90,
+      "color": "212622",
+      "bCoef": 1,
+      "cMask": ["wall"]
+    },
+    {
+      "v0": 0,
+      "v1": 7,
+      "curve": -90,
+      "color": "212622",
+      "bCoef": 1,
+      "cMask": ["wall"],
+      "damping": 1
+    },
+    {
+      "v0": 6,
+      "v1": 3,
+      "curve": -90,
+      "color": "212622",
+      "bCoef": 1,
+      "cMask": ["wall"],
+      "damping": 1
+    },
+    {
+      "v0": 2,
+      "v1": 4,
+      "curve": -90,
+      "color": "212622",
+      "bCoef": 1,
+      "cMask": ["wall"]
+    },
+    {
+      "v0": 12,
+      "v1": 13,
+      "color": "212622",
+      "bCoef": 0.5,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "x": 610
+    },
+    {
+      "v0": 14,
+      "v1": 15,
+      "color": "212622",
+      "bCoef": 0.5,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "x": -610,
+      "damping": 1
+    },
+    {
+      "v0": 13,
+      "v1": 9,
+      "curve": -90,
+      "color": "212622",
+      "bCoef": 2,
+      "cMask": ["red", "blue", "ball"],
+      "cGroup": ["wall"]
+    },
+    {
+      "v0": 8,
+      "v1": 15,
+      "curve": -90,
+      "color": "212622",
+      "bCoef": 2,
+      "cMask": ["red", "blue", "ball"],
+      "cGroup": ["wall"],
+      "damping": 1
+    },
+    {
+      "v0": 14,
+      "v1": 11,
+      "curve": -90,
+      "color": "212622",
+      "bCoef": 2,
+      "cMask": ["red", "blue", "ball"],
+      "cGroup": ["wall"],
+      "damping": 1
+    },
+    {
+      "v0": 10,
+      "v1": 12,
+      "curve": -90,
+      "color": "212622",
+      "bCoef": 2,
+      "cMask": ["red", "blue", "ball"],
+      "cGroup": ["wall"]
+    },
+    {
+      "v0": 26,
+      "v1": 27,
+      "vis": true,
+      "color": "45190A",
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "x": -370
+    },
+    {
+      "v0": 28,
+      "v1": 29,
+      "vis": true,
+      "color": "1C4773",
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "x": 370
+    },
+    {
+      "v0": 30,
+      "v1": 31,
+      "curve": 0,
+      "vis": true,
+      "color": "376B6B",
+      "cGroup": ["c3"],
+      "y": 15
+    },
+    {
+      "v0": 30,
+      "v1": 32,
+      "curve": 0,
+      "vis": true,
+      "color": "376B6B",
+      "cGroup": ["c3"]
+    },
+    { "v0": 31, "v1": 32, "vis": true, "color": "376B6B", "cGroup": ["c3"] },
+    {
+      "v0": 33,
+      "v1": 34,
+      "curve": 0,
+      "vis": true,
+      "color": "376B6B",
+      "cGroup": ["c3"]
+    },
+    {
+      "v0": 35,
+      "v1": 36,
+      "curve": 0,
+      "vis": true,
+      "color": "376B6B",
+      "cGroup": ["c3"],
+      "y": 15
+    },
+    { "v0": 37, "v1": 38, "vis": true, "color": "376B6B", "cGroup": ["c3"] },
+    { "v0": 39, "v1": 40, "vis": true, "color": "376B6B", "cGroup": ["c3"] },
+    {
+      "v0": 41,
+      "v1": 42,
+      "vis": true,
+      "color": "212622",
+      "bCoef": 0,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "bias": 50,
+      "x": -600
+    },
+    {
+      "v0": 43,
+      "v1": 44,
+      "vis": true,
+      "color": "212622",
+      "bCoef": 0,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "bias": -50,
+      "x": 600
+    },
+    {
+      "v0": 45,
+      "v1": 46,
+      "vis": false,
+      "color": "2E362F",
+      "bCoef": 0,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "bias": -1018,
+      "x": -650,
+      "damping": 1
+    },
+    {
+      "v0": 47,
+      "v1": 48,
+      "vis": false,
+      "color": "2E362F",
+      "bCoef": 0,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "bias": 1018,
+      "x": 650
+    },
+    {
+      "v0": 49,
+      "v1": 50,
+      "color": "212622",
+      "bCoef": 2,
+      "cMask": ["wall"],
+      "y": -312.5,
+      "damping": 1
+    },
+    {
+      "v0": 51,
+      "v1": 52,
+      "color": "212622",
+      "bCoef": 0.5,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "y": -310,
+      "damping": 1
+    },
+    {
+      "v0": 53,
+      "v1": 54,
+      "vis": true,
+      "color": "212622",
+      "bCoef": 0,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "bias": 10,
+      "x": -597.5
+    },
+    {
+      "v0": 56,
+      "v1": 55,
+      "curve": -90,
+      "color": "212622",
+      "bCoef": 0,
+      "cMask": ["wall"],
+      "bias": 0
+    },
+    {
+      "v0": 58,
+      "v1": 57,
+      "curve": -90,
+      "color": "212622",
+      "bCoef": 0,
+      "cMask": ["red", "blue", "ball"],
+      "cGroup": ["wall"],
+      "bias": 0
+    },
+    {
+      "v0": 59,
+      "v1": 60,
+      "vis": true,
+      "color": "212622",
+      "bCoef": 0,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "bias": -10,
+      "x": 597.5
+    },
+    {
+      "v0": 61,
+      "v1": 62,
+      "curve": -90,
+      "color": "212622",
+      "bCoef": 0,
+      "cMask": ["wall"]
+    },
+    {
+      "v0": 63,
+      "v1": 64,
+      "curve": -90,
+      "color": "212622",
+      "bCoef": 0,
+      "cMask": ["red", "blue", "ball"],
+      "cGroup": ["wall"]
+    },
+    {
+      "v0": 67,
+      "v1": 68,
+      "curve": -90,
+      "color": "212622",
+      "bCoef": 0,
+      "cMask": ["wall"],
+      "bias": 0
+    },
+    {
+      "v0": 69,
+      "v1": 70,
+      "curve": -90,
+      "color": "212622",
+      "bCoef": 0,
+      "cMask": ["red", "blue", "ball"],
+      "cGroup": ["wall"],
+      "bias": 0
+    },
+    {
+      "v0": 72,
+      "v1": 71,
+      "curve": -90,
+      "color": "212622",
+      "bCoef": 0,
+      "cMask": ["wall"]
+    },
+    {
+      "v0": 74,
+      "v1": 73,
+      "curve": -90,
+      "color": "212622",
+      "bCoef": 0,
+      "cMask": ["red", "blue", "ball"],
+      "cGroup": ["wall"]
+    },
+    {
+      "v0": 75,
+      "v1": 76,
+      "color": "212622",
+      "bCoef": 1,
+      "cMask": ["wall"],
+      "y": -334
+    },
+    {
+      "v0": 77,
+      "v1": 78,
+      "color": "212622",
+      "bCoef": 0.5,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "y": -336.5
+    },
+    {
+      "v0": 79,
+      "v1": 80,
+      "curve": -90,
+      "color": "212622",
+      "bCoef": 0,
+      "cMask": ["wall"]
+    },
+    {
+      "v0": 81,
+      "v1": 82,
+      "curve": -90,
+      "color": "212622",
+      "bCoef": 0,
+      "cMask": ["red", "blue", "ball"],
+      "cGroup": ["wall"]
+    },
+    {
+      "v0": 86,
+      "v1": 85,
+      "curve": -90,
+      "color": "212622",
+      "bCoef": 0,
+      "cMask": ["wall"]
+    },
+    {
+      "v0": 88,
+      "v1": 87,
+      "curve": -90,
+      "color": "212622",
+      "bCoef": 0,
+      "cMask": ["red", "blue", "ball"],
+      "cGroup": ["wall"]
+    },
+    {
+      "v0": 66,
+      "v1": 9,
+      "color": "212622",
+      "bCoef": 0.5,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"]
+    },
+    {
+      "v0": 65,
+      "v1": 1,
+      "color": "212622",
+      "bCoef": 0.5,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"]
+    },
+    {
+      "v0": 89,
+      "v1": 90,
+      "color": "212622",
+      "bCoef": 1,
+      "cMask": ["wall"],
+      "y": 336.5
+    },
+    {
+      "v0": 91,
+      "v1": 92,
+      "color": "212622",
+      "bCoef": 0.5,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "y": 334
+    },
+    {
+      "v0": 94,
+      "v1": 93,
+      "curve": -90,
+      "color": "212622",
+      "bCoef": 0,
+      "cMask": ["wall"]
+    },
+    {
+      "v0": 96,
+      "v1": 95,
+      "curve": -90,
+      "color": "212622",
+      "bCoef": 0,
+      "cMask": ["red", "blue", "ball"],
+      "cGroup": ["wall"]
+    },
+    {
+      "v0": 97,
+      "v1": 98,
+      "curve": -90,
+      "color": "212622",
+      "bCoef": 0,
+      "cMask": ["wall"]
+    },
+    {
+      "v0": 99,
+      "v1": 100,
+      "curve": -90,
+      "color": "212622",
+      "bCoef": 0,
+      "cMask": ["red", "blue", "ball"],
+      "cGroup": ["wall"]
+    },
+    {
+      "v0": 71,
+      "v1": 2,
+      "color": "212622",
+      "bCoef": 0.5,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"]
+    },
+    { "v0": 73, "v1": 10, "color": "212622" },
+    {
+      "v0": 67,
+      "v1": 3,
+      "color": "212622",
+      "bCoef": 1,
+      "cMask": ["wall"],
+      "damping": 1
+    },
+    {
+      "v0": 69,
+      "v1": 11,
+      "color": "212622",
+      "bCoef": 1,
+      "cMask": ["wall"],
+      "damping": 1
+    },
+    {
+      "v0": 101,
+      "v1": 102,
+      "vis": true,
+      "color": "212622",
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "x": -367.5
+    },
+    {
+      "v0": 103,
+      "v1": 104,
+      "vis": true,
+      "color": "2E362F",
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "x": 367.5
+    },
+    {
+      "v0": 15,
+      "v1": 82,
+      "vis": false,
+      "color": "212622",
+      "cMask": ["red"],
+      "cGroup": ["wall"]
+    },
+    {
+      "v0": 14,
+      "v1": 96,
+      "vis": false,
+      "color": "212622",
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "y": 300
+    },
+    {
+      "v0": 105,
+      "v1": 106,
+      "vis": false,
+      "color": "C90202",
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "bias": 150
+    },
+    {
+      "v0": 13,
+      "v1": 88,
+      "vis": false,
+      "color": "212622",
+      "cMask": ["blue"],
+      "cGroup": ["wall"]
+    },
+    {
+      "v0": 107,
+      "v1": 108,
+      "vis": false,
+      "color": "212622",
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "y": 300
+    },
+    {
+      "v0": 109,
+      "v1": 110,
+      "vis": false,
+      "color": "C90202",
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "bias": 1400,
+      "x": 650
+    },
+    {
+      "v0": 111,
+      "v1": 112,
+      "vis": false,
+      "color": "C90202",
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "bias": -400,
+      "y": -331
+    },
+    {
+      "v0": 113,
+      "v1": 114,
+      "vis": false,
+      "color": "C90202",
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "bias": -150,
+      "y": 452
+    },
+    {
+      "v0": 115,
+      "v1": 116,
+      "vis": false,
+      "color": "C90202",
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "bias": 1400,
+      "x": 650
+    },
+    {
+      "v0": 117,
+      "v1": 118,
+      "vis": false,
+      "color": "C90202",
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "bias": 400,
+      "y": 331
+    },
+    {
+      "v0": 119,
+      "v1": 120,
+      "vis": false,
+      "color": "3D0DFF",
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "bias": 150,
+      "y": -452
+    },
+    {
+      "v0": 121,
+      "v1": 122,
+      "vis": false,
+      "color": "3D0DFF",
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "bias": -1400,
+      "x": -650
+    },
+    {
+      "v0": 123,
+      "v1": 124,
+      "vis": false,
+      "color": "3D0DFF",
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "bias": -400,
+      "y": -331
+    },
+    {
+      "v0": 125,
+      "v1": 126,
+      "vis": false,
+      "color": "3D0DFF",
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "bias": -95,
+      "y": 396
+    },
+    {
+      "v0": 127,
+      "v1": 128,
+      "vis": false,
+      "color": "3D0DFF",
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "bias": -1400,
+      "x": -655
+    },
+    {
+      "v0": 129,
+      "v1": 130,
+      "vis": false,
+      "color": "3D0DFF",
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "bias": 500,
+      "y": 331
+    },
+    {
+      "v0": 131,
+      "v1": 132,
+      "vis": true,
+      "color": "45190A",
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "x": -595
+    },
+    {
+      "v0": 133,
+      "v1": 134,
+      "vis": true,
+      "color": "45190A",
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "y": -331.5
+    },
+    {
+      "v0": 135,
+      "v1": 136,
+      "vis": true,
+      "color": "45190A",
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "y": 331.5
+    },
+    {
+      "v0": 135,
+      "v1": 132,
+      "curve": 90,
+      "vis": true,
+      "color": "45190A",
+      "cMask": ["red"],
+      "cGroup": ["wall"]
+    },
+    {
+      "v0": 131,
+      "v1": 133,
+      "curve": 90,
+      "vis": true,
+      "color": "45190A",
+      "cMask": ["red"],
+      "cGroup": ["wall"]
+    },
+    {
+      "v0": 137,
+      "v1": 138,
+      "vis": true,
+      "color": "212622",
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "x": -365
+    },
+    {
+      "v0": 139,
+      "v1": 140,
+      "vis": true,
+      "color": "2E362F",
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "x": 365
+    },
+    {
+      "v0": 141,
+      "v1": 142,
+      "vis": true,
+      "color": "1C4773",
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "x": 595
+    },
+    {
+      "v0": 143,
+      "v1": 144,
+      "vis": true,
+      "color": "1C4773",
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "y": -331.5
+    },
+    {
+      "v0": 145,
+      "v1": 146,
+      "vis": true,
+      "color": "1C4773",
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "y": 331.5
+    },
+    {
+      "v0": 145,
+      "v1": 142,
+      "curve": -90,
+      "vis": true,
+      "color": "1C4773",
+      "cMask": ["blue"],
+      "cGroup": ["wall"]
+    },
+    {
+      "v0": 141,
+      "v1": 143,
+      "curve": -90,
+      "vis": true,
+      "color": "1C4773",
+      "cMask": ["blue"],
+      "cGroup": ["wall"]
+    }
+  ],
+  "goals": [],
+  "discs": [
+    {
+      "radius": 5,
+      "invMass": 1.0e-155,
+      "pos": [0, 300],
+      "color": "transparent",
+      "bCoef": 5,
+      "cMask": ["c1"],
+      "cGroup": ["c1"],
+      "damping": 1,
+      "speed": [0, -1]
+    },
+    {
+      "radius": 0,
+      "invMass": 0,
+      "pos": [-400, 0],
+      "color": "transparent",
+      "cGroup": ["c0"],
+      "damping": 0.935,
+      "speed": [0, 0],
+      "x": -300
+    },
+    {
+      "radius": 11,
+      "invMass": 0.0001,
+      "pos": [-350, 0],
+      "color": "transparent",
+      "bCoef": -99999999,
+      "cMask": ["blue"],
+      "cGroup": ["ball"],
+      "damping": 0.95,
+      "speed": [0, 0],
+      "gravity": [0, 0],
+      "x": -300
+    },
+    {
+      "radius": 6,
+      "invMass": 0.0001,
+      "pos": [-350, 0],
+      "color": "45190A",
+      "bCoef": 1,
+      "cMask": ["wall"],
+      "cGroup": ["kick"],
+      "damping": 0.95,
+      "speed": [0, 0],
+      "gravity": [0, 0],
+      "x": -300
+    },
+    {
+      "radius": 0,
+      "invMass": 0,
+      "pos": [400, 0],
+      "color": "000000",
+      "cGroup": ["c0"],
+      "damping": 0.98,
+      "speed": [0, 0],
+      "y": 0,
+      "x": 300
+    },
+    {
+      "radius": 11,
+      "invMass": 0.0001,
+      "pos": [350, 0],
+      "color": "transparent",
+      "bCoef": -99999999,
+      "cMask": ["red"],
+      "cGroup": ["ball"],
+      "damping": 0.95,
+      "speed": [0, 0],
+      "y": 0,
+      "x": 300
+    },
+    {
+      "radius": 6,
+      "invMass": 0.0001,
+      "pos": [350, 0],
+      "color": "0E2C42",
+      "bCoef": 1,
+      "cMask": ["wall"],
+      "cGroup": ["kick"],
+      "damping": 0.95,
+      "speed": [0, 0],
+      "y": 0,
+      "x": 300
+    },
+    {
+      "radius": 0,
+      "invMass": 0,
+      "pos": [-450, -85],
+      "color": "transparent",
+      "cGroup": ["c0"],
+      "damping": 0.935,
+      "speed": [0, 0],
+      "x": -300
+    },
+    {
+      "radius": 11,
+      "invMass": 0.0001,
+      "pos": [-400, -85],
+      "color": "transparent",
+      "bCoef": -99999999,
+      "cMask": ["blue"],
+      "cGroup": ["ball"],
+      "damping": 0.95,
+      "speed": [0, 0],
+      "gravity": [0, 0],
+      "x": -300
+    },
+    {
+      "radius": 6,
+      "invMass": 0.0001,
+      "pos": [-400, -85],
+      "color": "45190A",
+      "bCoef": 1,
+      "cMask": ["wall"],
+      "cGroup": ["kick"],
+      "damping": 0.95,
+      "speed": [0, 0],
+      "gravity": [0, 0],
+      "x": -300
+    },
+    {
+      "radius": 0,
+      "invMass": 0,
+      "pos": [-400, -170],
+      "color": "transparent",
+      "cGroup": ["c0"],
+      "damping": 0.935,
+      "speed": [0, 0],
+      "x": -300
+    },
+    {
+      "radius": 11,
+      "invMass": 0.0001,
+      "pos": [-350, -170],
+      "color": "transparent",
+      "bCoef": -99999999,
+      "cMask": ["blue"],
+      "cGroup": ["ball"],
+      "damping": 0.95,
+      "speed": [0, 0],
+      "gravity": [0, 0],
+      "x": -300
+    },
+    {
+      "radius": 6,
+      "invMass": 0.0001,
+      "pos": [-350, -170],
+      "color": "45190A",
+      "bCoef": 1,
+      "cMask": ["wall"],
+      "cGroup": ["kick"],
+      "damping": 0.95,
+      "speed": [0, 0],
+      "gravity": [0, 0],
+      "x": -300
+    },
+    {
+      "radius": 0,
+      "invMass": 0,
+      "pos": [-450, -255],
+      "color": "transparent",
+      "cGroup": ["c0"],
+      "damping": 0.935,
+      "speed": [0, 0],
+      "x": -300
+    },
+    {
+      "radius": 11,
+      "invMass": 0.0001,
+      "pos": [-400, -255],
+      "color": "transparent",
+      "bCoef": -99999999,
+      "cMask": ["blue"],
+      "cGroup": ["ball"],
+      "damping": 0.95,
+      "speed": [0, 0],
+      "gravity": [0, 0],
+      "x": -300
+    },
+    {
+      "radius": 6,
+      "invMass": 0.0001,
+      "pos": [-400, -255],
+      "color": "45190A",
+      "bCoef": 1,
+      "cMask": ["wall"],
+      "cGroup": ["kick"],
+      "damping": 0.95,
+      "speed": [0, 0],
+      "gravity": [0, 0],
+      "x": -300
+    },
+    {
+      "radius": 0,
+      "invMass": 0,
+      "pos": [-450, 85],
+      "color": "transparent",
+      "cGroup": ["c0"],
+      "damping": 0.935,
+      "speed": [0, 0],
+      "x": -300
+    },
+    {
+      "radius": 11,
+      "invMass": 0.0001,
+      "pos": [-400, 85],
+      "color": "transparent",
+      "bCoef": -99999999,
+      "cMask": ["blue"],
+      "cGroup": ["ball"],
+      "damping": 0.95,
+      "speed": [0, 0],
+      "gravity": [0, 0],
+      "x": -300
+    },
+    {
+      "radius": 6,
+      "invMass": 0.0001,
+      "pos": [-400, 85],
+      "color": "45190A",
+      "bCoef": 1,
+      "cMask": ["wall"],
+      "cGroup": ["kick"],
+      "damping": 0.95,
+      "speed": [0, 0],
+      "gravity": [0, 0],
+      "x": -300
+    },
+    {
+      "radius": 0,
+      "invMass": 0,
+      "pos": [-400, 170],
+      "color": "transparent",
+      "cGroup": ["c0"],
+      "damping": 0.935,
+      "speed": [0, 0],
+      "x": -300
+    },
+    {
+      "radius": 11,
+      "invMass": 0.0001,
+      "pos": [-350, 170],
+      "color": "transparent",
+      "bCoef": -99999999,
+      "cMask": ["blue"],
+      "cGroup": ["ball"],
+      "damping": 0.95,
+      "speed": [0, 0],
+      "gravity": [0, 0],
+      "x": -300
+    },
+    {
+      "radius": 6,
+      "invMass": 0.0001,
+      "pos": [-350, 170],
+      "color": "45190A",
+      "bCoef": 1,
+      "cMask": ["wall"],
+      "cGroup": ["kick"],
+      "damping": 0.95,
+      "speed": [0, 0],
+      "gravity": [0, 0],
+      "x": -300
+    },
+    {
+      "radius": 0,
+      "invMass": 0,
+      "pos": [-450, 255],
+      "color": "transparent",
+      "cGroup": ["c0"],
+      "damping": 0.935,
+      "speed": [0, 0],
+      "x": -300
+    },
+    {
+      "radius": 11,
+      "invMass": 0.0001,
+      "pos": [-400, 255],
+      "color": "transparent",
+      "bCoef": -99999999,
+      "cMask": ["blue"],
+      "cGroup": ["ball"],
+      "damping": 0.95,
+      "speed": [0, 0],
+      "gravity": [0, 0],
+      "x": -300
+    },
+    {
+      "radius": 6,
+      "invMass": 0.0001,
+      "pos": [-400, 255],
+      "color": "45190A",
+      "bCoef": 1,
+      "cMask": ["wall"],
+      "cGroup": ["kick"],
+      "damping": 0.95,
+      "speed": [0, 0],
+      "gravity": [0, 0],
+      "x": -300
+    },
+    {
+      "radius": 0,
+      "invMass": 0,
+      "pos": [450, -85],
+      "color": "000000",
+      "cGroup": ["c0"],
+      "damping": 0.98,
+      "speed": [0, 0],
+      "y": 0,
+      "x": 300
+    },
+    {
+      "radius": 11,
+      "invMass": 0.0001,
+      "pos": [400, -85],
+      "color": "transparent",
+      "bCoef": -99999999,
+      "cMask": ["red"],
+      "cGroup": ["ball"],
+      "damping": 0.95,
+      "speed": [0, 0],
+      "y": 0,
+      "x": 300
+    },
+    {
+      "radius": 6,
+      "invMass": 0.0001,
+      "pos": [400, -85],
+      "color": "0E2C42",
+      "bCoef": 1,
+      "cMask": ["wall"],
+      "cGroup": ["kick"],
+      "damping": 0.95,
+      "speed": [0, 0],
+      "y": 0,
+      "x": 300
+    },
+    {
+      "radius": 0,
+      "invMass": 0,
+      "pos": [400, -170],
+      "color": "000000",
+      "cGroup": ["c0"],
+      "damping": 0.98,
+      "speed": [0, 0],
+      "y": 0,
+      "x": 300
+    },
+    {
+      "radius": 11,
+      "invMass": 0.0001,
+      "pos": [350, -170],
+      "color": "transparent",
+      "bCoef": -99999999,
+      "cMask": ["red"],
+      "cGroup": ["ball"],
+      "damping": 0.95,
+      "speed": [0, 0],
+      "y": 0,
+      "x": 300
+    },
+    {
+      "radius": 6,
+      "invMass": 0.0001,
+      "pos": [350, -170],
+      "color": "0E2C42",
+      "bCoef": 1,
+      "cMask": ["wall"],
+      "cGroup": ["kick"],
+      "damping": 0.95,
+      "speed": [0, 0],
+      "y": 0,
+      "x": 300
+    },
+    {
+      "radius": 0,
+      "invMass": 0,
+      "pos": [450, -255],
+      "color": "000000",
+      "cGroup": ["c0"],
+      "damping": 0.98,
+      "speed": [0, 0],
+      "y": 0,
+      "x": 300
+    },
+    {
+      "radius": 11,
+      "invMass": 0.0001,
+      "pos": [400, -255],
+      "color": "transparent",
+      "bCoef": -99999999,
+      "cMask": ["red"],
+      "cGroup": ["ball"],
+      "damping": 0.95,
+      "speed": [0, 0],
+      "y": 0,
+      "x": 300
+    },
+    {
+      "radius": 6,
+      "invMass": 0.0001,
+      "pos": [400, -255],
+      "color": "0E2C42",
+      "bCoef": 1,
+      "cMask": ["wall"],
+      "cGroup": ["kick"],
+      "damping": 0.95,
+      "speed": [0, 0],
+      "y": 0,
+      "x": 300
+    },
+    {
+      "radius": 0,
+      "invMass": 0,
+      "pos": [450, 85],
+      "color": "000000",
+      "cGroup": ["c0"],
+      "damping": 0.98,
+      "speed": [0, 0],
+      "y": 0,
+      "x": 300
+    },
+    {
+      "radius": 11,
+      "invMass": 0.0001,
+      "pos": [400, 85],
+      "color": "transparent",
+      "bCoef": -99999999,
+      "cMask": ["red"],
+      "cGroup": ["ball"],
+      "damping": 0.95,
+      "speed": [0, 0],
+      "y": 0,
+      "x": 300
+    },
+    {
+      "radius": 6,
+      "invMass": 0.0001,
+      "pos": [400, 85],
+      "color": "0E2C42",
+      "bCoef": 1,
+      "cMask": ["wall"],
+      "cGroup": ["kick"],
+      "damping": 0.95,
+      "speed": [0, 0],
+      "y": 0,
+      "x": 300
+    },
+    {
+      "radius": 0,
+      "invMass": 0,
+      "pos": [400, 170],
+      "color": "000000",
+      "cGroup": ["c0"],
+      "damping": 0.98,
+      "speed": [0, 0],
+      "y": 0,
+      "x": 300
+    },
+    {
+      "radius": 11,
+      "invMass": 0.0001,
+      "pos": [350, 170],
+      "color": "transparent",
+      "bCoef": -99999999,
+      "cMask": ["red"],
+      "cGroup": ["ball"],
+      "damping": 0.95,
+      "speed": [0, 0],
+      "y": 0,
+      "x": 300
+    },
+    {
+      "radius": 6,
+      "invMass": 0.0001,
+      "pos": [350, 170],
+      "color": "0E2C42",
+      "bCoef": 1,
+      "cMask": ["wall"],
+      "cGroup": ["kick"],
+      "damping": 0.95,
+      "speed": [0, 0],
+      "y": 0,
+      "x": 300
+    },
+    {
+      "radius": 0,
+      "invMass": 0,
+      "pos": [450, 255],
+      "color": "000000",
+      "cGroup": ["c0"],
+      "damping": 0.98,
+      "speed": [0, 0],
+      "y": 0,
+      "x": 300
+    },
+    {
+      "radius": 11,
+      "invMass": 0.0001,
+      "pos": [400, 255],
+      "color": "transparent",
+      "bCoef": -99999999,
+      "cMask": ["red"],
+      "cGroup": ["ball"],
+      "damping": 0.95,
+      "speed": [0, 0],
+      "y": 0,
+      "x": 300
+    },
+    {
+      "radius": 6,
+      "invMass": 0.0001,
+      "pos": [400, 255],
+      "color": "0E2C42",
+      "bCoef": 1,
+      "cMask": ["wall"],
+      "cGroup": ["kick"],
+      "damping": 0.95,
+      "speed": [0, 0],
+      "y": 0,
+      "x": 300
+    },
+    {
+      "radius": 10,
+      "invMass": 1,
+      "pos": [-707, -115],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 6,
+      "invMass": 1,
+      "pos": [-678, -59],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 12,
+      "invMass": 1,
+      "pos": [-657, -142],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 8,
+      "invMass": 1,
+      "pos": [-715, 187],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 8,
+      "invMass": 1,
+      "pos": [-632, 165],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 9,
+      "invMass": 1,
+      "pos": [-669, 218],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 6,
+      "invMass": 1,
+      "pos": [-699, 267],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 4,
+      "invMass": 1,
+      "pos": [-716, 16],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 6,
+      "invMass": 1,
+      "pos": [-629, 302],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 6,
+      "invMass": 1,
+      "pos": [-630, -235],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 5,
+      "invMass": 1,
+      "pos": [-710, -187],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 6,
+      "invMass": 1,
+      "pos": [-723, -300],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 9,
+      "invMass": 1,
+      "pos": [-678, -260],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 9,
+      "invMass": 1,
+      "pos": [-664, 70],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 6,
+      "invMass": 1,
+      "pos": [-632, -28],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 5,
+      "invMass": 1,
+      "pos": [-694, 121],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 9,
+      "invMass": 1,
+      "pos": [692.1435914319943, 122.21840281880299],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 6,
+      "invMass": 1,
+      "pos": [656.435177575798, 149.97417138340222],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 11.5,
+      "invMass": 1,
+      "pos": [653.9868253410791, 105.85499625124083],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 8,
+      "invMass": 1,
+      "pos": [710.28662091243, -229.6139163364785],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 8,
+      "invMass": 1,
+      "pos": [630.352220497683, -161.6495353344642],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 9,
+      "invMass": 1,
+      "pos": [671.4335163431633, -253.8881777746691],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 6,
+      "invMass": 1,
+      "pos": [680.5911223265214, -199.640691756052],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 5.6,
+      "invMass": 1,
+      "pos": [712.1843814029316, -11.44801256729146],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 6,
+      "invMass": 1,
+      "pos": [629.3376748580322, -298.6786223822332],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 6,
+      "invMass": 1,
+      "pos": [621.5564030235441, 206.27948990615258],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 5,
+      "invMass": 1,
+      "pos": [709.4169882699806, 200.502954863397],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 6,
+      "invMass": 1,
+      "pos": [714.604784813717, 304.6202421615393],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 9,
+      "invMass": 1,
+      "pos": [671.2168322520051, 272.1464793324665],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 11,
+      "invMass": 1,
+      "pos": [671.9856396256986, -67.03633112008934],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 6,
+      "invMass": 1,
+      "pos": [627.555637254385, 31.330202260349868],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 5,
+      "invMass": 1,
+      "pos": [706.7355536509585, -118.53820948619403],
+      "color": "transparent",
+      "bCoef": 1,
+      "cMask": ["c0", "c2"],
+      "cGroup": ["c2"],
+      "damping": 1,
+      "speed": [0, -0.7],
+      "gravity": [0, 0]
+    },
+    {
+      "radius": 15,
+      "invMass": 1.0e-10,
+      "pos": [-710, 2500],
+      "color": "0E2C42",
+      "bCoef": -10000,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "damping": 1,
+      "speed": [0, -1.1]
+    },
+    {
+      "radius": 15,
+      "invMass": 1.0e-10,
+      "pos": [710, -2500],
+      "color": "45190A",
+      "bCoef": -10000,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "damping": 1,
+      "speed": [0, 1.1]
+    },
+    {
+      "radius": 15,
+      "invMass": 1.0e-10,
+      "pos": [670, -2500],
+      "color": "45190A",
+      "bCoef": -10000,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "damping": 1,
+      "speed": [0, 1.1]
+    },
+    {
+      "radius": 15,
+      "invMass": 1.0e-10,
+      "pos": [630, -2500],
+      "color": "45190A",
+      "bCoef": -10000,
+      "cMask": ["blue"],
+      "cGroup": ["wall"],
+      "damping": 1,
+      "speed": [0, 1.1]
+    },
+    {
+      "radius": 15,
+      "invMass": 1.0e-10,
+      "pos": [-670, 2500],
+      "color": "0E2C42",
+      "bCoef": -10000,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "damping": 1,
+      "speed": [0, -1.1]
+    },
+    {
+      "radius": 15,
+      "invMass": 1.0e-10,
+      "pos": [-630, 2500],
+      "color": "0E2C42",
+      "bCoef": -10000,
+      "cMask": ["red"],
+      "cGroup": ["wall"],
+      "damping": 1,
+      "speed": [0, -1.1]
+    }
+  ],
+  "joints": [
+    {
+      "d0": 3,
+      "d1": 4,
+      "strength": "rigid",
+      "color": "transparent",
+      "length": null,
+      "pos": [-350, 0],
+      "x": -300,
+      "damping": 0.85,
+      "radius": 14
+    },
+    {
+      "d0": 2,
+      "d1": 3,
+      "strength": 10,
+      "color": "947650",
+      "length": [-1, 0],
+      "pos": [-400, 0],
+      "x": -300,
+      "damping": 0.935,
+      "radius": 14
+    },
+    {
+      "d0": 6,
+      "d1": 7,
+      "strength": "rigid",
+      "color": "transparent",
+      "length": null,
+      "pos": [400, 0],
+      "y": 0,
+      "x": 300,
+      "radius": 14,
+      "damping": 0.85
+    },
+    {
+      "d0": 5,
+      "d1": 6,
+      "strength": 10,
+      "color": "439985",
+      "length": [-1, 0],
+      "pos": [400, 0]
+    },
+    {
+      "d0": 9,
+      "d1": 10,
+      "strength": "rigid",
+      "color": "transparent",
+      "length": null,
+      "pos": [-400, -85]
+    },
+    {
+      "d0": 8,
+      "d1": 9,
+      "strength": 10,
+      "color": "947650",
+      "length": [-1, 0],
+      "pos": [-450, -85]
+    },
+    {
+      "d0": 12,
+      "d1": 13,
+      "strength": "rigid",
+      "color": "transparent",
+      "length": null,
+      "pos": [-350, -170]
+    },
+    {
+      "d0": 11,
+      "d1": 12,
+      "strength": 10,
+      "color": "947650",
+      "length": [-1, 0],
+      "pos": [-400, -170]
+    },
+    {
+      "d0": 15,
+      "d1": 16,
+      "strength": "rigid",
+      "color": "transparent",
+      "length": null,
+      "pos": [-400, -255]
+    },
+    {
+      "d0": 14,
+      "d1": 15,
+      "strength": 10,
+      "color": "947650",
+      "length": [-1, 0],
+      "pos": [-450, -255]
+    },
+    {
+      "d0": 18,
+      "d1": 19,
+      "strength": "rigid",
+      "color": "transparent",
+      "length": null,
+      "pos": [-400, 85]
+    },
+    {
+      "d0": 17,
+      "d1": 18,
+      "strength": 10,
+      "color": "947650",
+      "length": [-1, 0],
+      "pos": [-450, 85]
+    },
+    {
+      "d0": 21,
+      "d1": 22,
+      "strength": "rigid",
+      "color": "transparent",
+      "length": null,
+      "pos": [-350, 170]
+    },
+    {
+      "d0": 20,
+      "d1": 21,
+      "strength": 10,
+      "color": "947650",
+      "length": [-1, 0],
+      "pos": [-400, 170]
+    },
+    {
+      "d0": 24,
+      "d1": 25,
+      "strength": "rigid",
+      "color": "transparent",
+      "length": null,
+      "pos": [-400, 255]
+    },
+    {
+      "d0": 23,
+      "d1": 24,
+      "strength": 10,
+      "color": "947650",
+      "length": [-1, 0],
+      "pos": [-450, 255]
+    },
+    {
+      "d0": 27,
+      "d1": 28,
+      "strength": "rigid",
+      "color": "transparent",
+      "length": null,
+      "pos": [450, -85]
+    },
+    {
+      "d0": 26,
+      "d1": 27,
+      "strength": 10,
+      "color": "439985",
+      "length": [-1, 0],
+      "pos": [450, -85]
+    },
+    {
+      "d0": 30,
+      "d1": 31,
+      "strength": "rigid",
+      "color": "transparent",
+      "length": null,
+      "pos": [400, -170]
+    },
+    {
+      "d0": 29,
+      "d1": 30,
+      "strength": 10,
+      "color": "439985",
+      "length": [-1, 0],
+      "pos": [400, -170]
+    },
+    {
+      "d0": 33,
+      "d1": 34,
+      "strength": "rigid",
+      "color": "transparent",
+      "length": null,
+      "pos": [450, -255]
+    },
+    {
+      "d0": 32,
+      "d1": 33,
+      "strength": 10,
+      "color": "439985",
+      "length": [-1, 0],
+      "pos": [450, -255]
+    },
+    {
+      "d0": 36,
+      "d1": 37,
+      "strength": "rigid",
+      "color": "transparent",
+      "length": null,
+      "pos": [450, 85]
+    },
+    {
+      "d0": 35,
+      "d1": 36,
+      "strength": 10,
+      "color": "439985",
+      "length": [-1, 0],
+      "pos": [450, 85]
+    },
+    {
+      "d0": 39,
+      "d1": 40,
+      "strength": "rigid",
+      "color": "transparent",
+      "length": null,
+      "pos": [400, 170]
+    },
+    {
+      "d0": 38,
+      "d1": 39,
+      "strength": 10,
+      "color": "439985",
+      "length": [-1, 0],
+      "pos": [400, 170]
+    },
+    {
+      "d0": 42,
+      "d1": 43,
+      "strength": "rigid",
+      "color": "transparent",
+      "length": null,
+      "pos": [450, 255]
+    },
+    {
+      "d0": 41,
+      "d1": 42,
+      "strength": 10,
+      "color": "439985",
+      "length": [-1, 0],
+      "pos": [450, 255]
+    }
+  ],
+  "planes": [
+    {
+      "normal": [0, 1],
+      "dist": -335,
+      "bCoef": 0,
+      "cMask": ["red", "blue"],
+      "_data": {
+        "extremes": {
+          "normal": [0, 1],
+          "dist": -335,
+          "canvas_rect": [-795, -2515, 796, 2515],
+          "a": [-795, -335],
+          "b": [796, -335]
+        }
+      }
+    },
+    {
+      "normal": [0, -1],
+      "dist": -335,
+      "bCoef": 0,
+      "cMask": ["red", "blue"],
+      "_data": {
+        "extremes": {
+          "normal": [0, -1],
+          "dist": -335,
+          "canvas_rect": [-795, -2515, 796, 2515],
+          "a": [-795, 335],
+          "b": [796, 335]
+        }
+      }
+    },
+    {
+      "normal": [1, 0],
+      "dist": -740,
+      "bCoef": 0,
+      "cMask": ["red", "blue"],
+      "_data": {
+        "extremes": {
+          "normal": [1, 0],
+          "dist": -740,
+          "canvas_rect": [-795, -2515, 796, 2515],
+          "a": [-740, -2515],
+          "b": [-740, 2515]
+        }
+      }
+    },
+    {
+      "normal": [-1, 0],
+      "dist": -740,
+      "bCoef": 0,
+      "cMask": ["red", "blue"],
+      "_data": {
+        "extremes": {
+          "normal": [-1, 0],
+          "dist": -740,
+          "canvas_rect": [-795, -2515, 796, 2515],
+          "a": [740, -2515],
+          "b": [740, 2515]
+        }
+      }
+    },
+    {
+      "normal": [1, 0],
+      "dist": -738,
+      "bCoef": 0.5,
+      "cMask": ["ball"],
+      "cGroup": ["ball"],
+      "_data": {
+        "extremes": {
+          "normal": [1, 0],
+          "dist": -738,
+          "canvas_rect": [-795, -2515, 796, 2515],
+          "a": [-738, -2515],
+          "b": [-738, 2515]
+        }
+      }
+    },
+    {
+      "normal": [0, 1],
+      "dist": -333,
+      "bCoef": 0.5,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "color": "212622",
+      "_data": {
+        "extremes": {
+          "normal": [0, 1],
+          "dist": -333,
+          "canvas_rect": [-795, -2515, 796, 2515],
+          "a": [-795, -333],
+          "b": [796, -333]
+        }
+      }
+    },
+    {
+      "normal": [-1, 0],
+      "dist": -738,
+      "bCoef": 0.5,
+      "cMask": ["ball"],
+      "cGroup": ["ball"],
+      "_data": {
+        "extremes": {
+          "normal": [-1, 0],
+          "dist": -738,
+          "canvas_rect": [-795, -2515, 796, 2515],
+          "a": [738, -2515],
+          "b": [738, 2515]
+        }
+      }
+    },
+    {
+      "normal": [0, -1],
+      "dist": -333,
+      "bCoef": 0.5,
+      "cMask": ["red", "blue"],
+      "cGroup": ["wall"],
+      "_data": {
+        "extremes": {
+          "normal": [0, -1],
+          "dist": -333,
+          "canvas_rect": [-795, -2515, 796, 2515],
+          "a": [-795, 333],
+          "b": [796, 333]
+        }
+      }
+    },
+    {
+      "normal": [0, -1],
+      "dist": -500,
+      "bCoef": 0,
+      "cMask": ["c1"],
+      "cGroup": ["c1"],
+      "_data": {
+        "extremes": {
+          "normal": [0, -1],
+          "dist": -500,
+          "canvas_rect": [-795, -2515, 796, 2515],
+          "a": [-795, 500],
+          "b": [796, 500]
+        }
+      }
+    },
+    {
+      "normal": [0, -1],
+      "dist": 0,
+      "cMask": ["c3"],
+      "cGroup": ["c3"],
+      "_data": {
+        "extremes": {
+          "normal": [0, -1],
+          "dist": 0,
+          "canvas_rect": [-795, -2515, 796, 2515],
+          "a": [-795, 0],
+          "b": [796, 0]
+        }
+      }
+    },
+    {
+      "normal": [1, 0],
+      "dist": 0,
+      "cMask": ["c3"],
+      "cGroup": ["c3"],
+      "_data": {
+        "extremes": {
+          "normal": [1, 0],
+          "dist": 0,
+          "canvas_rect": [-795, -2515, 796, 2515],
+          "a": [0, -2515],
+          "b": [0, 2515]
+        }
+      }
+    },
+    {
+      "normal": [0, -1],
+      "dist": -335,
+      "bCoef": 0,
+      "cMask": ["ball"],
+      "cGroup": ["red", "blue"],
+      "_data": {
+        "extremes": {
+          "normal": [0, -1],
+          "dist": -335,
+          "canvas_rect": [-795, -2515, 796, 2515],
+          "a": [-795, 335],
+          "b": [796, 335]
+        }
+      }
+    },
+    {
+      "normal": [0, 1],
+      "dist": -335,
+      "bCoef": 0,
+      "cMask": ["ball"],
+      "cGroup": ["red", "blue"],
+      "_data": {
+        "extremes": {
+          "normal": [0, 1],
+          "dist": -335,
+          "canvas_rect": [-795, -2515, 796, 2515],
+          "a": [-795, -335],
+          "b": [796, -335]
+        }
+      }
+    },
+    {
+      "normal": [1, 0],
+      "dist": -740,
+      "bCoef": 0,
+      "cMask": ["ball"],
+      "cGroup": ["red", "blue"],
+      "_data": {
+        "extremes": {
+          "normal": [1, 0],
+          "dist": -740,
+          "canvas_rect": [-795, -2515, 796, 2515],
+          "a": [-740, -2515],
+          "b": [-740, 2515]
+        }
+      }
+    },
+    {
+      "normal": [-1, 0],
+      "dist": -740,
+      "bCoef": 0,
+      "cMask": ["ball"],
+      "cGroup": ["red", "blue"],
+      "_data": {
+        "extremes": {
+          "normal": [-1, 0],
+          "dist": -740,
+          "canvas_rect": [-795, -2515, 796, 2515],
+          "a": [740, -2515],
+          "b": [740, 2515]
+        }
+      }
+    },
+    {
+      "normal": [-1, 0],
+      "dist": 655,
+      "bCoef": 0.5,
+      "cMask": ["red"],
+      "cGroup": ["redKO", "blueKO"],
+      "_data": {
+        "extremes": {
+          "normal": [-1, 0],
+          "dist": 655,
+          "canvas_rect": [-795, -2515, 796, 2515],
+          "a": [-655, -2515],
+          "b": [-655, 2515]
+        }
+      }
+    },
+    {
+      "normal": [-1, 0],
+      "dist": -600,
+      "bCoef": 0,
+      "cMask": ["ball"],
+      "cGroup": ["red", "blue"],
+      "_data": {
+        "extremes": {
+          "normal": [-1, 0],
+          "dist": -600,
+          "canvas_rect": [-795, -2515, 796, 2515],
+          "a": [600, -2515],
+          "b": [600, 2515]
+        }
+      }
+    },
+    {
+      "normal": [1, 0],
+      "dist": -600,
+      "bCoef": 0,
+      "cMask": ["ball"],
+      "cGroup": ["red", "blue"],
+      "_data": {
+        "extremes": {
+          "normal": [1, 0],
+          "dist": -600,
+          "canvas_rect": [-795, -2515, 796, 2515],
+          "a": [-600, -2515],
+          "b": [-600, 2515]
+        }
+      }
+    },
+    {
+      "normal": [1, 0],
+      "dist": 655,
+      "bCoef": 0.5,
+      "cMask": ["blue"],
+      "cGroup": ["redKO", "blueKO"],
+      "_data": {
+        "extremes": {
+          "normal": [1, 0],
+          "dist": 655,
+          "canvas_rect": [-795, -2515, 796, 2515],
+          "a": [655, -2515],
+          "b": [655, 2515]
+        }
+      }
+    },
+    {
+      "normal": [0, 1],
+      "dist": -329,
+      "bCoef": 10000,
+      "cMask": ["c2"],
+      "cGroup": ["c0"],
+      "_data": {
+        "extremes": {
+          "normal": [0, 1],
+          "dist": -329,
+          "canvas_rect": [-795, -2515, 796, 2515],
+          "a": [-795, -329],
+          "b": [796, -329]
+        }
+      }
+    },
+    {
+      "normal": [0, -1],
+      "dist": -329,
+      "bCoef": 0.0001,
+      "cMask": ["c2"],
+      "cGroup": ["c0"],
+      "_data": {
+        "extremes": {
+          "normal": [0, -1],
+          "dist": -329,
+          "canvas_rect": [-795, -2515, 796, 2515],
+          "a": [-795, 329],
+          "b": [796, 329]
+        }
+      }
+    }
+  ],
+  "traits": {
+    "ballArea": { "vis": false, "bCoef": 1, "cMask": ["ball"] },
+    "goalPost": { "radius": 8, "invMass": 0, "bCoef": 0.5 },
+    "goalNet": { "vis": true, "bCoef": 0.1, "cMask": ["ball"] },
+    "kickOffBarrier": {
+      "vis": false,
+      "bCoef": 0.1,
+      "cGroup": ["redKO", "blueKO"],
+      "cMask": ["red", "blue"]
+    }
+  },
+  "playerPhysics": {
+    "kickStrength": 1300000,
+    "acceleration": 0.054,
+    "kickingAcceleration": 0.04,
+    "invMass": 100,
+    "kickback": 0,
+    "radius": 12.8,
+    "bCoef": 0.1
+  },
+  "ballPhysics": {
+    "radius": 0.01,
+    "bCoef": 1,
+    "invMass": 1.0e-155,
+    "damping": 0.8,
+    "color": "ffffff",
+    "cMask": ["c1"],
+    "cGroup": ["c1"]
+  },
+  "canBeStored": false
+}
