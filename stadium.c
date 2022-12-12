@@ -96,7 +96,7 @@ _hb_jv_parse_color(jv from, uint32_t *color, const uint32_t *fallback)
 		if (!strcmp(color_str, "transparent")) *color = 0x00000000;
 		else {
 			*color = strtol(color_str, &color_str_end, 16);
-			if (color_str_end - color_str != 6 ||
+			if (color_str_end - color_str > 6 ||
 					color_str_end[1] != '\0')
 				return -1;
 		}
