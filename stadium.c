@@ -96,7 +96,7 @@ _hb_jv_parse_color(jv from, uint32_t *color, const uint32_t *fallback)
 		if (!strcmp(color_str, "transparent")) *color = 0x00000000;
 		else {
 			*color = strtol(color_str, &color_str_end, 16);
-			if (color_str_end - color_str > 6 ||
+			if (color_str_end - color_str > 8 ||
 					color_str_end[1] != '\0')
 				return -1;
 		}
@@ -812,6 +812,140 @@ _hb_jv_parse_disc(jv from, struct hb_disc *to,
 }
 
 static int
+_hb_jv_parse_ball_physics_disc(jv from, struct hb_disc *to)
+{
+	if (jv_get_kind(from) != JV_KIND_OBJECT)
+		return -1;
+
+	/////////////pos
+	{
+		jv pos;
+		jv_kind pos_kind;
+		pos = jv_object_get(jv_copy(from), jv_string("pos"));
+		pos_kind = jv_get_kind(pos);
+		if (pos_kind == JV_KIND_INVALID)
+			to->pos[0] = to->pos[1] = 0.0f;
+		else if (pos_kind != JV_KIND_ARRAY || jv_array_length(pos) != 2)
+			return -1;
+		else {
+			jv_array_foreach(pos, index, v) {
+				if (_hb_jv_parse_number(v, &to->pos[index], NULL) < 0)
+					return -1;
+			}
+		}
+	}
+
+	/////////////speed
+	{
+		jv speed;
+		jv_kind speed_kind;
+		speed = jv_object_get(jv_copy(from), jv_string("speed"));
+		speed_kind = jv_get_kind(speed);
+		if (speed_kind == JV_KIND_INVALID)
+			to->speed[0] = to->speed[1] = 0.0f;
+		else if (speed_kind != JV_KIND_ARRAY || jv_array_length(speed) != 2)
+			return -1;
+		else {
+			jv_array_foreach(speed, index, v) {
+				if (_hb_jv_parse_number(v, &to->speed[index], NULL) < 0)
+					return -1;
+			}
+		}
+	}
+
+	/////////////gravity
+	{
+		jv gravity;
+		jv_kind gravity_kind;
+		gravity = jv_object_get(jv_copy(from), jv_string("gravity"));
+		gravity_kind = jv_get_kind(gravity);
+		if (gravity_kind == JV_KIND_INVALID)
+			to->gravity[0] = to->gravity[1] = 0.0f;
+		else if (gravity_kind != JV_KIND_ARRAY || jv_array_length(gravity) != 2)
+			return -1;
+		else {
+			jv_array_foreach(gravity, index, v) {
+				if (_hb_jv_parse_number(v, &to->gravity[index], NULL) < 0)
+					return -1;
+			}
+		}
+	}
+
+	/////////////radius
+	{
+		jv radius;
+		float fallback_radius;
+		fallback_radius = 10.0f;
+		radius = jv_object_get(jv_copy(from), jv_string("radius"));
+		if (_hb_jv_parse_number(radius, &to->radius, &fallback_radius) < 0)
+			return -1;
+	}
+
+	/////////////invMass
+	{
+		jv inv_mass;
+		float fallback_inv_mass;
+		fallback_inv_mass = 1.0f;
+		inv_mass = jv_object_get(jv_copy(from), jv_string("invMass"));
+		if (_hb_jv_parse_number(inv_mass, &to->inv_mass, &fallback_inv_mass) < 0)
+			return -1;
+	}
+
+	/////////////damping
+	{
+		jv damping;
+		float fallback_damping;
+		fallback_damping = 0.99f;
+		damping = jv_object_get(jv_copy(from), jv_string("damping"));
+		if (_hb_jv_parse_number(damping, &to->damping, &fallback_damping) < 0)
+			return -1;
+	}
+
+	/////////////color
+	{
+		jv color;
+		uint32_t fallback_color;
+		fallback_color = 0xffffffff;
+		color = jv_object_get(jv_copy(from), jv_string("color"));
+		if (_hb_jv_parse_color(color, &to->color, &fallback_color) < 0)
+			return -1;
+	}
+
+	/////////////bCoef
+	{
+		jv b_coef;
+		float fallback_b_coef;
+		fallback_b_coef = 0.5f;
+		b_coef = jv_object_get(jv_copy(from), jv_string("bCoef"));
+		if (_hb_jv_parse_number(b_coef, &to->b_coef, &fallback_b_coef) < 0)
+			return -1;
+	}
+
+	/////////////cMask
+	{
+		jv c_mask;
+		enum hb_collision_flags fallback_c_mask;
+		fallback_c_mask = HB_COLLISION_ALL;
+		c_mask = jv_object_get(jv_copy(from), jv_string("cMask"));
+		if (_hb_jv_parse_collision_flags(c_mask, &to->c_mask, &fallback_c_mask) < 0)
+			return -1;
+	}
+
+	/////////////cGroup
+	{
+		jv c_group;
+		enum hb_collision_flags fallback_c_group;
+		fallback_c_group = HB_COLLISION_KICK | HB_COLLISION_SCORE;
+		c_group = jv_object_get(jv_copy(from), jv_string("cGroup"));
+		if (_hb_jv_parse_collision_flags(c_group, &to->c_group, &fallback_c_group) < 0)
+			return -1;
+		to->c_group |= HB_COLLISION_KICK | HB_COLLISION_SCORE;
+	}
+
+	return 0;
+}
+
+static int
 _hb_jv_parse_plane(jv from, struct hb_plane *to, struct hb_trait **traits)
 {
 	struct hb_trait *plane_trait;
@@ -1214,7 +1348,7 @@ hb_stadium_parse(const char *in)
 
 		if (ball_physics_kind == JV_KIND_OBJECT) {
 			s->ball_physics = calloc(1, sizeof(struct hb_disc));
-			if (_hb_jv_parse_disc(ball_physics, s->ball_physics, s->traits) < 0)
+			if (_hb_jv_parse_ball_physics_disc(ball_physics, s->ball_physics) < 0)
 				goto err;
 			s->ball_physics->c_group |= HB_COLLISION_KICK | HB_COLLISION_SCORE;
 		} else if (ball_physics_kind == JV_KIND_STRING) {
