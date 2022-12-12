@@ -1011,7 +1011,6 @@ hb_stadium_parse(const char *in)
 	if (jv_get_kind(root) == JV_KIND_INVALID)
 		goto err;
 
-	printf("Name\n");
 	/////////////name
 	{
 		jv name;
@@ -1020,7 +1019,6 @@ hb_stadium_parse(const char *in)
 			goto err;
 	}
 
-	printf("cameraWidth & cameraHeight\n");
 	/////////////cameraWidth & cameraHeight
 	{
 		jv cam_width, cam_height;
@@ -1031,7 +1029,6 @@ hb_stadium_parse(const char *in)
 			goto err;
 	}
 
-	printf("maxViewWidth\n");
 	/////////////maxViewWidth
 	{
 		jv max_view_width;
@@ -1040,7 +1037,6 @@ hb_stadium_parse(const char *in)
 			goto err;
 	}
 
-	printf("cameraFollow\n");
 	/////////////cameraFollow
 	{
 		jv camera_follow;
@@ -1058,7 +1054,6 @@ hb_stadium_parse(const char *in)
 		free(camera_follow_str);
 	}
 
-	printf("spawnDistance\n");
 	/////////////spawnDistance
 	{
 		jv spawn_distance;
@@ -1067,7 +1062,6 @@ hb_stadium_parse(const char *in)
 			goto err;
 	}
 
-	printf("canBeStored\n");
 	/////////////canBeStored
 	{
 		jv can_be_stored;
@@ -1076,7 +1070,6 @@ hb_stadium_parse(const char *in)
 			goto err;
 	}
 
-	printf("kickOffReset\n");
 	/////////////kickOffReset
 	{
 		jv kick_off_reset;
@@ -1094,7 +1087,6 @@ hb_stadium_parse(const char *in)
 		free(kick_off_reset_str);
 	}
 
-	printf("bg\n");
 	/////////////bg
 	{
 		jv bg;
@@ -1104,7 +1096,6 @@ hb_stadium_parse(const char *in)
 			goto err;
 	}
 
-	printf("traits\n");
 	/////////////traits
 	{
 		jv traits;
