@@ -93,8 +93,8 @@ _hb_goal_print(int index, struct hb_goal *g)
 static void
 _hb_disc_print(int index, struct hb_disc *d)
 {
-	printf("Disc.%-3d             : Pos: [%.2f, %.2f], Speed: [%.2f, %.2f], Gravity: [%.2f, %.2f], Radius: %.2f"
-		   ", InvMass: %.2f, Damping: %.2f, Color: %08x, BCoef: %.2f, CMask: %d, CGroup: %d\n", index,
+	printf("Disc.%-3d             : P: [%.1f, %.1f], S: [%.1f, %.1f], G: [%.1f, %.1f], Radius: %.1f, "
+		   "InvMass: %.2f, Damping: %.2f, Color: %08x, BCoef: %.2f, CMask: %d, CGroup: %d\n", index,
 			d->pos[0], d->pos[1], d->speed[0], d->speed[1], d->gravity[0], d->gravity[1],
 			d->radius, d->inv_mass, d->damping, d->color, d->b_coef, d->c_mask, d->c_group);
 }
