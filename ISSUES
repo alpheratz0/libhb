@@ -1,2 +1,4 @@
 * json5 vs json
 * maps with gravity [0, null], ?
+* colors with gibberish as 000000?
+* cMask of [0] as valid?
