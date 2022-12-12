@@ -468,6 +468,7 @@ _hb_jv_parse_segment(jv from, struct hb_segment *to,
 		++vertexes;
 	}
 
+	printf("v0\n");
 	/////////////v0
 	{
 		jv v0;
@@ -480,6 +481,7 @@ _hb_jv_parse_segment(jv from, struct hb_segment *to,
 			return -1;
 	}
 
+	printf("v1\n");
 	/////////////v1
 	{
 		jv v1;
@@ -492,6 +494,7 @@ _hb_jv_parse_segment(jv from, struct hb_segment *to,
 			return -1;
 	}
 
+	printf("trait\n");
 	/////////////trait
 	{
 		jv trait;
@@ -508,6 +511,7 @@ _hb_jv_parse_segment(jv from, struct hb_segment *to,
 		free(trait_name);
 	}
 
+	printf("bCoef\n");
 	/////////////bCoef
 	{
 		jv b_coef;
@@ -520,6 +524,7 @@ _hb_jv_parse_segment(jv from, struct hb_segment *to,
 			return -1;
 	}
 
+	printf("curve\n");
 	/////////////curve
 	{
 		jv curve;
@@ -528,6 +533,7 @@ _hb_jv_parse_segment(jv from, struct hb_segment *to,
 			return -1;
 	}
 
+	printf("bias\n");
 	/////////////bias
 	{
 		jv bias;
@@ -536,6 +542,7 @@ _hb_jv_parse_segment(jv from, struct hb_segment *to,
 			return -1;
 	}
 
+	printf("cGroup\n");
 	/////////////cGroup
 	{
 		// FIXME: is cGroup fallback/default value 0?
@@ -551,6 +558,7 @@ _hb_jv_parse_segment(jv from, struct hb_segment *to,
 			return -1;
 	}
 
+	printf("cMask\n");
 	/////////////cMask
 	{
 		// FIXME: is cMask fallback/default value 0?
@@ -566,6 +574,7 @@ _hb_jv_parse_segment(jv from, struct hb_segment *to,
 			return -1;
 	}
 
+	printf("vis\n");
 	/////////////vis
 	{
 		jv vis;
@@ -578,6 +587,7 @@ _hb_jv_parse_segment(jv from, struct hb_segment *to,
 			return -1;
 	}
 
+	printf("color\n");
 	/////////////color
 	{
 		jv color;
@@ -1024,6 +1034,7 @@ hb_stadium_parse(const char *in)
 	if (jv_get_kind(root) == JV_KIND_INVALID)
 		goto err;
 
+	printf("Name\n");
 	/////////////name
 	{
 		jv name;
@@ -1032,6 +1043,7 @@ hb_stadium_parse(const char *in)
 			goto err;
 	}
 
+	printf("cameraWidth & cameraHeight\n");
 	/////////////cameraWidth & cameraHeight
 	{
 		jv cam_width, cam_height;
@@ -1042,6 +1054,7 @@ hb_stadium_parse(const char *in)
 			goto err;
 	}
 
+	printf("maxViewWidth\n");
 	/////////////maxViewWidth
 	{
 		jv max_view_width;
@@ -1050,6 +1063,7 @@ hb_stadium_parse(const char *in)
 			goto err;
 	}
 
+	printf("cameraFollow\n");
 	/////////////cameraFollow
 	{
 		jv camera_follow;
@@ -1067,6 +1081,7 @@ hb_stadium_parse(const char *in)
 		free(camera_follow_str);
 	}
 
+	printf("spawnDistance\n");
 	/////////////spawnDistance
 	{
 		jv spawn_distance;
@@ -1075,6 +1090,7 @@ hb_stadium_parse(const char *in)
 			goto err;
 	}
 
+	printf("canBeStored\n");
 	/////////////canBeStored
 	{
 		jv can_be_stored;
@@ -1083,6 +1099,7 @@ hb_stadium_parse(const char *in)
 			goto err;
 	}
 
+	printf("kickOffReset\n");
 	/////////////kickOffReset
 	{
 		jv kick_off_reset;
@@ -1100,6 +1117,7 @@ hb_stadium_parse(const char *in)
 		free(kick_off_reset_str);
 	}
 
+	printf("bg\n");
 	/////////////bg
 	{
 		jv bg;
@@ -1109,6 +1127,7 @@ hb_stadium_parse(const char *in)
 			goto err;
 	}
 
+	printf("traits\n");
 	/////////////traits
 	{
 		jv traits;
@@ -1137,6 +1156,7 @@ hb_stadium_parse(const char *in)
 		}
 	}
 
+	printf("vertexes\n");
 	/////////////vertexes
 	{
 		jv vertexes;
@@ -1162,6 +1182,7 @@ hb_stadium_parse(const char *in)
 		}
 	}
 
+	printf("segments\n");
 	/////////////segments
 	{
 		jv segments;
@@ -1187,6 +1208,7 @@ hb_stadium_parse(const char *in)
 		}
 	}
 
+	printf("goals\n");
 	/////////////goals
 	{
 		jv goals;
@@ -1212,6 +1234,7 @@ hb_stadium_parse(const char *in)
 		}
 	}
 
+	printf("ballPhysics\n");
 	/////////////ballPhysics
 	{
 		jv ball_physics;
@@ -1251,6 +1274,7 @@ hb_stadium_parse(const char *in)
 		}
 	}
 
+	printf("discs\n");
 	/////////////discs
 	{
 		jv discs;
@@ -1287,6 +1311,7 @@ hb_stadium_parse(const char *in)
 		}
 	}
 
+	printf("planes\n");
 	/////////////planes
 	{
 		jv planes;
@@ -1312,6 +1337,7 @@ hb_stadium_parse(const char *in)
 		}
 	}
 
+	printf("joints\n");
 	/////////////joints
 	{
 		jv joints;
