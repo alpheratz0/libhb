@@ -410,19 +410,14 @@ _hb_jv_parse_vertex(jv from, struct hb_vertex *to, struct hb_trait **traits)
 
 	/////////////bCoef
 	{
-		// FIXME: is bCoef required?
-		// FIXME: is bCoef required?
-		// FIXME: is bCoef required?
 		jv b_coef;
+		float fallback_b_coef;
+		fallback_b_coef = 0.0f;
+		if (NULL != vertex_trait && vertex_trait->has_b_coef)
+			fallback_b_coef = vertex_trait->b_coef;
 		b_coef = jv_object_get(jv_copy(from), jv_string("bCoef"));
-		if (jv_get_kind(b_coef) == JV_KIND_INVALID) {
-			if (NULL == vertex_trait || !vertex_trait->has_b_coef)
-				return -1;
-			to->b_coef = vertex_trait->b_coef;
-		} else {
-			if (_hb_jv_parse_number(b_coef, &to->b_coef, NULL) < 0)
-				return -1;
-		}
+		if (_hb_jv_parse_number(b_coef, &to->b_coef, &fallback_b_coef) < 0)
+			return -1;
 	}
 
 	/////////////cGroup
@@ -516,19 +511,14 @@ _hb_jv_parse_segment(jv from, struct hb_segment *to,
 
 	/////////////bCoef
 	{
-		// FIXME: is bCoef required?
-		// FIXME: is bCoef required?
-		// FIXME: is bCoef required?
 		jv b_coef;
+		float fallback_b_coef;
+		fallback_b_coef = 0.0f;
+		if (NULL != segment_trait && segment_trait->has_b_coef)
+			fallback_b_coef = segment_trait->b_coef;
 		b_coef = jv_object_get(jv_copy(from), jv_string("bCoef"));
-		if (jv_get_kind(b_coef) == JV_KIND_INVALID) {
-			if (NULL == segment_trait || !segment_trait->has_b_coef)
-				return -1;
-			to->b_coef = segment_trait->b_coef;
-		} else {
-			if (_hb_jv_parse_number(b_coef, &to->b_coef, NULL) < 0)
-				return -1;
-		}
+		if (_hb_jv_parse_number(b_coef, &to->b_coef, &fallback_b_coef) < 0)
+			return -1;
 	}
 
 	/////////////curve
@@ -796,15 +786,13 @@ _hb_jv_parse_disc(jv from, struct hb_disc *to,
 	/////////////bCoef
 	{
 		jv b_coef;
+		float fallback_b_coef;
+		fallback_b_coef = 0.0f;
+		if (NULL != disc_trait && disc_trait->has_b_coef)
+			fallback_b_coef = disc_trait->b_coef;
 		b_coef = jv_object_get(jv_copy(from), jv_string("bCoef"));
-		if (jv_get_kind(b_coef) == JV_KIND_INVALID) {
-			if (NULL == disc_trait || !disc_trait->has_b_coef)
-				return -1;
-			to->b_coef = disc_trait->b_coef;
-		} else {
-			if (_hb_jv_parse_number(b_coef, &to->b_coef, NULL) < 0)
-				return -1;
-		}
+		if (_hb_jv_parse_number(b_coef, &to->b_coef, &fallback_b_coef) < 0)
+			return -1;
 	}
 
 	/////////////cMask
@@ -882,15 +870,13 @@ _hb_jv_parse_plane(jv from, struct hb_plane *to, struct hb_trait **traits)
 	/////////////bCoef
 	{
 		jv b_coef;
+		float fallback_b_coef;
+		fallback_b_coef = 0.0f;
+		if (NULL != plane_trait && plane_trait->has_b_coef)
+			fallback_b_coef = plane_trait->b_coef;
 		b_coef = jv_object_get(jv_copy(from), jv_string("bCoef"));
-		if (jv_get_kind(b_coef) == JV_KIND_INVALID) {
-			if (NULL == plane_trait || !plane_trait->has_b_coef)
-				return -1;
-			to->b_coef = plane_trait->b_coef;
-		} else {
-			if (_hb_jv_parse_number(b_coef, &to->b_coef, NULL) < 0)
-				return -1;
-		}
+		if (_hb_jv_parse_number(b_coef, &to->b_coef, &fallback_b_coef) < 0)
+			return -1;
 	}
 
 	/////////////cMask
