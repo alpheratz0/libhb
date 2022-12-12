@@ -398,12 +398,9 @@ _hb_jv_parse_vertex(jv from, struct hb_vertex *to, struct hb_trait **traits)
 		trait = jv_object_get(jv_copy(from), jv_string("trait"));
 		if (_hb_jv_parse_string(trait, &trait_name, "__no_trait__") < 0)
 			return -1;
-		if (!strcmp(trait_name, "__no_trait__"))
+		if (!strcmp(trait_name, "__no_trait__") ||
+				_hb_get_trait(traits, &vertex_trait, trait_name) < 0)
 			vertex_trait = NULL;
-		else if (_hb_get_trait(traits, &vertex_trait, trait_name) < 0) {
-			free(trait_name);
-			return -1;
-		}
 		free(trait_name);
 	}
 
@@ -502,12 +499,9 @@ _hb_jv_parse_segment(jv from, struct hb_segment *to,
 		trait = jv_object_get(jv_copy(from), jv_string("trait"));
 		if (_hb_jv_parse_string(trait, &trait_name, "__no_trait__") < 0)
 			return -1;
-		if (!strcmp(trait_name, "__no_trait__"))
+		if (!strcmp(trait_name, "__no_trait__") ||
+				_hb_get_trait(traits, &segment_trait, trait_name) < 0)
 			segment_trait = NULL;
-		else if (_hb_get_trait(traits, &segment_trait, trait_name) < 0) {
-			free(trait_name);
-			return -1;
-		}
 		free(trait_name);
 	}
 
@@ -737,12 +731,9 @@ _hb_jv_parse_disc(jv from, struct hb_disc *to,
 		trait = jv_object_get(jv_copy(from), jv_string("trait"));
 		if (_hb_jv_parse_string(trait, &trait_name, "__no_trait__") < 0)
 			return -1;
-		if (!strcmp(trait_name, "__no_trait__"))
+		if (!strcmp(trait_name, "__no_trait__") ||
+				_hb_get_trait(traits, &disc_trait, trait_name) < 0)
 			disc_trait = NULL;
-		else if (_hb_get_trait(traits, &disc_trait, trait_name) < 0) {
-			free(trait_name);
-			return -1;
-		}
 		free(trait_name);
 	}
 
@@ -867,12 +858,9 @@ _hb_jv_parse_plane(jv from, struct hb_plane *to, struct hb_trait **traits)
 		trait = jv_object_get(jv_copy(from), jv_string("trait"));
 		if (_hb_jv_parse_string(trait, &trait_name, "__no_trait__") < 0)
 			return -1;
-		if (!strcmp(trait_name, "__no_trait__"))
+		if (!strcmp(trait_name, "__no_trait__") ||
+				_hb_get_trait(traits, &plane_trait, trait_name) < 0)
 			plane_trait = NULL;
-		else if (_hb_get_trait(traits, &plane_trait, trait_name) < 0) {
-			free(trait_name);
-			return -1;
-		}
 		free(trait_name);
 	}
 
