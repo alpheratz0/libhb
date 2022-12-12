@@ -121,6 +121,12 @@ struct hb_plane {
 	enum hb_collision_flags         c_group;
 };
 
+struct hb_joint {
+	int                                  d0;
+	int                                  d1;
+	/* problems here ... */
+};
+
 struct hb_stadium {
 	char                              *name;
 	float                      camera_width;
