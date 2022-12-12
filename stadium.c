@@ -220,6 +220,7 @@ _hb_jv_parse_collision_flag(jv from, enum hb_collision_flags *flag)
 	else if (!strcmp(str, "c1")) *flag = HB_COLLISION_C1;
 	else if (!strcmp(str, "c2")) *flag = HB_COLLISION_C2;
 	else if (!strcmp(str, "c3")) *flag = HB_COLLISION_C3;
+	else if (!strcmp(str, "")) *flag = 0;
 	else return -1;
 	return 0;
 }
