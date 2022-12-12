@@ -113,6 +113,14 @@ struct hb_disc {
 	enum hb_collision_flags         c_group;
 };
 
+struct hb_plane {
+	float                         normal[2];
+	float                              dist;
+	float                            b_coef;
+	enum hb_collision_flags          c_mask;
+	enum hb_collision_flags         c_group;
+};
+
 struct hb_stadium {
 	char                              *name;
 	float                      camera_width;
@@ -128,6 +136,7 @@ struct hb_stadium {
 	struct hb_segment            **segments;
 	struct hb_goal                  **goals;
 	struct hb_disc                  **discs;
+	struct hb_plane                **planes;
 };
 
 extern struct hb_stadium *
