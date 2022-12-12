@@ -1073,7 +1073,9 @@ hb_stadium_from_file(const char *file)
 	char *raw_data;
 	struct hb_stadium *s;
 
-	fp = fopen(file, "r");
+	if (NULL == (fp = fopen(file, "r")))
+		return NULL;
+
 	file_size = _get_file_size(fp);
 	raw_data = malloc(file_size + 1);
 
