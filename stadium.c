@@ -1231,7 +1231,11 @@ hb_stadium_parse(const char *in)
 				goto err;
 			if (!strcmp(ball_physics_str, "disc0"))
 				s->ball_physics = NULL;
-			else goto err;
+			else {
+				free(ball_physics_str);
+				goto err;
+			}
+			free(ball_physics_str);
 		} else if (ball_physics_kind == JV_KIND_INVALID) {
 			s->ball_physics = calloc(1, sizeof(struct hb_disc));
 			s->ball_physics->radius = 10.0f;
