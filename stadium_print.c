@@ -129,6 +129,7 @@ hb_stadium_print(struct hb_stadium *s)
 	struct hb_disc **disc;
 	struct hb_plane **plane;
 	struct hb_joint **joint;
+	struct hb_point **point;
 
 	printf("Name                 : %s\n", s->name);
 	printf("CameraWidth          : %.2f\n", s->camera_width);
@@ -151,6 +152,14 @@ hb_stadium_print(struct hb_stadium *s)
 	for (disc = s->discs; *disc; ++disc) _hb_disc_print(disc - s->discs, *disc);
 	for (plane = s->planes; *plane; ++plane) _hb_plane_print(plane - s->planes, *plane);
 	for (joint = s->joints; *joint; ++joint) _hb_joint_print(joint - s->joints, *joint);
+	printf("RedSpawnPoints       : [");
+	for (point = s->red_spawn_points; *point; ++point)
+		printf("[%3.2f, %3.2f] ", (*point)->x, (*point)->y);
+	printf("]\n");
+	printf("BlueSpawnPoints      : [");
+	for (point = s->blue_spawn_points; *point; ++point)
+		printf("[%3.2f, %3.2f] ", (*point)->x, (*point)->y);
+	printf("]\n");
 }
 
 int
