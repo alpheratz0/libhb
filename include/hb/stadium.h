@@ -179,7 +179,4 @@ hb_stadium_from_file(const char *file);
 extern void
 hb_stadium_free(struct hb_stadium *s);
 
-extern const char *
-hb_stadium_print(struct hb_stadium *s);
-
 #endif
