@@ -1226,6 +1226,7 @@ hb_stadium_parse(const char *in)
 			s->ball_physics = calloc(1, sizeof(struct hb_disc));
 			if (_hb_jv_parse_disc(ball_physics, s->ball_physics, s->traits) < 0)
 				goto err;
+			s->ball_physics->c_group |= HB_COLLISION_KICK | HB_COLLISION_SCORE;
 		} else if (ball_physics_kind == JV_KIND_STRING) {
 			if (_hb_jv_parse_string(ball_physics, &ball_physics_str, NULL) < 0)
 				goto err;
@@ -1263,6 +1264,7 @@ hb_stadium_parse(const char *in)
 
 		if (discs_kind == JV_KIND_ARRAY) {
 			discs_len = jv_array_length(jv_copy(discs));
+			if (s->ball_physics == NULL && discs_len == 0) goto err;
 			if (s->ball_physics != NULL) discs_len++;
 			s->discs = calloc(discs_len + 1, sizeof(struct hb_disc *));
 			if (s->ball_physics != NULL) s->discs[0] = s->ball_physics;
@@ -1274,6 +1276,8 @@ hb_stadium_parse(const char *in)
 				if (_hb_jv_parse_disc(disc, s->discs[disc_index], s->traits) < 0)
 					goto err;
 			}
+
+			if (NULL == s->ball_physics) s->ball_physics = s->discs[0];
 		} else if (discs_kind == JV_KIND_INVALID) {
 			if (s->ball_physics == NULL)
 				goto err;
