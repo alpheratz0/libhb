@@ -906,6 +906,112 @@ _hb_jv_parse_plane(jv from, struct hb_plane *to, struct hb_trait **traits)
 	return 0;
 }
 
+static int
+_hb_jv_parse_joint(jv from, struct hb_joint *to, struct hb_disc **discs)
+{
+	int num_discs;
+
+	if (jv_get_kind(from) != JV_KIND_OBJECT)
+		return -1;
+
+	num_discs = 0;
+	while (*discs) {
+		++num_discs;
+		++discs;
+	}
+
+	/////////////d0
+	{
+		jv d0;
+		float f;
+		d0 = jv_object_get(jv_copy(from), jv_string("d0"));
+		if (_hb_jv_parse_number(d0, &f, NULL) < 0)
+			return -1;
+		to->d0 = f;
+		if (to->d0 < 0 || to->d0 >= num_discs)
+			return -1;
+	}
+
+	/////////////d1
+	{
+		jv d1;
+		float f;
+		d1 = jv_object_get(jv_copy(from), jv_string("d1"));
+		if (_hb_jv_parse_number(d1, &f, NULL) < 0)
+			return -1;
+		to->d1 = f;
+		if (to->d1 < 0 || to->d1 >= num_discs)
+			return -1;
+	}
+
+	/////////////length
+	{
+		jv length;
+		jv_kind length_kind;
+
+		length = jv_object_get(jv_copy(from), jv_string("length"));
+		length_kind = jv_get_kind(length);
+
+		if (length_kind == JV_KIND_INVALID || length_kind == JV_KIND_NULL) {
+			to->length.kind = HB_JOINT_LENGTH_AUTO;
+		} else if (length_kind == JV_KIND_NUMBER) {
+			to->length.kind = HB_JOINT_LENGTH_FIXED;
+			if (_hb_jv_parse_number(length, &to->length.val.f, NULL) < 0)
+				return -1;
+		} else if (length_kind == JV_KIND_ARRAY && jv_array_length(length) == 2) {
+			jv_array_foreach(length, index, v) {
+				if (jv_get_kind(v) != JV_KIND_NUMBER)
+					return -1;
+				if (_hb_jv_parse_number(v, &to->length.val.range[index], NULL) < 0)
+					return -1;
+			}
+		} else {
+			return -1;
+		}
+	}
+
+	/////////////strength
+	{
+		jv strength;
+		jv_kind strength_kind;
+		char *strength_str;
+
+		strength = jv_object_get(jv_copy(from), jv_string("strength"));
+		strength_kind = jv_get_kind(strength);
+
+		if (strength_kind == JV_KIND_STRING) {
+			if (_hb_jv_parse_string(strength, &strength_str, NULL) < 0)
+				return -1;
+			if (!strcmp(strength_str, "rigid")) to->strength.is_rigid = true;
+			else {
+				free(strength_str);
+				return -1;
+			}
+			free(strength_str);
+		} else if (strength_kind == JV_KIND_NUMBER) {
+			if (_hb_jv_parse_number(strength, &to->strength.val, NULL) < 0)
+				return -1;
+			to->strength.is_rigid = false;
+		} else if (strength_kind == JV_KIND_INVALID) {
+			to->strength.is_rigid = true;
+		} else {
+			return -1;
+		}
+	}
+
+	/////////////color
+	{
+		jv color;
+		uint32_t fallback_color;
+		fallback_color = 0xff000000;
+		color = jv_object_get(jv_copy(from), jv_string("color"));
+		if (_hb_jv_parse_color(color, &to->color, &fallback_color) < 0)
+			return -1;
+	}
+
+	return 0;
+}
+
 extern struct hb_stadium *
 hb_stadium_parse(const char *in)
 {
@@ -1194,6 +1300,31 @@ hb_stadium_parse(const char *in)
 			}
 		} else if (planes_kind == JV_KIND_INVALID) {
 			s->planes = calloc(1, sizeof(struct hb_plane *));
+		} else {
+			goto err;
+		}
+	}
+
+	/////////////joints
+	{
+		jv joints;
+		jv_kind joints_kind;
+		int joints_len;
+
+		joints = jv_object_get(jv_copy(root), jv_string("joints"));
+		joints_kind = jv_get_kind(joints);
+
+		if (joints_kind == JV_KIND_ARRAY) {
+			joints_len = jv_array_length(jv_copy(joints));
+			s->joints = calloc(joints_len + 1, sizeof(struct hb_joint *));
+
+			jv_array_foreach(joints, index, joint) {
+				s->joints[index] = calloc(1, sizeof(struct hb_joint));
+				if (_hb_jv_parse_joint(joint, s->joints[index], s->discs) < 0)
+					goto err;
+			}
+		} else if (joints_kind == JV_KIND_INVALID) {
+			s->joints = calloc(1, sizeof(struct hb_joint *));
 		} else {
 			goto err;
 		}
