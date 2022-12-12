@@ -680,13 +680,18 @@ _hb_jv_parse_disc(jv from, struct hb_disc *to,
 	/////////////pos
 	{
 		jv pos;
+		jv_kind pos_kind;
 		pos = jv_object_get(jv_copy(from), jv_string("pos"));
-		if (jv_get_kind(pos) != JV_KIND_ARRAY ||
-				jv_array_length(pos) != 2)
+		pos_kind = jv_get_kind(pos);
+		if (pos_kind == JV_KIND_INVALID)
+			to->pos[0] = to->pos[1] = 0.0f;
+		else if (pos_kind != JV_KIND_ARRAY || jv_array_length(pos) != 2)
 			return -1;
-		jv_array_foreach(pos, index, v) {
-			if (_hb_jv_parse_number(v, &to->pos[index], NULL) < 0)
-				return -1;
+		else {
+			jv_array_foreach(pos, index, v) {
+				if (_hb_jv_parse_number(v, &to->pos[index], NULL) < 0)
+					return -1;
+			}
 		}
 	}
 
@@ -1116,26 +1121,68 @@ hb_stadium_parse(const char *in)
 		}
 	}
 
+	/////////////ballPhysics
+	{
+		jv ball_physics;
+		jv_kind ball_physics_kind;
+		char *ball_physics_str;
+
+		ball_physics = jv_object_get(jv_copy(root), jv_string("ballPhysics"));
+		ball_physics_kind = jv_get_kind(ball_physics);
+
+		if (ball_physics_kind == JV_KIND_OBJECT) {
+			s->ball_physics = calloc(1, sizeof(struct hb_disc));
+			if (_hb_jv_parse_disc(ball_physics, s->ball_physics, s->traits) < 0)
+				goto err;
+		} else if (ball_physics_kind == JV_KIND_STRING) {
+			if (_hb_jv_parse_string(ball_physics, &ball_physics_str, NULL) < 0)
+				goto err;
+			if (!strcmp(ball_physics_str, "disc0"))
+				s->ball_physics = NULL;
+			else goto err;
+		} else if (ball_physics_kind == JV_KIND_INVALID) {
+			s->ball_physics = calloc(1, sizeof(struct hb_disc));
+			s->ball_physics->radius = 10.0f;
+			s->ball_physics->b_coef = 0.5f;
+			s->ball_physics->inv_mass = 1.0f;
+			s->ball_physics->damping = 0.99f;
+			s->ball_physics->color = 0xffffffff;
+			s->ball_physics->c_mask = HB_COLLISION_ALL;
+			s->ball_physics->c_group = HB_COLLISION_BALL;
+			s->ball_physics->speed[0] = s->ball_physics->speed[1] = 0.0f;
+		} else {
+			goto err;
+		}
+	}
+
 	/////////////discs
 	{
 		jv discs;
 		jv_kind discs_kind;
 		int discs_len;
+		int disc_index;
 
 		discs = jv_object_get(jv_copy(root), jv_string("discs"));
 		discs_kind = jv_get_kind(discs);
 
 		if (discs_kind == JV_KIND_ARRAY) {
 			discs_len = jv_array_length(jv_copy(discs));
+			if (s->ball_physics != NULL) discs_len++;
 			s->discs = calloc(discs_len + 1, sizeof(struct hb_disc *));
+			if (s->ball_physics != NULL) s->discs[0] = s->ball_physics;
 
 			jv_array_foreach(discs, index, disc) {
-				s->discs[index] = calloc(1, sizeof(struct hb_disc));
-				if (_hb_jv_parse_disc(disc, s->discs[index], s->traits) < 0)
+				disc_index = index;
+				if (s->ball_physics != NULL) disc_index++;
+				s->discs[disc_index] = calloc(1, sizeof(struct hb_disc));
+				if (_hb_jv_parse_disc(disc, s->discs[disc_index], s->traits) < 0)
 					goto err;
 			}
 		} else if (discs_kind == JV_KIND_INVALID) {
-			s->discs = calloc(1, sizeof(struct hb_disc *));
+			if (s->ball_physics == NULL)
+				goto err;
+			s->discs = calloc(2, sizeof(struct hb_disc *));
+			s->discs[0] = s->ball_physics;
 		} else {
 			goto err;
 		}

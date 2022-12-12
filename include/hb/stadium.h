@@ -143,6 +143,7 @@ struct hb_stadium {
 	struct hb_goal                  **goals;
 	struct hb_disc                  **discs;
 	struct hb_plane                **planes;
+	struct hb_disc            *ball_physics;
 };
 
 extern struct hb_stadium *
