@@ -250,11 +250,7 @@ _hb_jv_parse_collision_flags(jv from, enum hb_collision_flags *cf,
 static int
 _hb_jv_parse_trait(jv from, struct hb_trait *trait)
 {
-	jv_kind kind;
-
-	kind = jv_get_kind(from);
-
-	if (kind != JV_KIND_OBJECT)
+	if (jv_get_kind(from) != JV_KIND_OBJECT)
 		return -1;
 
 	/////////////curve
@@ -376,6 +372,9 @@ _hb_jv_parse_vertex(jv from, struct hb_vertex *to, struct hb_trait **traits)
 {
 	struct hb_trait *vertex_trait;
 
+	if (jv_get_kind(from) != JV_KIND_OBJECT)
+		return -1;
+
 	/////////////x
 	{
 		jv x;
@@ -464,6 +463,9 @@ _hb_jv_parse_segment(jv from, struct hb_segment *to,
 {
 	struct hb_trait *segment_trait;
 	int num_vertexes;
+
+	if (jv_get_kind(from) != JV_KIND_OBJECT)
+		return -1;
 
 	num_vertexes = 0;
 	while (*vertexes) {
@@ -626,9 +628,7 @@ _hb_jv_parse_team(jv from, enum hb_team *to, enum hb_team *fallback)
 static int
 _hb_jv_parse_goal(jv from, struct hb_goal *to)
 {
-	jv_kind kind;
-	kind = jv_get_kind(from);
-	if (kind != JV_KIND_OBJECT)
+	if (jv_get_kind(from) != JV_KIND_OBJECT)
 		return -1;
 
 	/////////////p0
@@ -665,6 +665,167 @@ _hb_jv_parse_goal(jv from, struct hb_goal *to)
 				to->team == HB_TEAM_SPECTATOR)
 			return -1;
 	}
+}
+
+static int
+_hb_jv_parse_disc(jv from, struct hb_disc *to,
+		struct hb_trait **traits)
+{
+	struct hb_trait *disc_trait;
+
+	if (jv_get_kind(from) != JV_KIND_OBJECT)
+		return -1;
+
+	/////////////pos
+	{
+		jv pos;
+		pos = jv_object_get(jv_copy(from), jv_string("pos"));
+		if (jv_get_kind(pos) != JV_KIND_ARRAY ||
+				jv_array_length(pos) != 2)
+			return -1;
+		jv_array_foreach(pos, index, v) {
+			if (_hb_jv_parse_number(v, &to->pos[index], NULL) < 0)
+				return -1;
+		}
+	}
+
+	/////////////speed
+	{
+		jv speed;
+		jv_kind speed_kind;
+		speed = jv_object_get(jv_copy(from), jv_string("speed"));
+		speed_kind = jv_get_kind(speed);
+		if (speed_kind == JV_KIND_INVALID)
+			to->speed[0] = to->speed[1] = 0.0f;
+		else if (speed_kind != JV_KIND_ARRAY || jv_array_length(speed) != 2)
+			return -1;
+		else {
+			jv_array_foreach(speed, index, v) {
+				if (_hb_jv_parse_number(v, &to->speed[index], NULL) < 0)
+					return -1;
+			}
+		}
+	}
+
+	/////////////gravity
+	{
+		jv gravity;
+		jv_kind gravity_kind;
+		gravity = jv_object_get(jv_copy(from), jv_string("gravity"));
+		gravity_kind = jv_get_kind(gravity);
+		if (gravity_kind == JV_KIND_INVALID)
+			to->gravity[0] = to->gravity[1] = 0.0f;
+		else if (gravity_kind != JV_KIND_ARRAY || jv_array_length(gravity) != 2)
+			return -1;
+		else {
+			jv_array_foreach(gravity, index, v) {
+				if (_hb_jv_parse_number(v, &to->gravity[index], NULL) < 0)
+					return -1;
+			}
+		}
+	}
+
+	/////////////trait
+	{
+		jv trait;
+		char *trait_name;
+		trait = jv_object_get(jv_copy(from), jv_string("trait"));
+		if (_hb_jv_parse_string(trait, &trait_name, "__no_trait__") < 0)
+			return -1;
+		if (!strcmp(trait_name, "__no_trait__"))
+			disc_trait = NULL;
+		else if (_hb_get_trait(traits, &disc_trait, trait_name) < 0) {
+			free(trait_name);
+			return -1;
+		}
+		free(trait_name);
+	}
+
+	/////////////radius
+	{
+		jv radius;
+		radius = jv_object_get(jv_copy(from), jv_string("radius"));
+
+		if (jv_get_kind(radius) == JV_KIND_INVALID &&
+				disc_trait != NULL && disc_trait->has_radius) {
+			to->radius = disc_trait->radius;
+		} else if (_hb_jv_parse_number(radius, &to->radius, NULL) < 0) {
+			return -1;
+		}
+	}
+
+	/////////////invMass
+	{
+		jv inv_mass;
+		inv_mass = jv_object_get(jv_copy(from), jv_string("invMass"));
+
+		if (jv_get_kind(inv_mass) == JV_KIND_INVALID &&
+				disc_trait != NULL && disc_trait->has_inv_mass) {
+			to->inv_mass = disc_trait->inv_mass;
+		} else if (_hb_jv_parse_number(inv_mass, &to->inv_mass, NULL) < 0) {
+			return -1;
+		}
+	}
+
+	/////////////damping
+	{
+		jv damping;
+		damping = jv_object_get(jv_copy(from), jv_string("damping"));
+		if (_hb_jv_parse_number(damping, &to->damping, &HB_F_ZERO) < 0)
+			return -1;
+	}
+
+	/////////////color
+	{
+		jv color;
+		uint32_t fallback_color;
+		fallback_color = 0xffffffff;
+		if (NULL != disc_trait && disc_trait->has_color)
+			fallback_color = disc_trait->color;
+		color = jv_object_get(jv_copy(from), jv_string("color"));
+		if (_hb_jv_parse_color(color, &to->color, &fallback_color) < 0)
+			return -1;
+	}
+
+	/////////////bCoef
+	{
+		jv b_coef;
+		b_coef = jv_object_get(jv_copy(from), jv_string("bCoef"));
+		if (jv_get_kind(b_coef) == JV_KIND_INVALID) {
+			if (NULL == disc_trait || !disc_trait->has_b_coef)
+				return -1;
+			to->b_coef = disc_trait->b_coef;
+		} else {
+			if (_hb_jv_parse_number(b_coef, &to->b_coef, NULL) < 0)
+				return -1;
+		}
+	}
+
+	/////////////cMask
+	{
+		jv c_mask;
+		enum hb_collision_flags fallback_c_mask;
+		fallback_c_mask = 0;
+		if (NULL != disc_trait && disc_trait->has_c_mask)
+			fallback_c_mask = disc_trait->c_mask;
+		c_mask = jv_object_get(jv_copy(from), jv_string("cMask"));
+		if (_hb_jv_parse_collision_flags(c_mask, &to->c_mask, &fallback_c_mask) < 0)
+			return -1;
+	}
+
+	/////////////cGroup
+	{
+		jv c_group;
+		enum hb_collision_flags fallback_c_group;
+		fallback_c_group = 0;
+		if (NULL != disc_trait && disc_trait->has_c_group)
+			fallback_c_group = disc_trait->c_group;
+		c_group = jv_object_get(jv_copy(from), jv_string("cGroup"));
+		if (_hb_jv_parse_collision_flags(c_group, &to->c_group, &fallback_c_group) < 0)
+			return -1;
+	}
+
+	return 0;
 }
 
 extern struct hb_stadium *
@@ -863,6 +1024,31 @@ hb_stadium_parse(const char *in)
 			}
 		} else if (goals_kind == JV_KIND_INVALID) {
 			s->goals = calloc(1, sizeof(struct hb_goal *));
+		} else {
+			goto err;
+		}
+	}
+
+	/////////////discs
+	{
+		jv discs;
+		jv_kind discs_kind;
+		int discs_len;
+
+		discs = jv_object_get(jv_copy(root), jv_string("discs"));
+		discs_kind = jv_get_kind(discs);
+
+		if (discs_kind == JV_KIND_ARRAY) {
+			discs_len = jv_array_length(jv_copy(discs));
+			s->discs = calloc(discs_len + 1, sizeof(struct hb_disc *));
+
+			jv_array_foreach(discs, index, disc) {
+				s->discs[index] = calloc(1, sizeof(struct hb_disc));
+				if (_hb_jv_parse_disc(disc, s->discs[index], s->traits) < 0)
+					goto err;
+			}
+		} else if (discs_kind == JV_KIND_INVALID) {
+			s->discs = calloc(1, sizeof(struct hb_disc *));
 		} else {
 			goto err;
 		}
