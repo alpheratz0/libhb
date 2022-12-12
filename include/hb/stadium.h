@@ -100,6 +100,19 @@ struct hb_goal {
 	enum hb_team                       team;
 };
 
+struct hb_disc {
+	float                            pos[2];
+	float                          speed[2];
+	float                        gravity[2];
+	float                            radius;
+	float                          inv_mass;
+	float                           damping;
+	uint32_t                          color;
+	float                            b_coef;
+	enum hb_collision_flags          c_mask;
+	enum hb_collision_flags         c_group;
+};
+
 struct hb_stadium {
 	char                              *name;
 	float                      camera_width;
@@ -114,6 +127,7 @@ struct hb_stadium {
 	struct hb_vertex             **vertexes;
 	struct hb_segment            **segments;
 	struct hb_goal                  **goals;
+	struct hb_disc                  **discs;
 };
 
 extern struct hb_stadium *
