@@ -150,6 +150,11 @@ struct hb_joint {
 	uint32_t                          color;
 };
 
+struct hb_point {
+	float                                 x;
+	float                                 y;
+};
+
 struct hb_stadium {
 	char                              *name;
 	float                      camera_width;
@@ -168,6 +173,8 @@ struct hb_stadium {
 	struct hb_plane                **planes;
 	struct hb_joint                **joints;
 	struct hb_disc            *ball_physics;
+	struct hb_point      **red_spawn_points;
+	struct hb_point     **blue_spawn_points;
 };
 
 extern struct hb_stadium *

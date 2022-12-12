@@ -117,6 +117,19 @@ _hb_jv_parse_color(jv from, uint32_t *color, const uint32_t *fallback)
 
 	return -1;
 }
+static int
+_hb_jv_parse_point(jv from, struct hb_point *to)
+{
+	if (jv_get_kind(from) != JV_KIND_ARRAY ||
+			jv_array_length(jv_copy(from)) != 2)
+		return -1;
+	jv_array_foreach(from, index, v) {
+		if (jv_get_kind(v) != JV_KIND_NUMBER)
+			return -1;
+		if (index == 0) to->x = jv_number_value(from);
+		else to->y = jv_number_value(from);
+	}
+}
 
 static int
 _hb_jv_parse_bg(jv from, struct hb_background *bg)
@@ -1453,6 +1466,56 @@ hb_stadium_parse(const char *in)
 			}
 		} else if (joints_kind == JV_KIND_INVALID) {
 			s->joints = calloc(1, sizeof(struct hb_joint *));
+		} else {
+			goto err;
+		}
+	}
+
+	/////////////redSpawnPoints
+	{
+		jv red_spawn_points;
+		jv_kind red_spawn_points_kind;
+		int red_spawn_points_len;
+
+		red_spawn_points = jv_object_get(jv_copy(root), jv_string("redSpawnPoints"));
+		red_spawn_points_kind = jv_get_kind(red_spawn_points);
+
+		if (red_spawn_points_kind == JV_KIND_ARRAY) {
+			red_spawn_points_len = jv_array_length(jv_copy(red_spawn_points));
+			s->red_spawn_points = calloc(red_spawn_points_len + 1, sizeof(struct hb_point *));
+
+			jv_array_foreach(red_spawn_points, index, red_spawn_point) {
+				s->red_spawn_points[index] = calloc(1, sizeof(struct hb_point));
+				if (_hb_jv_parse_point(red_spawn_point, s->red_spawn_points[index]) < 0)
+					goto err;
+			}
+		} else if (red_spawn_points_kind == JV_KIND_INVALID) {
+			s->red_spawn_points = calloc(1, sizeof(struct hb_point *));
+		} else {
+			goto err;
+		}
+	}
+
+	/////////////blueSpawnPoints
+	{
+		jv blue_spawn_points;
+		jv_kind blue_spawn_points_kind;
+		int blue_spawn_points_len;
+
+		blue_spawn_points = jv_object_get(jv_copy(root), jv_string("blueSpawnPoints"));
+		blue_spawn_points_kind = jv_get_kind(blue_spawn_points);
+
+		if (blue_spawn_points_kind == JV_KIND_ARRAY) {
+			blue_spawn_points_len = jv_array_length(jv_copy(blue_spawn_points));
+			s->blue_spawn_points = calloc(blue_spawn_points_len + 1, sizeof(struct hb_point *));
+
+			jv_array_foreach(blue_spawn_points, index, red_spawn_point) {
+				s->blue_spawn_points[index] = calloc(1, sizeof(struct hb_point));
+				if (_hb_jv_parse_point(red_spawn_point, s->blue_spawn_points[index]) < 0)
+					goto err;
+			}
+		} else if (blue_spawn_points_kind == JV_KIND_INVALID) {
+			s->blue_spawn_points = calloc(1, sizeof(struct hb_point *));
 		} else {
 			goto err;
 		}
