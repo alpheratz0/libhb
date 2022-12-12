@@ -99,6 +99,13 @@ _hb_disc_print(int index, struct hb_disc *d)
 			d->radius, d->inv_mass, d->damping, d->color, d->b_coef, d->c_mask, d->c_group);
 }
 
+static void
+_hb_plane_print(int index, struct hb_plane *p)
+{
+	printf("Plane.%-3d            : Normal: [%4.1f, %4.1f], Dist: %4.2f, BCoef: %4.2f, CMask: %3d, CGroup: %3d\n", index,
+			p->normal[0], p->normal[1], p->dist, p->b_coef, p->c_mask, p->c_group);
+}
+
 extern const char *
 hb_stadium_print(struct hb_stadium *s)
 {
@@ -107,6 +114,7 @@ hb_stadium_print(struct hb_stadium *s)
 	struct hb_segment **segment;
 	struct hb_goal **goal;
 	struct hb_disc **disc;
+	struct hb_plane **plane;
 
 	printf("Name                 : %s\n", s->name);
 	printf("CameraWidth          : %.2f\n", s->camera_width);
@@ -127,6 +135,7 @@ hb_stadium_print(struct hb_stadium *s)
 	for (segment = s->segments; *segment; ++segment) _hb_segment_print(segment - s->segments, *segment);
 	for (goal = s->goals; *goal; ++goal) _hb_goal_print(goal - s->goals, *goal);
 	for (disc = s->discs; *disc; ++disc) _hb_disc_print(disc - s->discs, *disc);
+	for (plane = s->planes; *plane; ++plane) _hb_plane_print(plane - s->planes, *plane);
 }
 
 int
