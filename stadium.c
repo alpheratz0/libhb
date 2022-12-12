@@ -729,34 +729,34 @@ _hb_jv_parse_disc(jv from, struct hb_disc *to,
 	/////////////radius
 	{
 		jv radius;
+		float fallback_radius;
+		fallback_radius = 10.0f;
 		radius = jv_object_get(jv_copy(from), jv_string("radius"));
-
-		if (jv_get_kind(radius) == JV_KIND_INVALID &&
-				disc_trait != NULL && disc_trait->has_radius) {
-			to->radius = disc_trait->radius;
-		} else if (_hb_jv_parse_number(radius, &to->radius, NULL) < 0) {
+		if (disc_trait != NULL && disc_trait->has_radius)
+			fallback_radius = disc_trait->radius;
+		if (_hb_jv_parse_number(radius, &to->radius, &fallback_radius) < 0)
 			return -1;
-		}
 	}
 
 	/////////////invMass
 	{
 		jv inv_mass;
+		float fallback_inv_mass;
+		fallback_inv_mass = 1.0f;
 		inv_mass = jv_object_get(jv_copy(from), jv_string("invMass"));
-
-		if (jv_get_kind(inv_mass) == JV_KIND_INVALID &&
-				disc_trait != NULL && disc_trait->has_inv_mass) {
-			to->inv_mass = disc_trait->inv_mass;
-		} else if (_hb_jv_parse_number(inv_mass, &to->inv_mass, NULL) < 0) {
+		if (disc_trait != NULL && disc_trait->has_inv_mass)
+			fallback_inv_mass = disc_trait->inv_mass;
+		if (_hb_jv_parse_number(inv_mass, &to->inv_mass, &fallback_inv_mass) < 0)
 			return -1;
-		}
 	}
 
 	/////////////damping
 	{
 		jv damping;
+		float fallback_damping;
+		fallback_damping =  0.99;
 		damping = jv_object_get(jv_copy(from), jv_string("damping"));
-		if (_hb_jv_parse_number(damping, &to->damping, &HB_F_ZERO) < 0)
+		if (_hb_jv_parse_number(damping, &to->damping, &fallback_damping) < 0)
 			return -1;
 	}
 
@@ -776,7 +776,7 @@ _hb_jv_parse_disc(jv from, struct hb_disc *to,
 	{
 		jv b_coef;
 		float fallback_b_coef;
-		fallback_b_coef = 0.0f;
+		fallback_b_coef = 0.5f;
 		if (NULL != disc_trait && disc_trait->has_b_coef)
 			fallback_b_coef = disc_trait->b_coef;
 		b_coef = jv_object_get(jv_copy(from), jv_string("bCoef"));
