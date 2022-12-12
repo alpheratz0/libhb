@@ -97,6 +97,21 @@ _hb_goal_print(int index, struct hb_goal *g)
 	printf("Goal[%d].team: %s\n", index, _hb_team_to_string(g->team));
 }
 
+static void
+_hb_disc_print(int index, struct hb_disc *d)
+{
+	printf("Disc[%d].pos: (%.2f, %.2f)\n", index, d->pos[0], d->pos[1]);
+	printf("Disc[%d].speed: (%.2f, %.2f)\n", index, d->speed[0], d->speed[1]);
+	printf("Disc[%d].gravity: (%.2f, %.2f)\n", index, d->gravity[0], d->gravity[1]);
+	printf("Disc[%d].radius: %.2f\n", index, d->radius);
+	printf("Disc[%d].invMass: %.2f\n", index, d->inv_mass);
+	printf("Disc[%d].damping: %.2f\n", index, d->damping);
+	printf("Disc[%d].color: %08x\n", index, d->color);
+	printf("Disc[%d].bCoef: %.2f\n", index, d->b_coef);
+	printf("Disc[%d].cMask: %d\n", index, d->c_mask);
+	printf("Disc[%d].cGroup: %d\n", index, d->c_group);
+}
+
 extern const char *
 hb_stadium_print(struct hb_stadium *s)
 {
@@ -104,6 +119,7 @@ hb_stadium_print(struct hb_stadium *s)
 	struct hb_vertex **vertex;
 	struct hb_segment **segment;
 	struct hb_goal **goal;
+	struct hb_disc **disc;
 
 	printf("Name: %s\n", s->name);
 	printf("CameraWidth: %.2f\n", s->camera_width);
@@ -121,17 +137,11 @@ hb_stadium_print(struct hb_stadium *s)
 	printf("Background.GoalLine: %.2f\n", s->bg->goal_line);
 	printf("Background.Color: %08x\n", s->bg->color);
 
-	for (trait = s->traits; *trait; ++trait)
-		_hb_trait_print(*trait);
-
-	for (vertex = s->vertexes; *vertex; ++vertex)
-		_hb_vertex_print(vertex - s->vertexes, *vertex);
-
-	for (segment = s->segments; *segment; ++segment)
-		_hb_segment_print(segment - s->segments, *segment);
-
-	for (goal = s->goals; *goal; ++goal)
-		_hb_goal_print(goal - s->goals, *goal);
+	for (trait = s->traits; *trait; ++trait) _hb_trait_print(*trait);
+	for (vertex = s->vertexes; *vertex; ++vertex) _hb_vertex_print(vertex - s->vertexes, *vertex);
+	for (segment = s->segments; *segment; ++segment) _hb_segment_print(segment - s->segments, *segment);
+	for (goal = s->goals; *goal; ++goal) _hb_goal_print(goal - s->goals, *goal);
+	for (disc = s->discs; *disc; ++disc) _hb_disc_print(disc - s->discs, *disc);
 }
 
 int
