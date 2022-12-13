@@ -1166,7 +1166,7 @@ hb_stadium_parse(const char *in)
 	s = calloc(1, sizeof(struct hb_stadium));
 	root = jv_parse(in);
 
-	if (jv_get_kind(root) == JV_KIND_INVALID)
+	if (jv_get_kind(root) != JV_KIND_OBJECT)
 		goto err;
 
 	/////////////name
@@ -1183,7 +1183,7 @@ hb_stadium_parse(const char *in)
 		cam_width = jv_object_get(jv_copy(root), jv_string("cameraWidth"));
 		cam_height = jv_object_get(jv_copy(root), jv_string("cameraHeight"));
 		if (_hb_jv_parse_number(cam_width, &s->camera_width, &HB_F_ZERO) < 0
-				&& _hb_jv_parse_number(cam_height, &s->camera_height, &HB_F_ZERO) < 0)
+				|| _hb_jv_parse_number(cam_height, &s->camera_height, &HB_F_ZERO) < 0)
 			goto err;
 	}
 
