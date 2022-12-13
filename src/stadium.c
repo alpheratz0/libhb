@@ -23,6 +23,10 @@ static int _hb_jv_parse_vertex(jv from, struct hb_vertex **to, struct hb_trait *
 static int _hb_jv_parse_vertex_list(jv from, struct hb_vertex ***to, struct hb_trait **traits);
 static int _hb_jv_parse_segment(jv from, struct hb_segment **to, struct hb_vertex **vertexes, struct hb_trait **traits);
 static int _hb_jv_parse_segment_list(jv from, struct hb_segment ***to, struct hb_vertex **vertexes, struct hb_trait **traits);
+static int _hb_jv_parse_vec2(jv from, float to[2], const float *(fallback[2]));
+static int _hb_jv_parse_team(jv from, enum hb_team *to, enum hb_team *fallback);
+static int _hb_jv_parse_goal(jv from, struct hb_goal **to);
+static int _hb_jv_parse_goal_list(jv from, struct hb_goal ***to);
 
 static int _hb_jv_parse_string_and_free(jv from, char **to, const char *fallback);
 static int _hb_jv_parse_number_and_free(jv from, float *to, const float *fallback);
@@ -40,6 +44,10 @@ static int _hb_jv_parse_vertex_and_free(jv from, struct hb_vertex **to, struct h
 static int _hb_jv_parse_vertex_list_and_free(jv from, struct hb_vertex ***to, struct hb_trait **traits);
 static int _hb_jv_parse_segment_and_free(jv from, struct hb_segment **to, struct hb_vertex **vertexes, struct hb_trait **traits);
 static int _hb_jv_parse_segment_list_and_free(jv from, struct hb_segment ***to, struct hb_vertex **vertexes, struct hb_trait **traits);
+static int _hb_jv_parse_vec2_and_free(jv from, float to[2], const float *(fallback[2]));
+static int _hb_jv_parse_team_and_free(jv from, enum hb_team *to, enum hb_team *fallback);
+static int _hb_jv_parse_goal_and_free(jv from, struct hb_goal **to);
+static int _hb_jv_parse_goal_list_and_free(jv from, struct hb_goal ***to);
 
 static int
 _hb_trait_find_by_name(struct hb_trait **traits, struct hb_trait **trait, const char *name)
@@ -767,6 +775,111 @@ _hb_jv_parse_segment_list(jv from, struct hb_segment ***to,
 	}
 }
 
+static int
+_hb_jv_parse_vec2(jv from, float to[2], const float *(fallback[2]))
+{
+	switch (jv_get_kind(from)) {
+		case JV_KIND_ARRAY:
+			if (jv_array_length(jv_copy(from)) != 2)
+				return -1;
+			jv_array_foreach(from, index, v) {
+				if (_hb_jv_parse_number_and_free(v, &to[index], NULL) < 0)
+					return -1;
+			}
+			return 0;
+		case JV_KIND_INVALID:
+			if (fallback == NULL)
+				return -1;
+			to[0] = (*fallback)[0];
+			to[1] = (*fallback)[1];
+			return 0;
+		default:
+			return -1;
+	}
+}
+
+static int
+_hb_jv_parse_team(jv from, enum hb_team *to, enum hb_team *fallback)
+{
+	const char *str;
+	switch (jv_get_kind(from)) {
+	case JV_KIND_STRING:
+		str = jv_string_value(from);
+		if (!strcmp(str, "red")) *to = HB_TEAM_RED;
+		else if (!strcmp(str, "blue")) *to = HB_TEAM_BLUE;
+		else if (!strcmp(str, "spect")) *to = HB_TEAM_SPECTATOR;
+		else return -1;
+		return 0;
+	case JV_KIND_INVALID:
+		if (fallback == NULL)
+			return -1;
+		*to = *fallback;
+		return 0;
+	default:
+		return -1;
+	}
+}
+
+static int
+_hb_jv_parse_goal(jv from, struct hb_goal **to)
+{
+	struct hb_goal *goal;
+
+	if (jv_get_kind(from) != JV_KIND_OBJECT)
+		return -1;
+
+	goal = *to = calloc(1, sizeof(struct hb_goal));
+
+	/////////////p0
+	{
+		jv p0;
+		p0 = jv_object_get(jv_copy(from), jv_string("p0"));
+		if (_hb_jv_parse_vec2_and_free(p0, goal->p0, NULL) < 0)
+			return -1;
+	}
+
+	/////////////p1
+	{
+		jv p1;
+		p1 = jv_object_get(jv_copy(from), jv_string("p1"));
+		if (_hb_jv_parse_vec2_and_free(p1, goal->p1, NULL) < 0)
+			return -1;
+	}
+
+	/////////////team
+	{
+		jv team;
+		team = jv_object_get(jv_copy(from), jv_string("team"));
+		if (_hb_jv_parse_team_and_free(team, &goal->team, NULL) < 0 ||
+				goal->team == HB_TEAM_SPECTATOR)
+			return -1;
+	}
+
+	return 0;
+}
+
+static int
+_hb_jv_parse_goal_list(jv from, struct hb_goal ***to)
+{
+	int count;
+
+	switch (jv_get_kind(from)) {
+	case JV_KIND_ARRAY:
+		count = jv_array_length(jv_copy(from));
+		*to = calloc(count + 1, sizeof(struct hb_goal *));
+		jv_array_foreach(from, index, goal) {
+			if (_hb_jv_parse_goal_and_free(goal, &((*to)[index])) < 0)
+				return -1;
+		}
+		return 0;
+	case JV_KIND_INVALID:
+		*to = calloc(1, sizeof(struct hb_goal *));
+		break;
+	default:
+		return -1;
+	}
+}
+
 //////////////////////////////////////////////
 //////////////PARSE + JV_FREE/////////////////
 //////////////////////////////////////////////
@@ -925,6 +1038,42 @@ _hb_jv_parse_segment_list_and_free(jv from, struct hb_segment ***to,
 	return ret;
 }
 
+static int
+_hb_jv_parse_vec2_and_free(jv from, float to[2], const float *(fallback[2]))
+{
+	int ret;
+	ret = _hb_jv_parse_vec2(from, to, fallback);
+	jv_free(from);
+	return ret;
+}
+
+static int
+_hb_jv_parse_team_and_free(jv from, enum hb_team *to, enum hb_team *fallback)
+{
+	int ret;
+	ret = _hb_jv_parse_team(from, to, fallback);
+	jv_free(from);
+	return ret;
+}
+
+static int
+_hb_jv_parse_goal_and_free(jv from, struct hb_goal **to)
+{
+	int ret;
+	ret = _hb_jv_parse_goal(from, to);
+	jv_free(from);
+	return ret;
+}
+
+static int
+_hb_jv_parse_goal_list_and_free(jv from, struct hb_goal ***to)
+{
+	int ret;
+	ret = _hb_jv_parse_goal_list(from, to);
+	jv_free(from);
+	return ret;
+}
+
 extern struct hb_stadium *
 hb_stadium_parse(const char *in)
 {
@@ -1037,6 +1186,14 @@ hb_stadium_parse(const char *in)
 		jv segments;
 		segments = jv_object_get(jv_copy(root), jv_string("segments"));
 		if (_hb_jv_parse_segment_list_and_free(segments, &s->segments, s->vertexes, s->traits) < 0)
+			goto err;
+	}
+
+	/////////////goals
+	{
+		jv goals;
+		goals = jv_object_get(jv_copy(root), jv_string("goals"));
+		if (_hb_jv_parse_goal_list_and_free(goals, &s->goals) < 0)
 			goto err;
 	}
 
