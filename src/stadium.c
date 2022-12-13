@@ -19,6 +19,8 @@ static int _hb_jv_parse_collision_flag(jv from, enum hb_collision_flags *to, con
 static int _hb_jv_parse_collision_flags(jv from, enum hb_collision_flags *to, const enum hb_collision_flags *fallback);
 static int _hb_jv_parse_trait(jv from, jv name, struct hb_trait **to);
 static int _hb_jv_parse_trait_list(jv from, struct hb_trait ***to);
+static int _hb_jv_parse_vertex(jv from, struct hb_vertex **to, struct hb_trait **traits);
+static int _hb_jv_parse_vertex_list(jv from, struct hb_vertex ***to, struct hb_trait **traits);
 
 static int _hb_jv_parse_string_and_free(jv from, char **to, const char *fallback);
 static int _hb_jv_parse_number_and_free(jv from, float *to, const float *fallback);
@@ -32,6 +34,21 @@ static int _hb_jv_parse_collision_flag_and_free(jv from, enum hb_collision_flags
 static int _hb_jv_parse_collision_flags_and_free(jv from, enum hb_collision_flags *to, const enum hb_collision_flags *fallback);
 static int _hb_jv_parse_trait_and_free(jv from, jv name, struct hb_trait **to);
 static int _hb_jv_parse_trait_list_and_free(jv from, struct hb_trait ***to);
+static int _hb_jv_parse_vertex_and_free(jv from, struct hb_vertex **to, struct hb_trait **traits);
+static int _hb_jv_parse_vertex_list_and_free(jv from, struct hb_vertex ***to, struct hb_trait **traits);
+
+static int
+_hb_trait_find_by_name(struct hb_trait **traits, struct hb_trait **trait, const char *name)
+{
+	struct hb_trait **cur;
+	for (cur = traits; *cur; ++cur) {
+		if (!strcmp((*cur)->name, name)) {
+			*trait = *cur;
+			return 0;
+		}
+	}
+	return -1;
+}
 
 //////////////////////////////////////////////
 //////////////////PARSE///////////////////////
@@ -481,6 +498,111 @@ _hb_jv_parse_trait_list(jv from, struct hb_trait ***to)
 	}
 }
 
+static int
+_hb_jv_parse_vertex(jv from, struct hb_vertex **to,
+		struct hb_trait **traits)
+{
+	struct hb_vertex *vert;
+	struct hb_trait *vert_trait;
+
+	if (jv_get_kind(from) != JV_KIND_OBJECT)
+		return -1;
+
+	vert = *to = calloc(1, sizeof(struct hb_vertex));
+
+	/////////////x
+	{
+		jv x;
+		x = jv_object_get(jv_copy(from), jv_string("x"));
+		if (_hb_jv_parse_number_and_free(x, &vert->x, NULL) < 0)
+			return -1;
+	}
+
+	/////////////y
+	{
+		jv y;
+		y = jv_object_get(jv_copy(from), jv_string("y"));
+		if (_hb_jv_parse_number_and_free(y, &vert->y, NULL) < 0)
+			return -1;
+	}
+
+	/////////////trait
+	{
+		jv trait;
+		char *trait_name;
+		trait = jv_object_get(jv_copy(from), jv_string("trait"));
+		if (_hb_jv_parse_string_and_free(trait, &trait_name, "__no_trait__") < 0)
+			return -1;
+		if (!strcmp(trait_name, "__no_trait__") ||
+				_hb_trait_find_by_name(traits, &vert_trait, trait_name) < 0)
+			vert_trait = NULL;
+		free(trait_name);
+	}
+
+	/////////////bCoef
+	{
+		jv b_coef;
+		float fallback_b_coef;
+		fallback_b_coef = 0.0f;
+		if (NULL != vert_trait && vert_trait->has_b_coef)
+			fallback_b_coef = vert_trait->b_coef;
+		b_coef = jv_object_get(jv_copy(from), jv_string("bCoef"));
+		if (_hb_jv_parse_number_and_free(b_coef, &vert->b_coef, &fallback_b_coef) < 0)
+			return -1;
+	}
+
+	/////////////cGroup
+	{
+		// FIXME: is cGroup fallback/default value 0?
+		jv c_group;
+		enum hb_collision_flags fallback_c_group;
+		fallback_c_group = 0;
+		if (NULL != vert_trait && vert_trait->has_c_group)
+			fallback_c_group = vert_trait->c_group;
+		c_group = jv_object_get(jv_copy(from), jv_string("cGroup"));
+		if (_hb_jv_parse_collision_flags_and_free(c_group, &vert->c_group, &fallback_c_group) < 0)
+			return -1;
+	}
+
+	/////////////cMask
+	{
+		// FIXME: is cMask fallback/default value 0?
+		jv c_mask;
+		enum hb_collision_flags fallback_c_mask;
+		fallback_c_mask = 0;
+		if (NULL != vert_trait && vert_trait->has_c_mask)
+			fallback_c_mask = vert_trait->c_mask;
+		c_mask = jv_object_get(jv_copy(from), jv_string("cMask"));
+		if (_hb_jv_parse_collision_flags_and_free(c_mask, &vert->c_mask, &fallback_c_mask) < 0)
+			return -1;
+	}
+
+	return 0;
+}
+
+static int
+_hb_jv_parse_vertex_list(jv from, struct hb_vertex ***to,
+		struct hb_trait **traits)
+{
+	int count;
+
+	switch (jv_get_kind(from)) {
+	case JV_KIND_ARRAY:
+		count = jv_array_length(jv_copy(from));
+		*to = calloc(count + 1, sizeof(struct hb_vertex *));
+		jv_array_foreach(from, index, vertex) {
+			if (_hb_jv_parse_vertex_and_free(vertex, &((*to)[index]), traits) < 0)
+				return -1;
+		}
+		return 0;
+	case JV_KIND_INVALID:
+		*to = calloc(1, sizeof(struct hb_vertex *));
+		break;
+	default:
+		return -1;
+	}
+}
+
 //////////////////////////////////////////////
 //////////////PARSE + JV_FREE/////////////////
 //////////////////////////////////////////////
@@ -599,6 +721,26 @@ _hb_jv_parse_trait_list_and_free(jv from, struct hb_trait ***to)
 	return ret;
 }
 
+static int
+_hb_jv_parse_vertex_and_free(jv from, struct hb_vertex **to,
+		struct hb_trait **traits)
+{
+	int ret;
+	ret = _hb_jv_parse_vertex(from, to, traits);
+	jv_free(from);
+	return ret;
+}
+
+static int
+_hb_jv_parse_vertex_list_and_free(jv from, struct hb_vertex ***to,
+		struct hb_trait **traits)
+{
+	int ret;
+	ret = _hb_jv_parse_vertex_list(from, to, traits);
+	jv_free(from);
+	return ret;
+}
+
 extern struct hb_stadium *
 hb_stadium_parse(const char *in)
 {
@@ -695,6 +837,14 @@ hb_stadium_parse(const char *in)
 		jv traits;
 		traits = jv_object_get(jv_copy(root), jv_string("traits"));
 		if (_hb_jv_parse_trait_list_and_free(traits, &s->traits) < 0)
+			goto err;
+	}
+
+	/////////////vertexes
+	{
+		jv vertexes;
+		vertexes = jv_object_get(jv_copy(root), jv_string("vertexes"));
+		if (_hb_jv_parse_vertex_list_and_free(vertexes, &s->vertexes, s->traits) < 0)
 			goto err;
 	}
 
