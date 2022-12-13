@@ -172,5 +172,7 @@ main(int argc, char **argv)
 		return 1;
 	}
 	else hb_stadium_print(big);
+	hb_stadium_free(big);
+
 	return 0;
 }
