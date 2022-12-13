@@ -1565,9 +1565,93 @@ hb_stadium_from_file(const char *file)
 extern void
 hb_stadium_free(struct hb_stadium *s)
 {
+	struct hb_trait **trait;
+	struct hb_vertex **vertex;
+	struct hb_segment **segment;
+	struct hb_goal **goal;
+	struct hb_disc **disc;
+	struct hb_plane **plane;
+	struct hb_joint **joint;
+	struct hb_point **point;
+
 	if (s->name)
 		free(s->name);
 	if (s->bg)
 		free(s->bg);
+	if (s->traits) {
+		trait = s->traits;
+		while (*trait) {
+			free((*trait)->name);
+			free(*trait);
+			trait++;
+		}
+		free(s->traits);
+	}
+	if (s->vertexes) {
+		vertex = s->vertexes;
+		while (*vertex) {
+			free(*vertex);
+			vertex++;
+		}
+		free(s->vertexes);
+	}
+	if (s->segments) {
+		segment = s->segments;
+		while (*segment) {
+			free(*segment);
+			segment++;
+		}
+		free(s->segments);
+	}
+	if (s->goals) {
+		goal = s->goals;
+		while (*goal) {
+			free(*goal);
+			goal++;
+		}
+		free(s->goals);
+	}
+	if (s->discs) {
+		if (s->discs[0] != NULL) s->ball_physics = NULL;
+		disc = s->discs;
+		while (*disc) {
+			free(*disc);
+			disc++;
+		}
+		free(s->discs);
+	}
+	if (s->planes) {
+		plane = s->planes;
+		while (*plane) {
+			free(*plane);
+			plane++;
+		}
+		free(s->planes);
+	}
+	if (s->joints) {
+		joint = s->joints;
+		while (*joint) {
+			free(*joint);
+			joint++;
+		}
+		free(s->joints);
+	}
+	if (s->red_spawn_points) {
+		point = s->red_spawn_points;
+		while (*point) {
+			free(*point);
+			point++;
+		}
+		free(s->red_spawn_points);
+	}
+	if (s->blue_spawn_points) {
+		point = s->blue_spawn_points;
+		while (*point) {
+			free(*point);
+			point++;
+		}
+		free(s->blue_spawn_points);
+	}
+
 	free(s);
 }
