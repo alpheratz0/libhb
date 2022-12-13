@@ -29,6 +29,8 @@ static int _hb_jv_parse_team(jv from, enum hb_team *to, enum hb_team *fallback);
 static int _hb_jv_parse_goal(jv from, struct hb_goal **to);
 static int _hb_jv_parse_goal_list(jv from, struct hb_goal ***to);
 static int _hb_jv_parse_ball_physics(jv from, struct hb_disc **to);
+static int _hb_jv_parse_disc(jv from, struct hb_disc **to, struct hb_trait **traits);
+static int _hb_jv_parse_disc_list(jv from, struct hb_disc ***to, struct hb_trait **traits, struct hb_disc **ball_physics);
 
 static int _hb_jv_parse_string_and_free(jv from, char **to, const char *fallback);
 static int _hb_jv_parse_number_and_free(jv from, float *to, const float *fallback);
@@ -51,6 +53,8 @@ static int _hb_jv_parse_team_and_free(jv from, enum hb_team *to, enum hb_team *f
 static int _hb_jv_parse_goal_and_free(jv from, struct hb_goal **to);
 static int _hb_jv_parse_goal_list_and_free(jv from, struct hb_goal ***to);
 static int _hb_jv_parse_ball_physics_and_free(jv from, struct hb_disc **to);
+static int _hb_jv_parse_disc_and_free(jv from, struct hb_disc **to, struct hb_trait **traits);
+static int _hb_jv_parse_disc_list_and_free(jv from, struct hb_disc ***to, struct hb_trait **traits, struct hb_disc **ball_physics);
 
 static int
 _hb_trait_find_by_name(struct hb_trait **traits, struct hb_trait **trait, const char *name)
@@ -1017,6 +1021,172 @@ _hb_jv_parse_ball_physics(jv from, struct hb_disc **to)
 	return 0;
 }
 
+static int
+_hb_jv_parse_disc(jv from, struct hb_disc **to,
+		struct hb_trait **traits)
+{
+	struct hb_disc *disc;
+	struct hb_trait *disc_trait;
+
+	if (jv_get_kind(from) != JV_KIND_OBJECT)
+		return -1;
+
+	disc = *to = calloc(1, sizeof(struct hb_disc));
+
+	/////////////pos
+	{
+		jv pos;
+		pos = jv_object_get(jv_copy(from), jv_string("pos"));
+		if (_hb_jv_parse_vec2_and_free(pos, disc->pos, &HB_V2_ZERO) < 0)
+			return -1;
+	}
+
+	/////////////speed
+	{
+		jv speed;
+		speed = jv_object_get(jv_copy(from), jv_string("speed"));
+		if (_hb_jv_parse_vec2_and_free(speed, disc->speed, &HB_V2_ZERO) < 0)
+			return -1;
+	}
+
+	/////////////gravity
+	{
+		jv gravity;
+		gravity = jv_object_get(jv_copy(from), jv_string("gravity"));
+		if (_hb_jv_parse_vec2_and_free(gravity, disc->gravity, &HB_V2_ZERO) < 0)
+			return -1;
+	}
+
+	/////////////trait
+	{
+		jv trait;
+		char *trait_name;
+		trait = jv_object_get(jv_copy(from), jv_string("trait"));
+		if (_hb_jv_parse_string_and_free(trait, &trait_name, "__no_trait__") < 0)
+			return -1;
+		if (!strcmp(trait_name, "__no_trait__") ||
+				_hb_trait_find_by_name(traits, &disc_trait, trait_name) < 0)
+			disc_trait = NULL;
+		free(trait_name);
+	}
+
+	/////////////radius
+	{
+		jv radius;
+		float fallback_radius;
+		fallback_radius = 10.0f;
+		radius = jv_object_get(jv_copy(from), jv_string("radius"));
+		if (disc_trait != NULL && disc_trait->has_radius)
+			fallback_radius = disc_trait->radius;
+		if (_hb_jv_parse_number_and_free(radius, &disc->radius, &fallback_radius) < 0)
+			return -1;
+	}
+
+	/////////////invMass
+	{
+		jv inv_mass;
+		float fallback_inv_mass;
+		fallback_inv_mass = 1.0f;
+		inv_mass = jv_object_get(jv_copy(from), jv_string("invMass"));
+		if (disc_trait != NULL && disc_trait->has_inv_mass)
+			fallback_inv_mass = disc_trait->inv_mass;
+		if (_hb_jv_parse_number_and_free(inv_mass, &disc->inv_mass, &fallback_inv_mass) < 0)
+			return -1;
+	}
+
+	/////////////damping
+	{
+		jv damping;
+		float fallback_damping;
+		fallback_damping =  0.99;
+		damping = jv_object_get(jv_copy(from), jv_string("damping"));
+		if (_hb_jv_parse_number_and_free(damping, &disc->damping, &fallback_damping) < 0)
+			return -1;
+	}
+
+	/////////////color
+	{
+		jv color;
+		uint32_t fallback_color;
+		fallback_color = 0xffffffff;
+		if (NULL != disc_trait && disc_trait->has_color)
+			fallback_color = disc_trait->color;
+		color = jv_object_get(jv_copy(from), jv_string("color"));
+		if (_hb_jv_parse_color_and_free(color, &disc->color, &fallback_color) < 0)
+			return -1;
+	}
+
+	/////////////bCoef
+	{
+		jv b_coef;
+		float fallback_b_coef;
+		fallback_b_coef = 0.5f;
+		if (NULL != disc_trait && disc_trait->has_b_coef)
+			fallback_b_coef = disc_trait->b_coef;
+		b_coef = jv_object_get(jv_copy(from), jv_string("bCoef"));
+		if (_hb_jv_parse_number_and_free(b_coef, &disc->b_coef, &fallback_b_coef) < 0)
+			return -1;
+	}
+
+	/////////////cMask
+	{
+		jv c_mask;
+		enum hb_collision_flags fallback_c_mask;
+		fallback_c_mask = 0;
+		if (NULL != disc_trait && disc_trait->has_c_mask)
+			fallback_c_mask = disc_trait->c_mask;
+		c_mask = jv_object_get(jv_copy(from), jv_string("cMask"));
+		if (_hb_jv_parse_collision_flags_and_free(c_mask, &disc->c_mask, &fallback_c_mask) < 0)
+			return -1;
+	}
+
+	/////////////cGroup
+	{
+		jv c_group;
+		enum hb_collision_flags fallback_c_group;
+		fallback_c_group = 0;
+		if (NULL != disc_trait && disc_trait->has_c_group)
+			fallback_c_group = disc_trait->c_group;
+		c_group = jv_object_get(jv_copy(from), jv_string("cGroup"));
+		if (_hb_jv_parse_collision_flags_and_free(c_group, &disc->c_group, &fallback_c_group) < 0)
+			return -1;
+	}
+
+	return 0;
+}
+
+static int
+_hb_jv_parse_disc_list(jv from, struct hb_disc ***to,
+		struct hb_trait **traits, struct hb_disc **ball_physics)
+{
+	int count, disc_index;
+
+	switch (jv_get_kind(from)) {
+	case JV_KIND_ARRAY:
+		count = jv_array_length(jv_copy(from));
+		if (*ball_physics == NULL && count == 0) return -1;
+		if (*ball_physics != NULL) ++count;
+		*to = calloc(count + 1, sizeof(struct hb_disc *));
+		if (*ball_physics != NULL) (*to)[0] = *ball_physics;
+		jv_array_foreach(from, index, disc) {
+			disc_index = index;
+			if (*ball_physics != NULL) ++disc_index;
+			if (_hb_jv_parse_disc_and_free(disc, &((*to)[disc_index]), traits) < 0)
+				return -1;
+		}
+		if (*ball_physics == NULL) *ball_physics = (*to)[0];
+		return 0;
+	case JV_KIND_INVALID:
+		if (ball_physics == NULL)
+			return -1;
+		*to = calloc(2, sizeof(struct hb_disc *));
+		(*to)[0] = *ball_physics;
+		return 0;
+	default:
+		return -1;
+	}
+}
+
 //////////////////////////////////////////////
 //////////////PARSE + JV_FREE/////////////////
 //////////////////////////////////////////////
@@ -1220,6 +1390,26 @@ _hb_jv_parse_ball_physics_and_free(jv from, struct hb_disc **to)
 	return ret;
 }
 
+static int
+_hb_jv_parse_disc_and_free(jv from, struct hb_disc **to,
+		struct hb_trait **traits)
+{
+	int ret;
+	ret = _hb_jv_parse_disc(from, to, traits);
+	jv_free(from);
+	return ret;
+}
+
+static int
+_hb_jv_parse_disc_list_and_free(jv from, struct hb_disc ***to,
+		struct hb_trait **traits, struct hb_disc **ball_physics)
+{
+	int ret;
+	ret = _hb_jv_parse_disc_list(from, to, traits, ball_physics);
+	jv_free(from);
+	return ret;
+}
+
 extern struct hb_stadium *
 hb_stadium_parse(const char *in)
 {
@@ -1351,6 +1541,13 @@ hb_stadium_parse(const char *in)
 			goto err;
 	}
 
+	/////////////discs
+	{
+		jv discs;
+		discs = jv_object_get(jv_copy(root), jv_string("discs"));
+		if (_hb_jv_parse_disc_list_and_free(discs, &s->discs, s->traits, &s->ball_physics) < 0)
+			goto err;
+	}
 
 	jv_free(root);
 	return s;
