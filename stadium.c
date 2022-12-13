@@ -104,7 +104,7 @@ _hb_jv_parse_color(jv from, uint32_t *color, const uint32_t *fallback)
 	}
 
 	if (kind == JV_KIND_ARRAY) {
-		if (jv_array_length(from) != 3)
+		if (jv_array_length(jv_copy(from)) != 3)
 			return -1;
 		*color = 0xff << 24;
 		jv_array_foreach(from, index, value) {
@@ -632,7 +632,7 @@ _hb_jv_parse_goal(jv from, struct hb_goal *to)
 		jv p0;
 		p0 = jv_object_get(jv_copy(from), jv_string("p0"));
 		if (jv_get_kind(p0) != JV_KIND_ARRAY ||
-				jv_array_length(p0) != 2)
+				jv_array_length(jv_copy(p0)) != 2)
 			return -1;
 		jv_array_foreach(p0, index, v) {
 			if (_hb_jv_parse_number(v, &to->p0[index], NULL) < 0)
@@ -645,7 +645,7 @@ _hb_jv_parse_goal(jv from, struct hb_goal *to)
 		jv p1;
 		p1 = jv_object_get(jv_copy(from), jv_string("p1"));
 		if (jv_get_kind(p1) != JV_KIND_ARRAY ||
-				jv_array_length(p1) != 2)
+				jv_array_length(jv_copy(p1)) != 2)
 			return -1;
 		jv_array_foreach(p1, index, v) {
 			if (_hb_jv_parse_number(v, &to->p1[index], NULL) < 0)
@@ -680,7 +680,8 @@ _hb_jv_parse_disc(jv from, struct hb_disc *to,
 		pos_kind = jv_get_kind(pos);
 		if (pos_kind == JV_KIND_INVALID)
 			to->pos[0] = to->pos[1] = 0.0f;
-		else if (pos_kind != JV_KIND_ARRAY || jv_array_length(pos) != 2)
+		else if (pos_kind != JV_KIND_ARRAY ||
+				jv_array_length(jv_copy(pos)) != 2)
 			return -1;
 		else {
 			jv_array_foreach(pos, index, v) {
@@ -698,7 +699,8 @@ _hb_jv_parse_disc(jv from, struct hb_disc *to,
 		speed_kind = jv_get_kind(speed);
 		if (speed_kind == JV_KIND_INVALID)
 			to->speed[0] = to->speed[1] = 0.0f;
-		else if (speed_kind != JV_KIND_ARRAY || jv_array_length(speed) != 2)
+		else if (speed_kind != JV_KIND_ARRAY ||
+				jv_array_length(jv_copy(speed)) != 2)
 			return -1;
 		else {
 			jv_array_foreach(speed, index, v) {
@@ -716,7 +718,8 @@ _hb_jv_parse_disc(jv from, struct hb_disc *to,
 		gravity_kind = jv_get_kind(gravity);
 		if (gravity_kind == JV_KIND_INVALID)
 			to->gravity[0] = to->gravity[1] = 0.0f;
-		else if (gravity_kind != JV_KIND_ARRAY || jv_array_length(gravity) != 2)
+		else if (gravity_kind != JV_KIND_ARRAY ||
+				jv_array_length(jv_copy(gravity)) != 2)
 			return -1;
 		else {
 			jv_array_foreach(gravity, index, v) {
@@ -838,7 +841,8 @@ _hb_jv_parse_ball_physics_disc(jv from, struct hb_disc *to)
 		pos_kind = jv_get_kind(pos);
 		if (pos_kind == JV_KIND_INVALID)
 			to->pos[0] = to->pos[1] = 0.0f;
-		else if (pos_kind != JV_KIND_ARRAY || jv_array_length(pos) != 2)
+		else if (pos_kind != JV_KIND_ARRAY ||
+				jv_array_length(jv_copy(pos)) != 2)
 			return -1;
 		else {
 			jv_array_foreach(pos, index, v) {
@@ -856,7 +860,8 @@ _hb_jv_parse_ball_physics_disc(jv from, struct hb_disc *to)
 		speed_kind = jv_get_kind(speed);
 		if (speed_kind == JV_KIND_INVALID)
 			to->speed[0] = to->speed[1] = 0.0f;
-		else if (speed_kind != JV_KIND_ARRAY || jv_array_length(speed) != 2)
+		else if (speed_kind != JV_KIND_ARRAY ||
+				jv_array_length(jv_copy(speed)) != 2)
 			return -1;
 		else {
 			jv_array_foreach(speed, index, v) {
@@ -874,7 +879,8 @@ _hb_jv_parse_ball_physics_disc(jv from, struct hb_disc *to)
 		gravity_kind = jv_get_kind(gravity);
 		if (gravity_kind == JV_KIND_INVALID)
 			to->gravity[0] = to->gravity[1] = 0.0f;
-		else if (gravity_kind != JV_KIND_ARRAY || jv_array_length(gravity) != 2)
+		else if (gravity_kind != JV_KIND_ARRAY ||
+				jv_array_length(jv_copy(gravity)) != 2)
 			return -1;
 		else {
 			jv_array_foreach(gravity, index, v) {
@@ -971,7 +977,7 @@ _hb_jv_parse_plane(jv from, struct hb_plane *to, struct hb_trait **traits)
 		jv normal;
 		normal = jv_object_get(jv_copy(from), jv_string("normal"));
 		if (jv_get_kind(normal) != JV_KIND_ARRAY ||
-				jv_array_length(normal) != 2)
+				jv_array_length(jv_copy(normal)) != 2)
 			return -1;
 		jv_array_foreach(normal, index, v) {
 			if (_hb_jv_parse_number(v, &to->normal[index], NULL) < 0)
@@ -1091,7 +1097,8 @@ _hb_jv_parse_joint(jv from, struct hb_joint *to, struct hb_disc **discs)
 			to->length.kind = HB_JOINT_LENGTH_FIXED;
 			if (_hb_jv_parse_number(length, &to->length.val.f, NULL) < 0)
 				return -1;
-		} else if (length_kind == JV_KIND_ARRAY && jv_array_length(length) == 2) {
+		} else if (length_kind == JV_KIND_ARRAY &&
+				jv_array_length(jv_copy(length)) == 2) {
 			jv_array_foreach(length, index, v) {
 				if (jv_get_kind(v) != JV_KIND_NUMBER)
 					return -1;
