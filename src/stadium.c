@@ -898,7 +898,7 @@ _hb_jv_parse_ball_physics(jv from, struct hb_disc **to)
 
 	if (kind != JV_KIND_OBJECT
 			&& kind != JV_KIND_STRING
-			&& kind != JV_KIND_OBJECT)
+			&& kind != JV_KIND_INVALID)
 		return -1;
 
 	if (kind == JV_KIND_INVALID) {
