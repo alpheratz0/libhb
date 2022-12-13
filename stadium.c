@@ -126,8 +126,8 @@ _hb_jv_parse_point(jv from, struct hb_point *to)
 	jv_array_foreach(from, index, v) {
 		if (jv_get_kind(v) != JV_KIND_NUMBER)
 			return -1;
-		if (index == 0) to->x = jv_number_value(from);
-		else to->y = jv_number_value(from);
+		if (index == 0) to->x = jv_number_value(v);
+		else to->y = jv_number_value(v);
 	}
 }
 
