@@ -21,6 +21,8 @@ static int _hb_jv_parse_trait(jv from, jv name, struct hb_trait **to);
 static int _hb_jv_parse_trait_list(jv from, struct hb_trait ***to);
 static int _hb_jv_parse_vertex(jv from, struct hb_vertex **to, struct hb_trait **traits);
 static int _hb_jv_parse_vertex_list(jv from, struct hb_vertex ***to, struct hb_trait **traits);
+static int _hb_jv_parse_segment(jv from, struct hb_segment **to, struct hb_vertex **vertexes, struct hb_trait **traits);
+static int _hb_jv_parse_segment_list(jv from, struct hb_segment ***to, struct hb_vertex **vertexes, struct hb_trait **traits);
 
 static int _hb_jv_parse_string_and_free(jv from, char **to, const char *fallback);
 static int _hb_jv_parse_number_and_free(jv from, float *to, const float *fallback);
@@ -36,6 +38,8 @@ static int _hb_jv_parse_trait_and_free(jv from, jv name, struct hb_trait **to);
 static int _hb_jv_parse_trait_list_and_free(jv from, struct hb_trait ***to);
 static int _hb_jv_parse_vertex_and_free(jv from, struct hb_vertex **to, struct hb_trait **traits);
 static int _hb_jv_parse_vertex_list_and_free(jv from, struct hb_vertex ***to, struct hb_trait **traits);
+static int _hb_jv_parse_segment_and_free(jv from, struct hb_segment **to, struct hb_vertex **vertexes, struct hb_trait **traits);
+static int _hb_jv_parse_segment_list_and_free(jv from, struct hb_segment ***to, struct hb_vertex **vertexes, struct hb_trait **traits);
 
 static int
 _hb_trait_find_by_name(struct hb_trait **traits, struct hb_trait **trait, const char *name)
@@ -603,6 +607,166 @@ _hb_jv_parse_vertex_list(jv from, struct hb_vertex ***to,
 	}
 }
 
+static int
+_hb_jv_parse_segment(jv from, struct hb_segment **to,
+		struct hb_vertex **vertexes, struct hb_trait **traits)
+{
+	struct hb_segment *segm;
+	struct hb_trait *segm_trait;
+	int vert_count;
+
+	if (jv_get_kind(from) != JV_KIND_OBJECT)
+		return -1;
+
+	vert_count = 0;
+	while (*vertexes) {
+		++vert_count;
+		++vertexes;
+	}
+
+	segm = *to = calloc(1, sizeof(struct hb_segment));
+
+	/////////////v0
+	{
+		jv v0;
+		float f;
+		v0 = jv_object_get(jv_copy(from), jv_string("v0"));
+		if (_hb_jv_parse_number_and_free(v0, &f, NULL) < 0)
+			return -1;
+		segm->v0 = f;
+		if (segm->v0 < 0 || segm->v0 >= vert_count)
+			return -1;
+	}
+
+	/////////////v1
+	{
+		jv v1;
+		float f;
+		v1 = jv_object_get(jv_copy(from), jv_string("v1"));
+		if (_hb_jv_parse_number_and_free(v1, &f, NULL) < 0)
+			return -1;
+		segm->v1 = f;
+		if (segm->v1 < 0 || segm->v1 >= vert_count)
+			return -1;
+	}
+
+	/////////////trait
+	{
+		jv trait;
+		char *trait_name;
+		trait = jv_object_get(jv_copy(from), jv_string("trait"));
+		if (_hb_jv_parse_string_and_free(trait, &trait_name, "__no_trait__") < 0)
+			return -1;
+		if (!strcmp(trait_name, "__no_trait__") ||
+				_hb_trait_find_by_name(traits, &segm_trait, trait_name) < 0)
+			segm_trait = NULL;
+		free(trait_name);
+	}
+
+	/////////////bCoef
+	{
+		jv b_coef;
+		float fallback_b_coef;
+		fallback_b_coef = 0.0f;
+		if (NULL != segm_trait && segm_trait->has_b_coef)
+			fallback_b_coef = segm_trait->b_coef;
+		b_coef = jv_object_get(jv_copy(from), jv_string("bCoef"));
+		if (_hb_jv_parse_number_and_free(b_coef, &segm->b_coef, &fallback_b_coef) < 0)
+			return -1;
+	}
+
+	/////////////curve
+	{
+		jv curve;
+		curve = jv_object_get(jv_copy(from), jv_string("curve"));
+		if (_hb_jv_parse_number_and_free(curve, &segm->curve, &HB_F_ZERO) < 0)
+			return -1;
+	}
+
+	/////////////bias
+	{
+		jv bias;
+		bias = jv_object_get(jv_copy(from), jv_string("bias"));
+		if (_hb_jv_parse_number_and_free(bias, &segm->bias, &HB_F_ZERO) < 0)
+			return -1;
+	}
+
+	/////////////cGroup
+	{
+		// FIXME: is cGroup fallback/default value 0?
+		jv c_group;
+		enum hb_collision_flags fallback_c_group;
+		fallback_c_group = 0;
+		if (NULL != segm_trait && segm_trait->has_c_group)
+			fallback_c_group = segm_trait->c_group;
+		c_group = jv_object_get(jv_copy(from), jv_string("cGroup"));
+		if (_hb_jv_parse_collision_flags_and_free(c_group, &segm->c_group, &fallback_c_group) < 0)
+			return -1;
+	}
+
+	/////////////cMask
+	{
+		// FIXME: is cMask fallback/default value 0?
+		jv c_mask;
+		enum hb_collision_flags fallback_c_mask;
+		fallback_c_mask = 0;
+		if (NULL != segm_trait && segm_trait->has_c_mask)
+			fallback_c_mask = segm_trait->c_mask;
+		c_mask = jv_object_get(jv_copy(from), jv_string("cMask"));
+		if (_hb_jv_parse_collision_flags_and_free(c_mask, &segm->c_mask, &fallback_c_mask) < 0)
+			return -1;
+	}
+
+	/////////////vis
+	{
+		jv vis;
+		bool fallback_vis;
+		fallback_vis = true;
+		if (NULL != segm_trait && segm_trait->has_vis)
+			fallback_vis = segm_trait->vis;
+		vis = jv_object_get(jv_copy(from), jv_string("vis"));
+		if (_hb_jv_parse_boolean_and_free(vis, &segm->vis, &fallback_vis) < 0)
+			return -1;
+	}
+
+	/////////////color
+	{
+		jv color;
+		uint32_t fallback_color;
+		fallback_color = 0xff000000;
+		if (NULL != segm_trait && segm_trait->has_color)
+			fallback_color = segm_trait->color;
+		color = jv_object_get(jv_copy(from), jv_string("color"));
+		if (_hb_jv_parse_color_and_free(color, &segm->color, &fallback_color) < 0)
+			return -1;
+	}
+
+	return 0;
+}
+
+static int
+_hb_jv_parse_segment_list(jv from, struct hb_segment ***to,
+		struct hb_vertex **vertexes, struct hb_trait **traits)
+{
+	int count;
+
+	switch (jv_get_kind(from)) {
+	case JV_KIND_ARRAY:
+		count = jv_array_length(jv_copy(from));
+		*to = calloc(count + 1, sizeof(struct hb_segment *));
+		jv_array_foreach(from, index, segment) {
+			if (_hb_jv_parse_segment_and_free(segment, &((*to)[index]), vertexes, traits) < 0)
+				return -1;
+		}
+		return 0;
+	case JV_KIND_INVALID:
+		*to = calloc(1, sizeof(struct hb_segment *));
+		break;
+	default:
+		return -1;
+	}
+}
+
 //////////////////////////////////////////////
 //////////////PARSE + JV_FREE/////////////////
 //////////////////////////////////////////////
@@ -741,6 +905,26 @@ _hb_jv_parse_vertex_list_and_free(jv from, struct hb_vertex ***to,
 	return ret;
 }
 
+static int
+_hb_jv_parse_segment_and_free(jv from, struct hb_segment **to,
+	   struct hb_vertex **vertexes, struct hb_trait **traits)
+{
+	int ret;
+	ret = _hb_jv_parse_segment(from, to, vertexes, traits);
+	jv_free(from);
+	return ret;
+}
+
+static int
+_hb_jv_parse_segment_list_and_free(jv from, struct hb_segment ***to,
+		struct hb_vertex **vertexes, struct hb_trait **traits)
+{
+	int ret;
+	ret = _hb_jv_parse_segment_list(from, to, vertexes, traits);
+	jv_free(from);
+	return ret;
+}
+
 extern struct hb_stadium *
 hb_stadium_parse(const char *in)
 {
@@ -845,6 +1029,14 @@ hb_stadium_parse(const char *in)
 		jv vertexes;
 		vertexes = jv_object_get(jv_copy(root), jv_string("vertexes"));
 		if (_hb_jv_parse_vertex_list_and_free(vertexes, &s->vertexes, s->traits) < 0)
+			goto err;
+	}
+
+	/////////////segments
+	{
+		jv segments;
+		segments = jv_object_get(jv_copy(root), jv_string("segments"));
+		if (_hb_jv_parse_segment_list_and_free(segments, &s->segments, s->vertexes, s->traits) < 0)
 			goto err;
 	}
 
