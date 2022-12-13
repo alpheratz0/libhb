@@ -3,6 +3,15 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <hb/background.h>
+#include <hb/trait.h>
+#include <hb/vertex.h>
+#include <hb/segment.h>
+#include <hb/goal.h>
+#include <hb/disc.h>
+#include <hb/plane.h>
+#include <hb/joint.h>
+#include <hb/point.h>
 
 enum hb_camera_follow {
 	HB_CAMERA_FOLLOW_PLAYER,
@@ -12,147 +21,6 @@ enum hb_camera_follow {
 enum hb_kick_off_reset {
 	HB_KICK_OFF_RESET_PARTIAL,
 	HB_KICK_OFF_RESET_FULL
-};
-
-enum hb_background_type {
-	HB_BACKGROUND_TYPE_NONE,
-	HB_BACKGROUND_TYPE_GRASS,
-	HB_BACKGROUND_TYPE_HOCKEY
-};
-
-struct hb_background {
-	enum hb_background_type            type;
-	float                             width;
-	float                            height;
-	float                   kick_off_radius;
-	float                     corner_radius;
-	float                         goal_line;
-	uint32_t                          color;
-};
-
-enum hb_collision_flags {
-	HB_COLLISION_BALL =           1 << 0,
-	HB_COLLISION_RED =            1 << 1,
-	HB_COLLISION_BLUE =           1 << 2,
-	HB_COLLISION_RED_KO =         1 << 3,
-	HB_COLLISION_BLUE_KO =        1 << 4,
-	HB_COLLISION_WALL =           1 << 5,
-	HB_COLLISION_ALL =      (1 << 6) - 1,
-	HB_COLLISION_KICK =           1 << 6,
-	HB_COLLISION_SCORE =          1 << 7,
-	HB_COLLISION_C0 =            1 << 28,
-	HB_COLLISION_C1 =            1 << 29,
-	HB_COLLISION_C2 =            1 << 30,
-	HB_COLLISION_C3 =            1 << 31
-};
-
-struct hb_trait {
-	char                              *name;
-	bool                          has_curve;
-	float                             curve;
-	bool                        has_damping;
-	float                           damping;
-	bool                       has_inv_mass;
-	float                          inv_mass;
-	bool                         has_radius;
-	float                            radius;
-	bool                         has_b_coef;
-	float                            b_coef;
-	bool                          has_color;
-	uint32_t                          color;
-	bool                            has_vis;
-	bool                                vis;
-	bool                        has_c_group;
-	enum hb_collision_flags         c_group;
-	bool                         has_c_mask;
-	enum hb_collision_flags          c_mask;
-};
-
-struct hb_vertex {
-	float                                 x;
-	float                                 y;
-	float                            b_coef;
-	enum hb_collision_flags         c_group;
-	enum hb_collision_flags          c_mask;
-};
-
-struct hb_segment {
-	int                                  v0;
-	int                                  v1;
-	float                            b_coef;
-	float                             curve;
-	float                              bias;
-	enum hb_collision_flags         c_group;
-	enum hb_collision_flags          c_mask;
-	bool                                vis;
-	uint32_t                          color;
-};
-
-enum hb_team {
-	HB_TEAM_SPECTATOR,
-	HB_TEAM_RED,
-	HB_TEAM_BLUE
-};
-
-struct hb_goal {
-	float                             p0[2];
-	float                             p1[2];
-	enum hb_team                       team;
-};
-
-struct hb_disc {
-	float                            pos[2];
-	float                          speed[2];
-	float                        gravity[2];
-	float                            radius;
-	float                          inv_mass;
-	float                           damping;
-	uint32_t                          color;
-	float                            b_coef;
-	enum hb_collision_flags          c_mask;
-	enum hb_collision_flags         c_group;
-};
-
-struct hb_plane {
-	float                         normal[2];
-	float                              dist;
-	float                            b_coef;
-	enum hb_collision_flags          c_mask;
-	enum hb_collision_flags         c_group;
-};
-
-enum hb_joint_length_kind {
-	HB_JOINT_LENGTH_FIXED,
-	HB_JOINT_LENGTH_RANGE,
-	HB_JOINT_LENGTH_AUTO
-};
-
-union hb_joint_length_value {
-	float                                 f;
-	float                          range[2];
-};
-
-struct hb_joint_length {
-	enum hb_joint_length_kind          kind;
-	union hb_joint_length_value         val;
-};
-
-struct hb_joint_strength {
-	bool                           is_rigid;
-	float                               val;
-};
-
-struct hb_joint {
-	int                                  d0;
-	int                                  d1;
-	struct hb_joint_length           length;
-	struct hb_joint_strength       strength;
-	uint32_t                          color;
-};
-
-struct hb_point {
-	float                                 x;
-	float                                 y;
 };
 
 struct hb_stadium {

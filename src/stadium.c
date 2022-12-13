@@ -129,6 +129,8 @@ _hb_jv_parse_point(jv from, struct hb_point *to)
 		if (index == 0) to->x = jv_number_value(v);
 		else to->y = jv_number_value(v);
 	}
+
+	return 0;
 }
 
 static int
@@ -661,6 +663,8 @@ _hb_jv_parse_goal(jv from, struct hb_goal *to)
 				to->team == HB_TEAM_SPECTATOR)
 			return -1;
 	}
+
+	return 0;
 }
 
 static int
