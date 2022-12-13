@@ -14,7 +14,7 @@ static int _hb_jv_parse_camera_follow(jv from, enum hb_camera_follow *to, enum h
 static int _hb_jv_parse_kick_off_reset(jv from, enum hb_kick_off_reset *to, enum hb_kick_off_reset *fallback);
 static int _hb_jv_parse_bg_type(jv from, enum hb_background_type *to, enum hb_background_type *fallback);
 static int _hb_jv_parse_color(jv from, uint32_t *to, uint32_t *fallback);
-static int _hb_jv_parse_bg(jv from, struct hb_background *to);
+static int _hb_jv_parse_bg(jv from, struct hb_background **to);
 static int _hb_jv_parse_collision_flag(jv from, enum hb_collision_flags *to, const enum hb_collision_flags *fallback);
 static int _hb_jv_parse_collision_flags(jv from, enum hb_collision_flags *to, const enum hb_collision_flags *fallback);
 static int _hb_jv_parse_trait(jv from, jv name, struct hb_trait **to);
@@ -27,7 +27,7 @@ static int _hb_jv_parse_camera_follow_and_free(jv from, enum hb_camera_follow *t
 static int _hb_jv_parse_kick_off_reset_and_free(jv from, enum hb_kick_off_reset *to, enum hb_kick_off_reset *fallback);
 static int _hb_jv_parse_bg_type_and_free(jv from, enum hb_background_type *to, enum hb_background_type *fallback);
 static int _hb_jv_parse_color_and_free(jv from, uint32_t *to, uint32_t *fallback);
-static int _hb_jv_parse_bg_and_free(jv from, struct hb_background *to);
+static int _hb_jv_parse_bg_and_free(jv from, struct hb_background **to);
 static int _hb_jv_parse_collision_flag_and_free(jv from, enum hb_collision_flags *to, const enum hb_collision_flags *fallback);
 static int _hb_jv_parse_collision_flags_and_free(jv from, enum hb_collision_flags *to, const enum hb_collision_flags *fallback);
 static int _hb_jv_parse_trait_and_free(jv from, jv name, struct hb_trait **to);
@@ -202,20 +202,22 @@ _hb_jv_parse_color(jv from, uint32_t *to, uint32_t *fallback)
 }
 
 static int
-_hb_jv_parse_bg(jv from, struct hb_background *to)
+_hb_jv_parse_bg(jv from, struct hb_background **to)
 {
+	struct hb_background *bg;
 	jv_kind kind;
 
 	kind = jv_get_kind(from);
+	bg = *to = malloc(sizeof(struct hb_background));
 
 	if (kind == JV_KIND_INVALID) {
-		to->type = HB_BACKGROUND_TYPE_NONE;
-		to->width = 0.0f;
-		to->height = 0.0f;
-		to->kick_off_radius = 0.0f;
-		to->corner_radius = 0.0f;
-		to->goal_line = 0.0f;
-		to->color = 0xff718c5a;
+		bg->type = HB_BACKGROUND_TYPE_NONE;
+		bg->width = 0.0f;
+		bg->height = 0.0f;
+		bg->kick_off_radius = 0.0f;
+		bg->corner_radius = 0.0f;
+		bg->goal_line = 0.0f;
+		bg->color = 0xff718c5a;
 		return 0;
 	}
 
@@ -228,7 +230,7 @@ _hb_jv_parse_bg(jv from, struct hb_background *to)
 		enum hb_background_type fallback_type;
 		fallback_type = HB_BACKGROUND_TYPE_NONE;
 		type = jv_object_get(jv_copy(from), jv_string("type"));
-		if (_hb_jv_parse_bg_type_and_free(type, &to->type, &fallback_type) < 0)
+		if (_hb_jv_parse_bg_type_and_free(type, &bg->type, &fallback_type) < 0)
 			return -1;
 	}
 
@@ -236,7 +238,7 @@ _hb_jv_parse_bg(jv from, struct hb_background *to)
 	{
 		jv width;
 		width = jv_object_get(jv_copy(from), jv_string("width"));
-		if (_hb_jv_parse_number_and_free(width, &to->width, &HB_F_ZERO) < 0)
+		if (_hb_jv_parse_number_and_free(width, &bg->width, &HB_F_ZERO) < 0)
 			return -1;
 	}
 
@@ -244,7 +246,7 @@ _hb_jv_parse_bg(jv from, struct hb_background *to)
 	{
 		jv height;
 		height = jv_object_get(jv_copy(from), jv_string("height"));
-		if (_hb_jv_parse_number_and_free(height, &to->height, &HB_F_ZERO) < 0)
+		if (_hb_jv_parse_number_and_free(height, &bg->height, &HB_F_ZERO) < 0)
 			return -1;
 	}
 
@@ -252,7 +254,7 @@ _hb_jv_parse_bg(jv from, struct hb_background *to)
 	{
 		jv kick_off_radius;
 		kick_off_radius = jv_object_get(jv_copy(from), jv_string("kickOffRadius"));
-		if (_hb_jv_parse_number_and_free(kick_off_radius, &to->kick_off_radius, &HB_F_ZERO) < 0)
+		if (_hb_jv_parse_number_and_free(kick_off_radius, &bg->kick_off_radius, &HB_F_ZERO) < 0)
 			return -1;
 	}
 
@@ -260,7 +262,7 @@ _hb_jv_parse_bg(jv from, struct hb_background *to)
 	{
 		jv corner_radius;
 		corner_radius = jv_object_get(jv_copy(from), jv_string("cornerRadius"));
-		if (_hb_jv_parse_number_and_free(corner_radius, &to->corner_radius, &HB_F_ZERO) < 0)
+		if (_hb_jv_parse_number_and_free(corner_radius, &bg->corner_radius, &HB_F_ZERO) < 0)
 			return -1;
 	}
 
@@ -268,7 +270,7 @@ _hb_jv_parse_bg(jv from, struct hb_background *to)
 	{
 		jv goal_line;
 		goal_line = jv_object_get(jv_copy(from), jv_string("goalLine"));
-		if (_hb_jv_parse_number_and_free(goal_line, &to->goal_line, &HB_F_ZERO) < 0)
+		if (_hb_jv_parse_number_and_free(goal_line, &bg->goal_line, &HB_F_ZERO) < 0)
 			return -1;
 	}
 
@@ -278,7 +280,7 @@ _hb_jv_parse_bg(jv from, struct hb_background *to)
 		uint32_t fallback_color;
 		fallback_color = 0xff718c5a;
 		color = jv_object_get(jv_copy(from), jv_string("color"));
-		if (_hb_jv_parse_color_and_free(color, &to->color, &fallback_color) < 0)
+		if (_hb_jv_parse_color_and_free(color, &bg->color, &fallback_color) < 0)
 			return -1;
 	}
 
@@ -550,7 +552,7 @@ _hb_jv_parse_color_and_free(jv from, uint32_t *to, uint32_t *fallback)
 }
 
 static int
-_hb_jv_parse_bg_and_free(jv from, struct hb_background *to)
+_hb_jv_parse_bg_and_free(jv from, struct hb_background **to)
 {
 	int ret;
 	ret = _hb_jv_parse_bg(from, to);
@@ -684,8 +686,7 @@ hb_stadium_parse(const char *in)
 	{
 		jv bg;
 		bg = jv_object_get(jv_copy(root), jv_string("bg"));
-		s->bg = malloc(sizeof(struct hb_background));
-		if (_hb_jv_parse_bg_and_free(bg, s->bg) < 0)
+		if (_hb_jv_parse_bg_and_free(bg, &s->bg) < 0)
 			goto err;
 	}
 
