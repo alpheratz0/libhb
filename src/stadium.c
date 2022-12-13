@@ -15,6 +15,10 @@ static int _hb_jv_parse_kick_off_reset(jv from, enum hb_kick_off_reset *to, enum
 static int _hb_jv_parse_bg_type(jv from, enum hb_background_type *to, enum hb_background_type *fallback);
 static int _hb_jv_parse_color(jv from, uint32_t *to, uint32_t *fallback);
 static int _hb_jv_parse_bg(jv from, struct hb_background *to);
+static int _hb_jv_parse_collision_flag(jv from, enum hb_collision_flags *to, const enum hb_collision_flags *fallback);
+static int _hb_jv_parse_collision_flags(jv from, enum hb_collision_flags *to, const enum hb_collision_flags *fallback);
+static int _hb_jv_parse_trait(jv from, jv name, struct hb_trait **to);
+static int _hb_jv_parse_trait_list(jv from, struct hb_trait ***to);
 
 static int _hb_jv_parse_string_and_free(jv from, char **to, const char *fallback);
 static int _hb_jv_parse_number_and_free(jv from, float *to, const float *fallback);
@@ -24,6 +28,10 @@ static int _hb_jv_parse_kick_off_reset_and_free(jv from, enum hb_kick_off_reset 
 static int _hb_jv_parse_bg_type_and_free(jv from, enum hb_background_type *to, enum hb_background_type *fallback);
 static int _hb_jv_parse_color_and_free(jv from, uint32_t *to, uint32_t *fallback);
 static int _hb_jv_parse_bg_and_free(jv from, struct hb_background *to);
+static int _hb_jv_parse_collision_flag_and_free(jv from, enum hb_collision_flags *to, const enum hb_collision_flags *fallback);
+static int _hb_jv_parse_collision_flags_and_free(jv from, enum hb_collision_flags *to, const enum hb_collision_flags *fallback);
+static int _hb_jv_parse_trait_and_free(jv from, jv name, struct hb_trait **to);
+static int _hb_jv_parse_trait_list_and_free(jv from, struct hb_trait ***to);
 
 //////////////////////////////////////////////
 //////////////////PARSE///////////////////////
@@ -277,6 +285,200 @@ _hb_jv_parse_bg(jv from, struct hb_background *to)
 	return 0;
 }
 
+static int
+_hb_jv_parse_collision_flag(jv from, enum hb_collision_flags *to,
+		const enum hb_collision_flags *fallback)
+{
+	const char *str;
+
+	if (jv_get_kind(from) == JV_KIND_INVALID) {
+		if (NULL == fallback)
+			return -1;
+		*to = *fallback;
+		return 0;
+	}
+
+	if (jv_get_kind(from) != JV_KIND_STRING)
+		return -1;
+
+	str = jv_string_value(from);
+	if (!strcmp(str, "ball")) *to = HB_COLLISION_BALL;
+	else if (!strcmp(str, "red")) *to = HB_COLLISION_RED;
+	else if (!strcmp(str, "blue")) *to = HB_COLLISION_BLUE;
+	else if (!strcmp(str, "redKO")) *to = HB_COLLISION_RED_KO;
+	else if (!strcmp(str, "blueKO")) *to = HB_COLLISION_BLUE_KO;
+	else if (!strcmp(str, "wall")) *to = HB_COLLISION_WALL;
+	else if (!strcmp(str, "all")) *to = HB_COLLISION_ALL;
+	else if (!strcmp(str, "kick")) *to = HB_COLLISION_KICK;
+	else if (!strcmp(str, "score")) *to = HB_COLLISION_SCORE;
+	else if (!strcmp(str, "c0")) *to = HB_COLLISION_C0;
+	else if (!strcmp(str, "c1")) *to = HB_COLLISION_C1;
+	else if (!strcmp(str, "c2")) *to = HB_COLLISION_C2;
+	else if (!strcmp(str, "c3")) *to = HB_COLLISION_C3;
+	else *to = 0;
+	return 0;
+}
+
+static int
+_hb_jv_parse_collision_flags(jv from, enum hb_collision_flags *to,
+		const enum hb_collision_flags *fallback)
+{
+	enum hb_collision_flags flag;
+	switch (jv_get_kind(from)) {
+	case JV_KIND_ARRAY:
+		jv_array_foreach(from, index, value) {
+			if (_hb_jv_parse_collision_flag_and_free(value, &flag, NULL) < 0)
+				return -1;
+			*to |= flag;
+		}
+		return 0;
+	case JV_KIND_INVALID:
+		if (NULL == fallback)
+			return -1;
+		*to = *fallback;
+		return 0;
+	default:
+		return -1;
+	}
+}
+
+static int
+_hb_jv_parse_trait(jv from, jv name, struct hb_trait **to)
+{
+	struct hb_trait *trait;
+
+	if (jv_get_kind(name) != JV_KIND_STRING ||
+			jv_get_kind(from) != JV_KIND_OBJECT)
+		return -1;
+
+	trait = *to = calloc(1, sizeof(struct hb_trait));
+	trait->name = strdup(jv_string_value(name));
+
+	/////////////curve
+	{
+		jv curve;
+		curve = jv_object_get(jv_copy(from), jv_string("curve"));
+		if (jv_get_kind(curve) != JV_KIND_INVALID) {
+			if (_hb_jv_parse_number_and_free(curve, &trait->curve, NULL) < 0)
+				return -1;
+			trait->has_curve = true;
+		}
+	}
+
+	/////////////damping
+	{
+		jv damping;
+		damping = jv_object_get(jv_copy(from), jv_string("damping"));
+		if (jv_get_kind(damping) != JV_KIND_INVALID) {
+			if (_hb_jv_parse_number_and_free(damping, &trait->damping, NULL) < 0)
+				return -1;
+			trait->has_damping = true;
+		}
+	}
+
+	/////////////invMass
+	{
+		jv inv_mass;
+		inv_mass = jv_object_get(jv_copy(from), jv_string("invMass"));
+		if (jv_get_kind(inv_mass) != JV_KIND_INVALID) {
+			if (_hb_jv_parse_number_and_free(inv_mass, &trait->inv_mass, NULL) < 0)
+				return -1;
+			trait->has_inv_mass = true;
+		}
+	}
+
+	/////////////radius
+	{
+		jv radius;
+		radius = jv_object_get(jv_copy(from), jv_string("radius"));
+		if (jv_get_kind(radius) != JV_KIND_INVALID) {
+			if (_hb_jv_parse_number_and_free(radius, &trait->radius, NULL) < 0)
+				return -1;
+			trait->has_radius = true;
+		}
+	}
+
+	/////////////bCoef
+	{
+		jv b_coef;
+		b_coef = jv_object_get(jv_copy(from), jv_string("bCoef"));
+		if (jv_get_kind(b_coef) != JV_KIND_INVALID) {
+			if (_hb_jv_parse_number_and_free(b_coef, &trait->b_coef, NULL) < 0)
+				return -1;
+			trait->has_b_coef = true;
+		}
+	}
+
+	/////////////color
+	{
+		jv color;
+		color = jv_object_get(jv_copy(from), jv_string("color"));
+		if (jv_get_kind(color) != JV_KIND_INVALID) {
+			if (_hb_jv_parse_color_and_free(color, &trait->color, NULL) < 0)
+				return -1;
+			trait->has_color = true;
+		}
+	}
+
+	/////////////vis
+	{
+		jv vis;
+		vis = jv_object_get(jv_copy(from), jv_string("vis"));
+		if (jv_get_kind(vis) != JV_KIND_INVALID) {
+			if (_hb_jv_parse_boolean_and_free(vis, &trait->vis, NULL) < 0)
+				return -1;
+			trait->has_vis = true;
+		}
+	}
+
+	/////////////cGroup
+	{
+		jv c_group;
+		c_group = jv_object_get(jv_copy(from), jv_string("cGroup"));
+		if (jv_get_kind(c_group) != JV_KIND_INVALID) {
+			if (_hb_jv_parse_collision_flags_and_free(c_group, &trait->c_group, NULL) < 0)
+				return -1;
+			trait->has_c_group = true;
+		}
+	}
+
+	/////////////cMask
+	{
+		jv c_mask;
+		c_mask = jv_object_get(jv_copy(from), jv_string("cMask"));
+		if (jv_get_kind(c_mask) != JV_KIND_INVALID) {
+			if (_hb_jv_parse_collision_flags_and_free(c_mask, &trait->c_mask, NULL) < 0)
+				return -1;
+			trait->has_c_mask = true;
+		}
+	}
+
+	return 0;
+}
+
+static int
+_hb_jv_parse_trait_list(jv from, struct hb_trait ***to)
+{
+	int count, index;
+
+	switch (jv_get_kind(from)) {
+	case JV_KIND_OBJECT:
+		index = 0;
+		count = jv_object_length(jv_copy(from));
+		*to = calloc(count + 1, sizeof(struct hb_trait *));
+		jv_object_foreach(from, name, trait) {
+			if (_hb_jv_parse_trait_and_free(trait, name, &((*to)[index++])) < 0)
+				return -1;
+		}
+		return 0;
+	case JV_KIND_INVALID:
+		*to = calloc(1, sizeof(struct hb_trait *));
+		break;
+	default:
+		return -1;
+	}
+}
+
 //////////////////////////////////////////////
 //////////////PARSE + JV_FREE/////////////////
 //////////////////////////////////////////////
@@ -352,6 +554,45 @@ _hb_jv_parse_bg_and_free(jv from, struct hb_background *to)
 {
 	int ret;
 	ret = _hb_jv_parse_bg(from, to);
+	jv_free(from);
+	return ret;
+}
+
+static int
+_hb_jv_parse_collision_flag_and_free(jv from, enum hb_collision_flags *to,
+		const enum hb_collision_flags *fallback)
+{
+	int ret;
+	ret = _hb_jv_parse_collision_flag(from, to, fallback);
+	jv_free(from);
+	return ret;
+}
+
+static int
+_hb_jv_parse_collision_flags_and_free(jv from, enum hb_collision_flags *to,
+		const enum hb_collision_flags *fallback)
+{
+	int ret;
+	ret = _hb_jv_parse_collision_flags(from, to, fallback);
+	jv_free(from);
+	return ret;
+}
+
+static int
+_hb_jv_parse_trait_and_free(jv from, jv name, struct hb_trait **to)
+{
+	int ret;
+	ret = _hb_jv_parse_trait(from, name, to);
+	jv_free(from);
+	jv_free(name);
+	return ret;
+}
+
+static int
+_hb_jv_parse_trait_list_and_free(jv from, struct hb_trait ***to)
+{
+	int ret;
+	ret = _hb_jv_parse_trait_list(from, to);
 	jv_free(from);
 	return ret;
 }
@@ -445,6 +686,14 @@ hb_stadium_parse(const char *in)
 		bg = jv_object_get(jv_copy(root), jv_string("bg"));
 		s->bg = malloc(sizeof(struct hb_background));
 		if (_hb_jv_parse_bg_and_free(bg, s->bg) < 0)
+			goto err;
+	}
+
+	/////////////traits
+	{
+		jv traits;
+		traits = jv_object_get(jv_copy(root), jv_string("traits"));
+		if (_hb_jv_parse_trait_list_and_free(traits, &s->traits) < 0)
 			goto err;
 	}
 
