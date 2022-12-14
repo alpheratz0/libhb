@@ -111,10 +111,13 @@ _hb_joint_print(int index, struct hb_joint *j)
 {
 	printf("Joint.%-3d            : D0: %3d, D1: %3d, Color: %08x, ", index,
 			j->d0, j->d1, j->color);
-	if (j->length.kind == HB_JOINT_LENGTH_RANGE)
+	if (j->length.kind == HB_JOINT_LENGTH_RANGE) {
 		printf("Length: [%5.2f, %5.2f], ", j->length.val.range[0], j->length.val.range[1]);
-	else printf("Length: %5.2f, ", j->length.val.f);
-
+	} else if (j->length.kind == HB_JOINT_LENGTH_FIXED) {
+		printf("Length: %5.2f, ", j->length.val.f);
+	} else {
+		printf("Length: auto, ");
+	}
 	if (j->strength.is_rigid) printf("Strength: rigid\n");
 	else printf("Strength: %5.2f\n", j->strength.val);
 }
@@ -145,33 +148,34 @@ hb_stadium_print(struct hb_stadium *s)
 			s->bg->width, s->bg->height,
 			s->bg->kick_off_radius, s->bg->corner_radius,
 			s->bg->goal_line, s->bg->color);
-	/* for (trait = s->traits; *trait; ++trait) _hb_trait_print(*trait); */
-	/* for (vertex = s->vertexes; *vertex; ++vertex) _hb_vertex_print(vertex - s->vertexes, *vertex); */
-	/* for (segment = s->segments; *segment; ++segment) _hb_segment_print(segment - s->segments, *segment); */
-	/* for (goal = s->goals; *goal; ++goal) _hb_goal_print(goal - s->goals, *goal); */
-	/* for (disc = s->discs; *disc; ++disc) _hb_disc_print(disc - s->discs, *disc); */
-	/* for (plane = s->planes; *plane; ++plane) _hb_plane_print(plane - s->planes, *plane); */
-	/* for (joint = s->joints; *joint; ++joint) _hb_joint_print(joint - s->joints, *joint); */
-	/* printf("RedSpawnPoints       : ["); */
-	/* for (point = s->red_spawn_points; *point; ++point) */
-	/* 	printf("[%3.2f, %3.2f] ", (*point)->x, (*point)->y); */
-	/* printf("]\n"); */
-	/* printf("BlueSpawnPoints      : ["); */
-	/* for (point = s->blue_spawn_points; *point; ++point) */
-	/* 	printf("[%3.2f, %3.2f] ", (*point)->x, (*point)->y); */
-	/* printf("]\n"); */
+	for (trait = s->traits; *trait; ++trait) _hb_trait_print(*trait);
+	for (vertex = s->vertexes; *vertex; ++vertex) _hb_vertex_print(vertex - s->vertexes, *vertex);
+	for (segment = s->segments; *segment; ++segment) _hb_segment_print(segment - s->segments, *segment);
+	for (goal = s->goals; *goal; ++goal) _hb_goal_print(goal - s->goals, *goal);
+	for (disc = s->discs; *disc; ++disc) _hb_disc_print(disc - s->discs, *disc);
+	for (plane = s->planes; *plane; ++plane) _hb_plane_print(plane - s->planes, *plane);
+	for (joint = s->joints; *joint; ++joint) _hb_joint_print(joint - s->joints, *joint);
+	printf("RedSpawnPoints       : [");
+	for (point = s->red_spawn_points; *point; ++point)
+		printf("[%3.2f, %3.2f] ", (*point)->x, (*point)->y);
+	printf("]\n");
+	printf("BlueSpawnPoints      : [");
+	for (point = s->blue_spawn_points; *point; ++point)
+		printf("[%3.2f, %3.2f] ", (*point)->x, (*point)->y);
+	printf("]\n");
 }
 
 int
 main(int argc, char **argv)
 {
 	struct hb_stadium *big;
-	big = hb_stadium_from_file(argc > 1 ? argv[1] : "stadiums/chairs.hbs");
-	if (!big) {
-		fprintf(stderr, "Bad stadium file!\n");
-		return 1;
-	}
-	else hb_stadium_print(big);
+
+	if (argc < 2) return 1;
+	big = hb_stadium_from_file(argv[1]);
+
+	if (!big) return 1;
+
+	hb_stadium_print(big);
 	hb_stadium_free(big);
 
 	return 0;
