@@ -57,4 +57,40 @@ hb_stadium_to_json(const struct hb_stadium *s);
 extern void
 hb_stadium_free(struct hb_stadium *s);
 
+#define hb_stadium_traits_foreach(s,v) \
+	if (s->traits) \
+		for (struct hb_trait **v = s->traits; *v; ++v) \
+
+#define hb_stadium_vertexes_foreach(s,v) \
+	if (s->vertexes) \
+		for (struct hb_vertex **v = s->vertexes; *v; ++v) \
+
+#define hb_stadium_segments_foreach(s,v) \
+	if (s->segments) \
+		for (struct hb_segment **v = s->segments; *v; ++v) \
+
+#define hb_stadium_goals_foreach(s,v) \
+	if (s->goals) \
+		for (struct hb_goal **v = s->goals; *v; ++v) \
+
+#define hb_stadium_discs_foreach(s,v) \
+	if (s->discs) \
+		for (struct hb_disc **v = s->discs; *v; ++v) \
+
+#define hb_stadium_planes_foreach(s,v) \
+	if (s->planes) \
+		for (struct hb_plane **v = s->planes; *v; ++v)\
+
+#define hb_stadium_joints_foreach(s,v) \
+	if (s->joints) \
+		for (struct hb_joint **v = s->joints; *v; ++v) \
+
+#define hb_stadium_red_spawn_points_foreach(s,v) \
+	if (s->red_spawn_points) \
+		for (struct hb_point **v = s->red_spawn_points; *v; ++v) \
+
+#define hb_stadium_blue_spawn_points_foreach(s,v) \
+	if (s->blue_spawn_points) \
+		for (struct hb_point **v = s->blue_spawn_points; *v; ++v) \
+
 #endif

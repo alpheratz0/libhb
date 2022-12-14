@@ -1955,96 +1955,31 @@ hb_stadium_to_json(const struct hb_stadium *s)
 extern void
 hb_stadium_free(struct hb_stadium *s)
 {
-	struct hb_trait **trait;
-	struct hb_vertex **vertex;
-	struct hb_segment **segment;
-	struct hb_goal **goal;
-	struct hb_disc **disc;
-	struct hb_plane **plane;
-	struct hb_joint **joint;
-	struct hb_point **point;
+	free(s->name);
+	free(s->bg);
 
-	if (s->name)
-		free(s->name);
-	if (s->bg)
-		free(s->bg);
-	if (s->traits) {
-		trait = s->traits;
-		while (*trait) {
-			free((*trait)->name);
-			free(*trait);
-			trait++;
-		}
-		free(s->traits);
-	}
-	if (s->vertexes) {
-		vertex = s->vertexes;
-		while (*vertex) {
-			free(*vertex);
-			vertex++;
-		}
-		free(s->vertexes);
-	}
-	if (s->segments) {
-		segment = s->segments;
-		while (*segment) {
-			free(*segment);
-			segment++;
-		}
-		free(s->segments);
-	}
-	if (s->goals) {
-		goal = s->goals;
-		while (*goal) {
-			free(*goal);
-			goal++;
-		}
-		free(s->goals);
-	}
-	if (s->discs) {
-		if (s->discs[0] != NULL) s->ball_physics = NULL;
-		disc = s->discs;
-		while (*disc) {
-			free(*disc);
-			disc++;
-		}
-		free(s->discs);
-	}
-	if (s->planes) {
-		plane = s->planes;
-		while (*plane) {
-			free(*plane);
-			plane++;
-		}
-		free(s->planes);
-	}
-	if (s->joints) {
-		joint = s->joints;
-		while (*joint) {
-			free(*joint);
-			joint++;
-		}
-		free(s->joints);
-	}
-	if (s->red_spawn_points) {
-		point = s->red_spawn_points;
-		while (*point) {
-			free(*point);
-			point++;
-		}
-		free(s->red_spawn_points);
-	}
-	if (s->blue_spawn_points) {
-		point = s->blue_spawn_points;
-		while (*point) {
-			free(*point);
-			point++;
-		}
-		free(s->blue_spawn_points);
-	}
-	if (s->ball_physics) {
-		free(s->ball_physics);
+	hb_stadium_traits_foreach(s, trait) {
+		free((*trait)->name);
+		free(*trait);
 	}
 
+	hb_stadium_vertexes_foreach(s, vertex) free(*vertex);
+	hb_stadium_segments_foreach(s, segment) free(*segment);
+	hb_stadium_goals_foreach(s, goal) free(*goal);
+	hb_stadium_discs_foreach(s, disc) free(*disc);
+	hb_stadium_planes_foreach(s, plane) free(*plane);
+	hb_stadium_joints_foreach(s, joint) free(*joint);
+	hb_stadium_red_spawn_points_foreach(s, point) free(*point);
+	hb_stadium_blue_spawn_points_foreach(s, point) free(*point);
+
+	free(s->traits);
+	free(s->vertexes);
+	free(s->segments);
+	free(s->goals);
+	free(s->discs);
+	free(s->planes);
+	free(s->joints);
+	free(s->red_spawn_points);
+	free(s->blue_spawn_points);
 	free(s);
 }
