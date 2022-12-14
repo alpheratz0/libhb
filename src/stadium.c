@@ -590,10 +590,9 @@ _hb_jv_parse_vertex(jv from, struct hb_vertex **to,
 
 	/////////////cGroup
 	{
-		// FIXME: is cGroup fallback/default value 0?
 		jv c_group;
 		enum hb_collision_flags fallback_c_group;
-		fallback_c_group = 0;
+		fallback_c_group = HB_COLLISION_WALL;
 		if (NULL != vert_trait && vert_trait->has_c_group)
 			fallback_c_group = vert_trait->c_group;
 		c_group = jv_object_get(jv_copy(from), jv_string("cGroup"));
@@ -726,10 +725,9 @@ _hb_jv_parse_segment(jv from, struct hb_segment **to,
 
 	/////////////cGroup
 	{
-		// FIXME: is cGroup fallback/default value 0?
 		jv c_group;
 		enum hb_collision_flags fallback_c_group;
-		fallback_c_group = 0;
+		fallback_c_group = HB_COLLISION_WALL;
 		if (NULL != segm_trait && segm_trait->has_c_group)
 			fallback_c_group = segm_trait->c_group;
 		c_group = jv_object_get(jv_copy(from), jv_string("cGroup"));
@@ -1029,7 +1027,7 @@ _hb_jv_parse_ball_physics(jv from, struct hb_disc **to)
 	{
 		jv c_group;
 		enum hb_collision_flags fallback_c_group;
-		fallback_c_group = HB_COLLISION_KICK | HB_COLLISION_SCORE;
+		fallback_c_group = HB_COLLISION_KICK | HB_COLLISION_SCORE | HB_COLLISION_BALL;
 		c_group = jv_object_get(jv_copy(from), jv_string("cGroup"));
 		if (_hb_jv_parse_collision_flags_and_free(c_group, &ball_physics->c_group, &fallback_c_group) < 0)
 			return -1;
@@ -1177,7 +1175,7 @@ static int
 _hb_jv_parse_disc_list(jv from, struct hb_disc ***to,
 		struct hb_trait **traits, struct hb_disc **ball_physics)
 {
-	int count, disc_index;
+	int count;
 
 	switch (jv_get_kind(from)) {
 	case JV_KIND_ARRAY:
@@ -1187,10 +1185,13 @@ _hb_jv_parse_disc_list(jv from, struct hb_disc ***to,
 		*to = calloc(count + 1, sizeof(struct hb_disc *));
 		if (*ball_physics != NULL) (*to)[0] = *ball_physics;
 		jv_array_foreach(from, index, disc) {
-			disc_index = index;
-			if (*ball_physics != NULL) ++disc_index;
-			if (_hb_jv_parse_disc_and_free(disc, &((*to)[disc_index]), traits) < 0)
+			if (*ball_physics == NULL && index == 0) {
+				if (_hb_jv_parse_ball_physics_and_free(disc, &((*to)[0])) < 0)
+					return -1;
+			} else if (_hb_jv_parse_disc_and_free(disc,
+						&((*to)[index + (*ball_physics != NULL)]), traits) < 0) {
 				return -1;
+			}
 		}
 		if (*ball_physics == NULL) *ball_physics = (*to)[0];
 		return 0;
@@ -1274,7 +1275,7 @@ _hb_jv_parse_plane(jv from, struct hb_plane **to, struct hb_trait **traits)
 	{
 		jv c_group;
 		enum hb_collision_flags fallback_c_group;
-		fallback_c_group = 0;
+		fallback_c_group = HB_COLLISION_WALL;
 		if (NULL != plane_trait && plane_trait->has_c_group)
 			fallback_c_group = plane_trait->c_group;
 		c_group = jv_object_get(jv_copy(from), jv_string("cGroup"));
