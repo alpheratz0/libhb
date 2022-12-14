@@ -1143,7 +1143,7 @@ _hb_jv_parse_disc(jv from, struct hb_disc **to,
 	{
 		jv c_mask;
 		enum hb_collision_flags fallback_c_mask;
-		fallback_c_mask = 0;
+		fallback_c_mask = HB_COLLISION_ALL;
 		if (NULL != disc_trait && disc_trait->has_c_mask)
 			fallback_c_mask = disc_trait->c_mask;
 		c_mask = jv_object_get(jv_copy(from), jv_string("cMask"));
@@ -1155,7 +1155,7 @@ _hb_jv_parse_disc(jv from, struct hb_disc **to,
 	{
 		jv c_group;
 		enum hb_collision_flags fallback_c_group;
-		fallback_c_group = 0;
+		fallback_c_group = HB_COLLISION_ALL;
 		if (NULL != disc_trait && disc_trait->has_c_group)
 			fallback_c_group = disc_trait->c_group;
 		c_group = jv_object_get(jv_copy(from), jv_string("cGroup"));
