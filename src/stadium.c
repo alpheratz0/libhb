@@ -21,6 +21,7 @@ static int _hb_jv_parse_collision_flag(jv from, enum hb_collision_flags *to, con
 static int _hb_jv_parse_collision_flags(jv from, enum hb_collision_flags *to, const enum hb_collision_flags *fallback);
 static int _hb_jv_parse_trait(jv from, jv name, struct hb_trait **to);
 static int _hb_jv_parse_trait_list(jv from, struct hb_trait ***to);
+static int _hb_jv_find_trait_by_name(jv from, struct hb_trait **to, struct hb_trait **traits);
 static int _hb_jv_parse_vertex(jv from, struct hb_vertex **to, struct hb_trait **traits);
 static int _hb_jv_parse_vertex_list(jv from, struct hb_vertex ***to, struct hb_trait **traits);
 static int _hb_jv_parse_segment(jv from, struct hb_segment **to, struct hb_vertex **vertexes, struct hb_trait **traits);
@@ -53,6 +54,7 @@ static int _hb_jv_parse_collision_flag_and_free(jv from, enum hb_collision_flags
 static int _hb_jv_parse_collision_flags_and_free(jv from, enum hb_collision_flags *to, const enum hb_collision_flags *fallback);
 static int _hb_jv_parse_trait_and_free(jv from, jv name, struct hb_trait **to);
 static int _hb_jv_parse_trait_list_and_free(jv from, struct hb_trait ***to);
+static int _hb_jv_find_trait_by_name_and_free(jv from, struct hb_trait **to, struct hb_trait **traits);
 static int _hb_jv_parse_vertex_and_free(jv from, struct hb_vertex **to, struct hb_trait **traits);
 static int _hb_jv_parse_vertex_list_and_free(jv from, struct hb_vertex ***to, struct hb_trait **traits);
 static int _hb_jv_parse_segment_and_free(jv from, struct hb_segment **to, struct hb_vertex **vertexes, struct hb_trait **traits);
@@ -72,19 +74,6 @@ static int _hb_jv_parse_joint_and_free(jv from, struct hb_joint **to, struct hb_
 static int _hb_jv_parse_joint_list_and_free(jv from, struct hb_joint ***to, struct hb_disc **discs);
 static int _hb_jv_parse_point_and_free(jv from, struct hb_point **to);
 static int _hb_jv_parse_point_list_and_free(jv from, struct hb_point ***to);
-
-static int
-_hb_trait_find_by_name(struct hb_trait **traits, struct hb_trait **trait, const char *name)
-{
-	struct hb_trait **cur;
-	for (cur = traits; *cur; ++cur) {
-		if (!strcmp((*cur)->name, name)) {
-			*trait = *cur;
-			return 0;
-		}
-	}
-	return -1;
-}
 
 //////////////////////////////////////////////
 //////////////////PARSE///////////////////////
@@ -536,6 +525,26 @@ _hb_jv_parse_trait_list(jv from, struct hb_trait ***to)
 }
 
 static int
+_hb_jv_find_trait_by_name(jv from, struct hb_trait **to, struct hb_trait **traits)
+{
+	const char *str;
+	switch (jv_get_kind(from)) {
+	case JV_KIND_STRING:
+		str = jv_string_value(from);
+		for (; *traits; ++traits) {
+			if (!strcmp((*traits)->name, str)) {
+				*to = *traits;
+				return 0;
+			}
+		}
+		*to = NULL;
+		return 0;
+	default:
+		return -1;
+	}
+}
+
+static int
 _hb_jv_parse_vertex(jv from, struct hb_vertex **to,
 		struct hb_trait **traits)
 {
@@ -566,14 +575,9 @@ _hb_jv_parse_vertex(jv from, struct hb_vertex **to,
 	/////////////trait
 	{
 		jv trait;
-		char *trait_name;
 		trait = jv_object_get(jv_copy(from), jv_string("trait"));
-		if (_hb_jv_parse_string_and_free(trait, &trait_name, "__no_trait__") < 0)
+		if (_hb_jv_find_trait_by_name_and_free(trait, &vert_trait, traits) < 0)
 			return -1;
-		if (!strcmp(trait_name, "__no_trait__") ||
-				_hb_trait_find_by_name(traits, &vert_trait, trait_name) < 0)
-			vert_trait = NULL;
-		free(trait_name);
 	}
 
 	/////////////bCoef
@@ -685,14 +689,9 @@ _hb_jv_parse_segment(jv from, struct hb_segment **to,
 	/////////////trait
 	{
 		jv trait;
-		char *trait_name;
 		trait = jv_object_get(jv_copy(from), jv_string("trait"));
-		if (_hb_jv_parse_string_and_free(trait, &trait_name, "__no_trait__") < 0)
+		if (_hb_jv_find_trait_by_name_and_free(trait, &segm_trait, traits) < 0)
 			return -1;
-		if (!strcmp(trait_name, "__no_trait__") ||
-				_hb_trait_find_by_name(traits, &segm_trait, trait_name) < 0)
-			segm_trait = NULL;
-		free(trait_name);
 	}
 
 	/////////////bCoef
@@ -1076,14 +1075,9 @@ _hb_jv_parse_disc(jv from, struct hb_disc **to,
 	/////////////trait
 	{
 		jv trait;
-		char *trait_name;
 		trait = jv_object_get(jv_copy(from), jv_string("trait"));
-		if (_hb_jv_parse_string_and_free(trait, &trait_name, "__no_trait__") < 0)
+		if (_hb_jv_find_trait_by_name_and_free(trait, &disc_trait, traits) < 0)
 			return -1;
-		if (!strcmp(trait_name, "__no_trait__") ||
-				_hb_trait_find_by_name(traits, &disc_trait, trait_name) < 0)
-			disc_trait = NULL;
-		free(trait_name);
 	}
 
 	/////////////radius
@@ -1237,14 +1231,9 @@ _hb_jv_parse_plane(jv from, struct hb_plane **to, struct hb_trait **traits)
 	/////////////trait
 	{
 		jv trait;
-		char *trait_name;
 		trait = jv_object_get(jv_copy(from), jv_string("trait"));
-		if (_hb_jv_parse_string_and_free(trait, &trait_name, "__no_trait__") < 0)
+		if (_hb_jv_find_trait_by_name_and_free(trait, &plane_trait, traits) < 0)
 			return -1;
-		if (!strcmp(trait_name, "__no_trait__") ||
-				_hb_trait_find_by_name(traits, &plane_trait, trait_name) < 0)
-			plane_trait = NULL;
-		free(trait_name);
 	}
 
 	/////////////bCoef
@@ -1586,6 +1575,13 @@ _hb_jv_parse_trait_list_and_free(jv from, struct hb_trait ***to)
 {
 	return _hb_jv_parse_xxx_and_free_wrapper_1(
 			_hb_jv_parse_trait_list(from, to), from);
+}
+
+static int
+_hb_jv_find_trait_by_name_and_free(jv from, struct hb_trait **to, struct hb_trait **traits)
+{
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_find_trait_by_name(from, to, traits), from);
 }
 
 static int
