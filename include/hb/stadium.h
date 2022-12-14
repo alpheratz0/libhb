@@ -25,6 +25,8 @@ enum hb_kick_off_reset {
 
 struct hb_stadium {
 	char                              *name;
+	float                             width;
+	float                            height;
 	float                      camera_width;
 	float                     camera_height;
 	float                    max_view_width;

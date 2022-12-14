@@ -1747,6 +1747,22 @@ hb_stadium_parse(const char *in)
 			goto err;
 	}
 
+	/////////////width
+	{
+		jv width;
+		width = jv_object_get(jv_copy(root), jv_string("width"));
+		if (_hb_jv_parse_number_and_free(width, &s->width, NULL) < 0)
+			goto err;
+	}
+
+	/////////////height
+	{
+		jv height;
+		height = jv_object_get(jv_copy(root), jv_string("height"));
+		if (_hb_jv_parse_number_and_free(height, &s->height, NULL) < 0)
+			goto err;
+	}
+
 	/////////////cameraWidth
 	{
 		jv cam_width;
