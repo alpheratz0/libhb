@@ -1,5 +1,8 @@
 #!/bin/sh
 
-cc ../stadium.c test.c -o test -I../include -ljq
+make -C .. >/dev/null
+mv ../libhb.a .
+make -C .. clean >/dev/null
+cc test.c -o test -I../include -L. -ljq -lhb
 ./test
-rm test
+rm -f test libhb.a
