@@ -537,6 +537,7 @@ _hb_jv_find_trait_by_name(jv from, struct hb_trait **to, struct hb_trait **trait
 				return 0;
 			}
 		}
+	case JV_KIND_INVALID: /* FALLTHROUGH */
 		*to = NULL;
 		return 0;
 	default:
