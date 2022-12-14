@@ -37,6 +37,8 @@ static int _hb_jv_parse_joint_length(jv from, struct hb_joint_length *to);
 static int _hb_jv_parse_joint_strength(jv from, struct hb_joint_strength *to);
 static int _hb_jv_parse_joint(jv from, struct hb_joint **to, struct hb_disc **discs);
 static int _hb_jv_parse_joint_list(jv from, struct hb_joint ***to, struct hb_disc **discs);
+static int _hb_jv_parse_point(jv from, struct hb_point **to);
+static int _hb_jv_parse_point_list(jv from, struct hb_point ***to);
 
 static int _hb_jv_parse_string_and_free(jv from, char **to, const char *fallback);
 static int _hb_jv_parse_number_and_free(jv from, float *to, const float *fallback);
@@ -67,6 +69,8 @@ static int _hb_jv_parse_joint_length_and_free(jv from, struct hb_joint_length *t
 static int _hb_jv_parse_joint_strength_and_free(jv from, struct hb_joint_strength *to);
 static int _hb_jv_parse_joint_and_free(jv from, struct hb_joint **to, struct hb_disc **discs);
 static int _hb_jv_parse_joint_list_and_free(jv from, struct hb_joint ***to, struct hb_disc **discs);
+static int _hb_jv_parse_point_and_free(jv from, struct hb_point **to);
+static int _hb_jv_parse_point_list_and_free(jv from, struct hb_point ***to);
 
 static int
 _hb_trait_find_by_name(struct hb_trait **traits, struct hb_trait **trait, const char *name)
@@ -1439,6 +1443,41 @@ _hb_jv_parse_joint_list(jv from, struct hb_joint ***to, struct hb_disc **discs)
 	}
 }
 
+static int
+_hb_jv_parse_point(jv from, struct hb_point **to)
+{
+	struct hb_point *point;
+	float v2[2];
+	if (_hb_jv_parse_vec2(from, v2, NULL) < 0)
+		return -1;
+	point = *to = malloc(sizeof(struct hb_point));
+	point->x = v2[0];
+	point->y = v2[1];
+	return 0;
+}
+
+static int
+_hb_jv_parse_point_list(jv from, struct hb_point ***to)
+{
+	int count;
+
+	switch (jv_get_kind(from)) {
+	case JV_KIND_ARRAY:
+		count = jv_array_length(jv_copy(from));
+		*to = calloc(count + 1, sizeof(struct hb_point *));
+		jv_array_foreach(from, index, point) {
+			if (_hb_jv_parse_point_and_free(point, &((*to)[index])) < 0)
+				return -1;
+		}
+		return 0;
+	case JV_KIND_INVALID:
+		*to = calloc(1, sizeof(struct hb_point *));
+		break;
+	default:
+		return -1;
+	}
+}
+
 //////////////////////////////////////////////
 //////////////PARSE + JV_FREE/////////////////
 //////////////////////////////////////////////
@@ -1716,6 +1755,24 @@ _hb_jv_parse_joint_list_and_free(jv from, struct hb_joint ***to, struct hb_disc 
 	return ret;
 }
 
+static int
+_hb_jv_parse_point_and_free(jv from, struct hb_point **to)
+{
+	int ret;
+	ret = _hb_jv_parse_point(from, to);
+	jv_free(from);
+	return ret;
+}
+
+static int
+_hb_jv_parse_point_list_and_free(jv from, struct hb_point ***to)
+{
+	int ret;
+	ret = _hb_jv_parse_point_list(from, to);
+	jv_free(from);
+	return ret;
+}
+
 extern struct hb_stadium *
 hb_stadium_parse(const char *in)
 {
@@ -1868,6 +1925,22 @@ hb_stadium_parse(const char *in)
 		jv joints;
 		joints = jv_object_get(jv_copy(root), jv_string("joints"));
 		if (_hb_jv_parse_joint_list_and_free(joints, &s->joints, s->discs) < 0)
+			goto err;
+	}
+
+	/////////////redSpawnPoints
+	{
+		jv red_spawn_points;
+		red_spawn_points = jv_object_get(jv_copy(root), jv_string("redSpawnPoints"));
+		if (_hb_jv_parse_point_list_and_free(red_spawn_points, &s->red_spawn_points) < 0)
+			goto err;
+	}
+
+	/////////////blueSpawnPoints
+	{
+		jv blue_spawn_points;
+		blue_spawn_points = jv_object_get(jv_copy(root), jv_string("blueSpawnPoints"));
+		if (_hb_jv_parse_point_list_and_free(blue_spawn_points, &s->blue_spawn_points) < 0)
 			goto err;
 	}
 
