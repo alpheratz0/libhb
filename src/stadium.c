@@ -11,10 +11,10 @@ static const float      HB_V2_ZERO[2]     = { 0.0f, 0.0f };
 static int _hb_jv_parse_string(jv from, char **to, const char *fallback);
 static int _hb_jv_parse_number(jv from, float *to, const float *fallback);
 static int _hb_jv_parse_boolean(jv from, bool *to, const bool *fallback);
-static int _hb_jv_parse_camera_follow(jv from, enum hb_camera_follow *to, enum hb_camera_follow *fallback);
-static int _hb_jv_parse_kick_off_reset(jv from, enum hb_kick_off_reset *to, enum hb_kick_off_reset *fallback);
-static int _hb_jv_parse_bg_type(jv from, enum hb_background_type *to, enum hb_background_type *fallback);
-static int _hb_jv_parse_color(jv from, uint32_t *to, uint32_t *fallback);
+static int _hb_jv_parse_camera_follow(jv from, enum hb_camera_follow *to, const enum hb_camera_follow *fallback);
+static int _hb_jv_parse_kick_off_reset(jv from, enum hb_kick_off_reset *to, const enum hb_kick_off_reset *fallback);
+static int _hb_jv_parse_bg_type(jv from, enum hb_background_type *to, const enum hb_background_type *fallback);
+static int _hb_jv_parse_color(jv from, uint32_t *to, const uint32_t *fallback);
 static int _hb_jv_parse_bg(jv from, struct hb_background **to);
 static int _hb_jv_parse_collision_flag(jv from, enum hb_collision_flags *to, const enum hb_collision_flags *fallback);
 static int _hb_jv_parse_collision_flags(jv from, enum hb_collision_flags *to, const enum hb_collision_flags *fallback);
@@ -25,7 +25,7 @@ static int _hb_jv_parse_vertex_list(jv from, struct hb_vertex ***to, struct hb_t
 static int _hb_jv_parse_segment(jv from, struct hb_segment **to, struct hb_vertex **vertexes, struct hb_trait **traits);
 static int _hb_jv_parse_segment_list(jv from, struct hb_segment ***to, struct hb_vertex **vertexes, struct hb_trait **traits);
 static int _hb_jv_parse_vec2(jv from, float to[2], const float fallback[2]);
-static int _hb_jv_parse_team(jv from, enum hb_team *to, enum hb_team *fallback);
+static int _hb_jv_parse_team(jv from, enum hb_team *to, const enum hb_team *fallback);
 static int _hb_jv_parse_goal(jv from, struct hb_goal **to);
 static int _hb_jv_parse_goal_list(jv from, struct hb_goal ***to);
 static int _hb_jv_parse_ball_physics(jv from, struct hb_disc **to);
@@ -43,10 +43,10 @@ static int _hb_jv_parse_point_list(jv from, struct hb_point ***to);
 static int _hb_jv_parse_string_and_free(jv from, char **to, const char *fallback);
 static int _hb_jv_parse_number_and_free(jv from, float *to, const float *fallback);
 static int _hb_jv_parse_boolean_and_free(jv from, bool *to, const bool *fallback);
-static int _hb_jv_parse_camera_follow_and_free(jv from, enum hb_camera_follow *to, enum hb_camera_follow *fallback);
-static int _hb_jv_parse_kick_off_reset_and_free(jv from, enum hb_kick_off_reset *to, enum hb_kick_off_reset *fallback);
-static int _hb_jv_parse_bg_type_and_free(jv from, enum hb_background_type *to, enum hb_background_type *fallback);
-static int _hb_jv_parse_color_and_free(jv from, uint32_t *to, uint32_t *fallback);
+static int _hb_jv_parse_camera_follow_and_free(jv from, enum hb_camera_follow *to, const enum hb_camera_follow *fallback);
+static int _hb_jv_parse_kick_off_reset_and_free(jv from, enum hb_kick_off_reset *to, const enum hb_kick_off_reset *fallback);
+static int _hb_jv_parse_bg_type_and_free(jv from, enum hb_background_type *to, const enum hb_background_type *fallback);
+static int _hb_jv_parse_color_and_free(jv from, uint32_t *to, const uint32_t *fallback);
 static int _hb_jv_parse_bg_and_free(jv from, struct hb_background **to);
 static int _hb_jv_parse_collision_flag_and_free(jv from, enum hb_collision_flags *to, const enum hb_collision_flags *fallback);
 static int _hb_jv_parse_collision_flags_and_free(jv from, enum hb_collision_flags *to, const enum hb_collision_flags *fallback);
@@ -57,7 +57,7 @@ static int _hb_jv_parse_vertex_list_and_free(jv from, struct hb_vertex ***to, st
 static int _hb_jv_parse_segment_and_free(jv from, struct hb_segment **to, struct hb_vertex **vertexes, struct hb_trait **traits);
 static int _hb_jv_parse_segment_list_and_free(jv from, struct hb_segment ***to, struct hb_vertex **vertexes, struct hb_trait **traits);
 static int _hb_jv_parse_vec2_and_free(jv from, float to[2], const float fallback[2]);
-static int _hb_jv_parse_team_and_free(jv from, enum hb_team *to, enum hb_team *fallback);
+static int _hb_jv_parse_team_and_free(jv from, enum hb_team *to, const enum hb_team *fallback);
 static int _hb_jv_parse_goal_and_free(jv from, struct hb_goal **to);
 static int _hb_jv_parse_goal_list_and_free(jv from, struct hb_goal ***to);
 static int _hb_jv_parse_ball_physics_and_free(jv from, struct hb_disc **to);
@@ -145,7 +145,7 @@ _hb_jv_parse_boolean(jv from, bool *to, const bool *fallback)
 
 static int
 _hb_jv_parse_camera_follow(jv from, enum hb_camera_follow *to,
-		enum hb_camera_follow *fallback)
+		const enum hb_camera_follow *fallback)
 {
 	const char *camera_follow_str;
 	switch (jv_get_kind(from)) {
@@ -167,7 +167,7 @@ _hb_jv_parse_camera_follow(jv from, enum hb_camera_follow *to,
 
 static int
 _hb_jv_parse_kick_off_reset(jv from, enum hb_kick_off_reset *to,
-		enum hb_kick_off_reset *fallback)
+		const enum hb_kick_off_reset *fallback)
 {
 	const char *kick_off_reset_str;
 	switch (jv_get_kind(from)) {
@@ -189,7 +189,7 @@ _hb_jv_parse_kick_off_reset(jv from, enum hb_kick_off_reset *to,
 
 static int
 _hb_jv_parse_bg_type(jv from, enum hb_background_type *to,
-		enum hb_background_type *fallback)
+		const enum hb_background_type *fallback)
 {
 	const char *type_str;
 	switch (jv_get_kind(from)) {
@@ -210,7 +210,7 @@ _hb_jv_parse_bg_type(jv from, enum hb_background_type *to,
 }
 
 static int
-_hb_jv_parse_color(jv from, uint32_t *to, uint32_t *fallback)
+_hb_jv_parse_color(jv from, uint32_t *to, const uint32_t *fallback)
 {
 	jv_kind kind;
 	const char *color_str;
@@ -822,7 +822,7 @@ _hb_jv_parse_vec2(jv from, float to[2], const float fallback[2])
 }
 
 static int
-_hb_jv_parse_team(jv from, enum hb_team *to, enum hb_team *fallback)
+_hb_jv_parse_team(jv from, enum hb_team *to, const enum hb_team *fallback)
 {
 	const char *str;
 	switch (jv_get_kind(from)) {
@@ -1519,7 +1519,7 @@ _hb_jv_parse_boolean_and_free(jv from, bool *to, const bool *fallback)
 
 static int
 _hb_jv_parse_camera_follow_and_free(jv from, enum hb_camera_follow *to,
-		enum hb_camera_follow *fallback)
+		const enum hb_camera_follow *fallback)
 {
 	return _hb_jv_parse_xxx_and_free_wrapper_1(
 			_hb_jv_parse_camera_follow(from, to, fallback), from);
@@ -1527,7 +1527,7 @@ _hb_jv_parse_camera_follow_and_free(jv from, enum hb_camera_follow *to,
 
 static int
 _hb_jv_parse_kick_off_reset_and_free(jv from, enum hb_kick_off_reset *to,
-		enum hb_kick_off_reset *fallback)
+		const enum hb_kick_off_reset *fallback)
 {
 	return _hb_jv_parse_xxx_and_free_wrapper_1(
 			_hb_jv_parse_kick_off_reset(from, to, fallback), from);
@@ -1535,14 +1535,14 @@ _hb_jv_parse_kick_off_reset_and_free(jv from, enum hb_kick_off_reset *to,
 
 static int
 _hb_jv_parse_bg_type_and_free(jv from, enum hb_background_type *to,
-		enum hb_background_type *fallback)
+		const enum hb_background_type *fallback)
 {
 	return _hb_jv_parse_xxx_and_free_wrapper_1(
 			_hb_jv_parse_bg_type(from, to, fallback), from);
 }
 
 static int
-_hb_jv_parse_color_and_free(jv from, uint32_t *to, uint32_t *fallback)
+_hb_jv_parse_color_and_free(jv from, uint32_t *to, const uint32_t *fallback)
 {
 	return _hb_jv_parse_xxx_and_free_wrapper_1(
 			_hb_jv_parse_color(from, to, fallback), from);
@@ -1625,7 +1625,7 @@ _hb_jv_parse_vec2_and_free(jv from, float to[2], const float fallback[2])
 }
 
 static int
-_hb_jv_parse_team_and_free(jv from, enum hb_team *to, enum hb_team *fallback)
+_hb_jv_parse_team_and_free(jv from, enum hb_team *to, const enum hb_team *fallback)
 {
 	return _hb_jv_parse_xxx_and_free_wrapper_1(
 			_hb_jv_parse_team(from, to, fallback), from);
