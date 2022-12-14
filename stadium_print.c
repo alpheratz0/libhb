@@ -122,7 +122,7 @@ _hb_joint_print(int index, struct hb_joint *j)
 	else printf("Strength: %5.2f\n", j->strength.val);
 }
 
-extern const char *
+extern void
 hb_stadium_print(struct hb_stadium *s)
 {
 	struct hb_trait **trait;
