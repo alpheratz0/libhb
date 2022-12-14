@@ -1482,295 +1482,246 @@ _hb_jv_parse_point_list(jv from, struct hb_point ***to)
 //////////////PARSE + JV_FREE/////////////////
 //////////////////////////////////////////////
 
+static inline int
+_hb_jv_parse_xxx_and_free_wrapper_1(int ret, jv v)
+{
+	jv_free(v);
+	return ret;
+}
+
+static inline int
+_hb_jv_parse_xxx_and_free_wrapper_2(int ret, jv v, jv w)
+{
+	jv_free(v); jv_free(w);
+	return ret;
+}
+
 static int
 _hb_jv_parse_string_and_free(jv from, char **to, const char *fallback)
 {
-	int ret;
-	ret = _hb_jv_parse_string(from, to, fallback);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_string(from, to, fallback), from);
 }
 
 static int
 _hb_jv_parse_number_and_free(jv from, float *to, const float *fallback)
 {
-	int ret;
-	ret = _hb_jv_parse_number(from, to, fallback);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_number(from, to, fallback), from);
 }
 
 static int
 _hb_jv_parse_boolean_and_free(jv from, bool *to, const bool *fallback)
 {
-	int ret;
-	ret = _hb_jv_parse_boolean(from, to, fallback);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_boolean(from, to, fallback), from);
 }
 
 static int
 _hb_jv_parse_camera_follow_and_free(jv from, enum hb_camera_follow *to,
 		enum hb_camera_follow *fallback)
 {
-	int ret;
-	ret = _hb_jv_parse_camera_follow(from, to, fallback);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_camera_follow(from, to, fallback), from);
 }
 
 static int
 _hb_jv_parse_kick_off_reset_and_free(jv from, enum hb_kick_off_reset *to,
 		enum hb_kick_off_reset *fallback)
 {
-	int ret;
-	ret = _hb_jv_parse_kick_off_reset(from, to, fallback);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_kick_off_reset(from, to, fallback), from);
 }
 
 static int
 _hb_jv_parse_bg_type_and_free(jv from, enum hb_background_type *to,
 		enum hb_background_type *fallback)
 {
-	int ret;
-	ret = _hb_jv_parse_bg_type(from, to, fallback);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_bg_type(from, to, fallback), from);
 }
 
 static int
 _hb_jv_parse_color_and_free(jv from, uint32_t *to, uint32_t *fallback)
 {
-	int ret;
-	ret = _hb_jv_parse_color(from, to, fallback);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_color(from, to, fallback), from);
 }
 
 static int
 _hb_jv_parse_bg_and_free(jv from, struct hb_background **to)
 {
-	int ret;
-	ret = _hb_jv_parse_bg(from, to);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_bg(from, to), from);
 }
 
 static int
 _hb_jv_parse_collision_flag_and_free(jv from, enum hb_collision_flags *to,
 		const enum hb_collision_flags *fallback)
 {
-	int ret;
-	ret = _hb_jv_parse_collision_flag(from, to, fallback);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_collision_flag(from, to, fallback), from);
 }
 
 static int
 _hb_jv_parse_collision_flags_and_free(jv from, enum hb_collision_flags *to,
 		const enum hb_collision_flags *fallback)
 {
-	int ret;
-	ret = _hb_jv_parse_collision_flags(from, to, fallback);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_collision_flags(from, to, fallback), from);
 }
 
 static int
 _hb_jv_parse_trait_and_free(jv from, jv name, struct hb_trait **to)
 {
-	int ret;
-	ret = _hb_jv_parse_trait(from, name, to);
-	jv_free(from);
-	jv_free(name);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_2(
+			_hb_jv_parse_trait(from, name, to), from, name);
 }
 
 static int
 _hb_jv_parse_trait_list_and_free(jv from, struct hb_trait ***to)
 {
-	int ret;
-	ret = _hb_jv_parse_trait_list(from, to);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_trait_list(from, to), from);
 }
 
 static int
 _hb_jv_parse_vertex_and_free(jv from, struct hb_vertex **to,
 		struct hb_trait **traits)
 {
-	int ret;
-	ret = _hb_jv_parse_vertex(from, to, traits);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_vertex(from, to, traits), from);
 }
 
 static int
 _hb_jv_parse_vertex_list_and_free(jv from, struct hb_vertex ***to,
 		struct hb_trait **traits)
 {
-	int ret;
-	ret = _hb_jv_parse_vertex_list(from, to, traits);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_vertex_list(from, to, traits), from);
 }
 
 static int
 _hb_jv_parse_segment_and_free(jv from, struct hb_segment **to,
 	   struct hb_vertex **vertexes, struct hb_trait **traits)
 {
-	int ret;
-	ret = _hb_jv_parse_segment(from, to, vertexes, traits);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_segment(from, to, vertexes, traits), from);
 }
 
 static int
 _hb_jv_parse_segment_list_and_free(jv from, struct hb_segment ***to,
 		struct hb_vertex **vertexes, struct hb_trait **traits)
 {
-	int ret;
-	ret = _hb_jv_parse_segment_list(from, to, vertexes, traits);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_segment_list(from, to, vertexes, traits), from);
 }
 
 static int
 _hb_jv_parse_vec2_and_free(jv from, float to[2], const float fallback[2])
 {
-	int ret;
-	ret = _hb_jv_parse_vec2(from, to, fallback);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_vec2(from, to, fallback), from);
 }
 
 static int
 _hb_jv_parse_team_and_free(jv from, enum hb_team *to, enum hb_team *fallback)
 {
-	int ret;
-	ret = _hb_jv_parse_team(from, to, fallback);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_team(from, to, fallback), from);
 }
 
 static int
 _hb_jv_parse_goal_and_free(jv from, struct hb_goal **to)
 {
-	int ret;
-	ret = _hb_jv_parse_goal(from, to);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_goal(from, to), from);
 }
 
 static int
 _hb_jv_parse_goal_list_and_free(jv from, struct hb_goal ***to)
 {
-	int ret;
-	ret = _hb_jv_parse_goal_list(from, to);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_goal_list(from, to), from);
 }
 
 static int
 _hb_jv_parse_ball_physics_and_free(jv from, struct hb_disc **to)
 {
-	int ret;
-	ret = _hb_jv_parse_ball_physics(from, to);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_ball_physics(from, to), from);
 }
 
 static int
 _hb_jv_parse_disc_and_free(jv from, struct hb_disc **to,
 		struct hb_trait **traits)
 {
-	int ret;
-	ret = _hb_jv_parse_disc(from, to, traits);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_disc(from, to, traits), from);
 }
 
 static int
 _hb_jv_parse_disc_list_and_free(jv from, struct hb_disc ***to,
 		struct hb_trait **traits, struct hb_disc **ball_physics)
 {
-	int ret;
-	ret = _hb_jv_parse_disc_list(from, to, traits, ball_physics);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_disc_list(from, to, traits, ball_physics), from);
 }
 
 static int
 _hb_jv_parse_plane_and_free(jv from, struct hb_plane **to, struct hb_trait **traits)
 {
-	int ret;
-	ret = _hb_jv_parse_plane(from, to, traits);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_plane(from, to, traits), from);
 }
 
 static int
 _hb_jv_parse_plane_list_and_free(jv from, struct hb_plane ***to, struct hb_trait **traits)
 {
-	int ret;
-	ret = _hb_jv_parse_plane_list(from, to, traits);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_plane_list(from, to, traits), from);
 }
 
 static int
 _hb_jv_parse_joint_length_and_free(jv from, struct hb_joint_length *to)
 {
-	int ret;
-	ret = _hb_jv_parse_joint_length(from, to);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_joint_length(from, to), from);
 }
 
 static int
 _hb_jv_parse_joint_strength_and_free(jv from, struct hb_joint_strength *to)
 {
-	int ret;
-	ret = _hb_jv_parse_joint_strength(from, to);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_joint_strength(from, to), from);
 }
 
 static int
 _hb_jv_parse_joint_and_free(jv from, struct hb_joint **to, struct hb_disc **discs)
 {
-	int ret;
-	ret = _hb_jv_parse_joint(from, to, discs);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_joint(from, to, discs), from);
 }
 
 static int
 _hb_jv_parse_joint_list_and_free(jv from, struct hb_joint ***to, struct hb_disc **discs)
 {
-	int ret;
-	ret = _hb_jv_parse_joint_list(from, to, discs);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_joint_list(from, to, discs), from);
 }
 
 static int
 _hb_jv_parse_point_and_free(jv from, struct hb_point **to)
 {
-	int ret;
-	ret = _hb_jv_parse_point(from, to);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_point(from, to), from);
 }
 
 static int
 _hb_jv_parse_point_list_and_free(jv from, struct hb_point ***to)
 {
-	int ret;
-	ret = _hb_jv_parse_point_list(from, to);
-	jv_free(from);
-	return ret;
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_point_list(from, to), from);
 }
 
 extern struct hb_stadium *
