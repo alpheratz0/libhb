@@ -6,7 +6,7 @@
 
 static const float      HB_F_ZERO         = 0.0f;
 static const bool       HB_B_TRUE         = true;
-static const float     *HB_V2_ZERO        = (const float [2]){ 0.0f, 0.0f };
+static const float      HB_V2_ZERO[2]     = { 0.0f, 0.0f };
 
 static int _hb_jv_parse_string(jv from, char **to, const char *fallback);
 static int _hb_jv_parse_number(jv from, float *to, const float *fallback);
@@ -24,7 +24,7 @@ static int _hb_jv_parse_vertex(jv from, struct hb_vertex **to, struct hb_trait *
 static int _hb_jv_parse_vertex_list(jv from, struct hb_vertex ***to, struct hb_trait **traits);
 static int _hb_jv_parse_segment(jv from, struct hb_segment **to, struct hb_vertex **vertexes, struct hb_trait **traits);
 static int _hb_jv_parse_segment_list(jv from, struct hb_segment ***to, struct hb_vertex **vertexes, struct hb_trait **traits);
-static int _hb_jv_parse_vec2(jv from, float to[2], const float *(fallback[2]));
+static int _hb_jv_parse_vec2(jv from, float to[2], const float fallback[2]);
 static int _hb_jv_parse_team(jv from, enum hb_team *to, enum hb_team *fallback);
 static int _hb_jv_parse_goal(jv from, struct hb_goal **to);
 static int _hb_jv_parse_goal_list(jv from, struct hb_goal ***to);
@@ -56,7 +56,7 @@ static int _hb_jv_parse_vertex_and_free(jv from, struct hb_vertex **to, struct h
 static int _hb_jv_parse_vertex_list_and_free(jv from, struct hb_vertex ***to, struct hb_trait **traits);
 static int _hb_jv_parse_segment_and_free(jv from, struct hb_segment **to, struct hb_vertex **vertexes, struct hb_trait **traits);
 static int _hb_jv_parse_segment_list_and_free(jv from, struct hb_segment ***to, struct hb_vertex **vertexes, struct hb_trait **traits);
-static int _hb_jv_parse_vec2_and_free(jv from, float to[2], const float *(fallback[]));
+static int _hb_jv_parse_vec2_and_free(jv from, float to[2], const float fallback[2]);
 static int _hb_jv_parse_team_and_free(jv from, enum hb_team *to, enum hb_team *fallback);
 static int _hb_jv_parse_goal_and_free(jv from, struct hb_goal **to);
 static int _hb_jv_parse_goal_list_and_free(jv from, struct hb_goal ***to);
@@ -799,7 +799,7 @@ _hb_jv_parse_segment_list(jv from, struct hb_segment ***to,
 }
 
 static int
-_hb_jv_parse_vec2(jv from, float to[2], const float *(fallback[2]))
+_hb_jv_parse_vec2(jv from, float to[2], const float fallback[2])
 {
 	switch (jv_get_kind(from)) {
 	case JV_KIND_ARRAY:
@@ -813,8 +813,8 @@ _hb_jv_parse_vec2(jv from, float to[2], const float *(fallback[2]))
 	case JV_KIND_INVALID:
 		if (fallback == NULL)
 			return -1;
-		to[0] = (*fallback)[0];
-		to[1] = (*fallback)[1];
+		to[0] = fallback[0];
+		to[1] = fallback[1];
 		return 0;
 	default:
 		return -1;
@@ -943,7 +943,7 @@ _hb_jv_parse_ball_physics(jv from, struct hb_disc **to)
 	{
 		jv pos;
 		pos = jv_object_get(jv_copy(from), jv_string("pos"));
-		if (_hb_jv_parse_vec2_and_free(pos, ball_physics->pos, &HB_V2_ZERO) < 0)
+		if (_hb_jv_parse_vec2_and_free(pos, ball_physics->pos, HB_V2_ZERO) < 0)
 			return -1;
 	}
 
@@ -951,7 +951,7 @@ _hb_jv_parse_ball_physics(jv from, struct hb_disc **to)
 	{
 		jv speed;
 		speed = jv_object_get(jv_copy(from), jv_string("speed"));
-		if (_hb_jv_parse_vec2_and_free(speed, ball_physics->speed, &HB_V2_ZERO) < 0)
+		if (_hb_jv_parse_vec2_and_free(speed, ball_physics->speed, HB_V2_ZERO) < 0)
 			return -1;
 	}
 
@@ -959,7 +959,7 @@ _hb_jv_parse_ball_physics(jv from, struct hb_disc **to)
 	{
 		jv gravity;
 		gravity = jv_object_get(jv_copy(from), jv_string("gravity"));
-		if (_hb_jv_parse_vec2_and_free(gravity, ball_physics->gravity, &HB_V2_ZERO) < 0)
+		if (_hb_jv_parse_vec2_and_free(gravity, ball_physics->gravity, HB_V2_ZERO) < 0)
 			return -1;
 	}
 
@@ -1053,7 +1053,7 @@ _hb_jv_parse_disc(jv from, struct hb_disc **to,
 	{
 		jv pos;
 		pos = jv_object_get(jv_copy(from), jv_string("pos"));
-		if (_hb_jv_parse_vec2_and_free(pos, disc->pos, &HB_V2_ZERO) < 0)
+		if (_hb_jv_parse_vec2_and_free(pos, disc->pos, HB_V2_ZERO) < 0)
 			return -1;
 	}
 
@@ -1061,7 +1061,7 @@ _hb_jv_parse_disc(jv from, struct hb_disc **to,
 	{
 		jv speed;
 		speed = jv_object_get(jv_copy(from), jv_string("speed"));
-		if (_hb_jv_parse_vec2_and_free(speed, disc->speed, &HB_V2_ZERO) < 0)
+		if (_hb_jv_parse_vec2_and_free(speed, disc->speed, HB_V2_ZERO) < 0)
 			return -1;
 	}
 
@@ -1069,7 +1069,7 @@ _hb_jv_parse_disc(jv from, struct hb_disc **to,
 	{
 		jv gravity;
 		gravity = jv_object_get(jv_copy(from), jv_string("gravity"));
-		if (_hb_jv_parse_vec2_and_free(gravity, disc->gravity, &HB_V2_ZERO) < 0)
+		if (_hb_jv_parse_vec2_and_free(gravity, disc->gravity, HB_V2_ZERO) < 0)
 			return -1;
 	}
 
@@ -1637,7 +1637,7 @@ _hb_jv_parse_segment_list_and_free(jv from, struct hb_segment ***to,
 }
 
 static int
-_hb_jv_parse_vec2_and_free(jv from, float to[2], const float *(fallback[2]))
+_hb_jv_parse_vec2_and_free(jv from, float to[2], const float fallback[2])
 {
 	int ret;
 	ret = _hb_jv_parse_vec2(from, to, fallback);
