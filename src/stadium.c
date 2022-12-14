@@ -802,22 +802,22 @@ static int
 _hb_jv_parse_vec2(jv from, float to[2], const float *(fallback[2]))
 {
 	switch (jv_get_kind(from)) {
-		case JV_KIND_ARRAY:
-			if (jv_array_length(jv_copy(from)) != 2)
-				return -1;
-			jv_array_foreach(from, index, v) {
-				if (_hb_jv_parse_number_and_free(v, &to[index], NULL) < 0)
-					return -1;
-			}
-			return 0;
-		case JV_KIND_INVALID:
-			if (fallback == NULL)
-				return -1;
-			to[0] = (*fallback)[0];
-			to[1] = (*fallback)[1];
-			return 0;
-		default:
+	case JV_KIND_ARRAY:
+		if (jv_array_length(jv_copy(from)) != 2)
 			return -1;
+		jv_array_foreach(from, index, v) {
+			if (_hb_jv_parse_number_and_free(v, &to[index], NULL) < 0)
+				return -1;
+		}
+		return 0;
+	case JV_KIND_INVALID:
+		if (fallback == NULL)
+			return -1;
+		to[0] = (*fallback)[0];
+		to[1] = (*fallback)[1];
+		return 0;
+	default:
+		return -1;
 	}
 }
 
