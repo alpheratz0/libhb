@@ -41,6 +41,7 @@ static int _hb_jv_parse_joint(jv from, struct hb_joint **to, struct hb_disc **di
 static int _hb_jv_parse_joint_list(jv from, struct hb_joint ***to, struct hb_disc **discs);
 static int _hb_jv_parse_point(jv from, struct hb_point **to);
 static int _hb_jv_parse_point_list(jv from, struct hb_point ***to);
+static int _hb_jv_parse_player_physics(jv from, struct hb_player_physics **to);
 
 static int _hb_jv_parse_string_and_free(jv from, char **to, const char *fallback);
 static int _hb_jv_parse_number_and_free(jv from, float *to, const float *fallback);
@@ -74,6 +75,7 @@ static int _hb_jv_parse_joint_and_free(jv from, struct hb_joint **to, struct hb_
 static int _hb_jv_parse_joint_list_and_free(jv from, struct hb_joint ***to, struct hb_disc **discs);
 static int _hb_jv_parse_point_and_free(jv from, struct hb_point **to);
 static int _hb_jv_parse_point_list_and_free(jv from, struct hb_point ***to);
+static int _hb_jv_parse_player_physics_and_free(jv from, struct hb_player_physics **to);
 
 //////////////////////////////////////////////
 //////////////////PARSE///////////////////////
@@ -1471,6 +1473,147 @@ _hb_jv_parse_point_list(jv from, struct hb_point ***to)
 	}
 }
 
+static int
+_hb_jv_parse_player_physics(jv from, struct hb_player_physics **to)
+{
+	struct hb_player_physics *player_physics;
+	jv_kind kind;
+
+	kind = jv_get_kind(from);
+
+	if (kind != JV_KIND_OBJECT
+			&& kind != JV_KIND_INVALID)
+		return -1;
+
+	if (kind == JV_KIND_INVALID) {
+		player_physics = *to = calloc(1, sizeof(struct hb_player_physics));
+		player_physics->gravity[0] = player_physics->gravity[1] = 0.0f;
+		player_physics->radius = 15.0f;
+		player_physics->inv_mass = 0.5f;
+		player_physics->b_coef = 0.5f;
+		player_physics->damping = 0.96f;
+		player_physics->c_group = 0;
+		player_physics->acceleration = 0.1f;
+		player_physics->kicking_acceleration = 0.07f;
+		player_physics->kicking_damping = 0.96f;
+		player_physics->kick_strength = 5.0f;
+		player_physics->kickback = 0.0f;
+		return 0;
+	}
+
+	player_physics = *to = calloc(1, sizeof(struct hb_player_physics));
+
+	/////////////gravity
+	{
+		jv gravity;
+		gravity = jv_object_get(jv_copy(from), jv_string("gravity"));
+		if (_hb_jv_parse_vec2_and_free(gravity, player_physics->gravity, HB_V2_ZERO) < 0)
+			return -1;
+	}
+
+	/////////////radius
+	{
+		jv radius;
+		float fallback_radius;
+		fallback_radius = 15.0f;
+		radius = jv_object_get(jv_copy(from), jv_string("radius"));
+		if (_hb_jv_parse_number_and_free(radius, &player_physics->radius, &fallback_radius) < 0)
+			return -1;
+	}
+
+	/////////////invMass
+	{
+		jv inv_mass;
+		float fallback_inv_mass;
+		fallback_inv_mass = 0.5f;
+		inv_mass = jv_object_get(jv_copy(from), jv_string("invMass"));
+		if (_hb_jv_parse_number_and_free(inv_mass, &player_physics->inv_mass, &fallback_inv_mass) < 0)
+			return -1;
+	}
+
+	/////////////bCoef
+	{
+		jv b_coef;
+		float fallback_b_coef;
+		fallback_b_coef = 0.5f;
+		b_coef = jv_object_get(jv_copy(from), jv_string("bCoef"));
+		if (_hb_jv_parse_number_and_free(b_coef, &player_physics->b_coef, &fallback_b_coef) < 0)
+			return -1;
+	}
+
+	/////////////damping
+	{
+		jv damping;
+		float fallback_damping;
+		fallback_damping = 0.96f;
+		damping = jv_object_get(jv_copy(from), jv_string("damping"));
+		if (_hb_jv_parse_number_and_free(damping, &player_physics->damping, &fallback_damping) < 0)
+			return -1;
+	}
+
+	/////////////cGroup
+	{
+		jv c_group;
+		enum hb_collision_flags fallback_c_group;
+		fallback_c_group = 0;
+		c_group = jv_object_get(jv_copy(from), jv_string("cGroup"));
+		if (_hb_jv_parse_collision_flags_and_free(c_group, &player_physics->c_group, &fallback_c_group) < 0)
+			return -1;
+	}
+
+	/////////////acceleration
+	{
+		jv acceleration;
+		float fallback_acceleration;
+		fallback_acceleration = 0.1f;
+		acceleration = jv_object_get(jv_copy(from), jv_string("acceleration"));
+		if (_hb_jv_parse_number_and_free(acceleration, &player_physics->acceleration, &fallback_acceleration) < 0)
+			return -1;
+	}
+
+	/////////////kickingAcceleration
+	{
+		jv kicking_acceleration;
+		float fallback_kicking_acceleration;
+		fallback_kicking_acceleration = 0.07f;
+		kicking_acceleration = jv_object_get(jv_copy(from), jv_string("kickingAcceleration"));
+		if (_hb_jv_parse_number_and_free(kicking_acceleration, &player_physics->kicking_acceleration, &fallback_kicking_acceleration) < 0)
+			return -1;
+	}
+
+	/////////////kickingDamping
+	{
+		jv kicking_damping;
+		float fallback_kicking_damping;
+		fallback_kicking_damping = 0.96f;
+		kicking_damping = jv_object_get(jv_copy(from), jv_string("kickingDamping"));
+		if (_hb_jv_parse_number_and_free(kicking_damping, &player_physics->kicking_damping, &fallback_kicking_damping) < 0)
+			return -1;
+	}
+
+	/////////////kickStrength
+	{
+		jv kick_strength;
+		float fallback_kick_strength;
+		fallback_kick_strength = 5.0f;
+		kick_strength = jv_object_get(jv_copy(from), jv_string("kickStrength"));
+		if (_hb_jv_parse_number_and_free(kick_strength, &player_physics->kick_strength, &fallback_kick_strength) < 0)
+			return -1;
+	}
+
+	/////////////kickback
+	{
+		jv kickback;
+		float fallback_kickback;
+		fallback_kickback = 0.0f;
+		kickback = jv_object_get(jv_copy(from), jv_string("kickback"));
+		if (_hb_jv_parse_number_and_free(kickback, &player_physics->kickback, &fallback_kickback) < 0)
+			return -1;
+	}
+
+	return 0;
+}
+
 //////////////////////////////////////////////
 //////////////PARSE + JV_FREE/////////////////
 //////////////////////////////////////////////
@@ -1724,6 +1867,13 @@ _hb_jv_parse_point_list_and_free(jv from, struct hb_point ***to)
 			_hb_jv_parse_point_list(from, to), from);
 }
 
+static int
+_hb_jv_parse_player_physics_and_free(jv from, struct hb_player_physics **to)
+{
+	return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_player_physics(from, to), from);
+}
+
 extern struct hb_stadium *
 hb_stadium_parse(const char *in)
 {
@@ -1908,6 +2058,14 @@ hb_stadium_parse(const char *in)
 		jv blue_spawn_points;
 		blue_spawn_points = jv_object_get(jv_copy(root), jv_string("blueSpawnPoints"));
 		if (_hb_jv_parse_point_list_and_free(blue_spawn_points, &s->blue_spawn_points) < 0)
+			goto err;
+	}
+
+	/////////////playerPhysics
+	{
+		jv player_physics;
+		player_physics = jv_object_get(jv_copy(root), jv_string("playerPhysics"));
+		if (_hb_jv_parse_player_physics_and_free(player_physics, &s->player_physics) < 0)
 			goto err;
 	}
 

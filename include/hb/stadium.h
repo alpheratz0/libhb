@@ -12,6 +12,7 @@
 #include <hb/plane.h>
 #include <hb/joint.h>
 #include <hb/point.h>
+#include <hb/player_physics.h>
 
 enum hb_camera_follow {
 	HB_CAMERA_FOLLOW_PLAYER,
@@ -24,27 +25,28 @@ enum hb_kick_off_reset {
 };
 
 struct hb_stadium {
-	char                              *name;
-	float                             width;
-	float                            height;
-	float                      camera_width;
-	float                     camera_height;
-	float                    max_view_width;
-	enum hb_camera_follow     camera_follow;
-	float                    spawn_distance;
-	bool                      can_be_stored;
-	enum hb_kick_off_reset   kick_off_reset;
-	struct hb_background                *bg;
-	struct hb_trait                **traits;
-	struct hb_vertex             **vertexes;
-	struct hb_segment            **segments;
-	struct hb_goal                  **goals;
-	struct hb_disc                  **discs;
-	struct hb_plane                **planes;
-	struct hb_joint                **joints;
-	struct hb_disc            *ball_physics;
-	struct hb_point      **red_spawn_points;
-	struct hb_point     **blue_spawn_points;
+	char                                  *name;
+	float                                 width;
+	float                                height;
+	float                          camera_width;
+	float                         camera_height;
+	float                        max_view_width;
+	enum hb_camera_follow         camera_follow;
+	float                        spawn_distance;
+	bool                          can_be_stored;
+	enum hb_kick_off_reset       kick_off_reset;
+	struct hb_background                    *bg;
+	struct hb_trait                    **traits;
+	struct hb_vertex                 **vertexes;
+	struct hb_segment                **segments;
+	struct hb_goal                      **goals;
+	struct hb_disc                      **discs;
+	struct hb_plane                    **planes;
+	struct hb_joint                    **joints;
+	struct hb_disc                *ball_physics;
+	struct hb_point          **red_spawn_points;
+	struct hb_point         **blue_spawn_points;
+	struct hb_player_physics    *player_physics;
 };
 
 extern struct hb_stadium *
