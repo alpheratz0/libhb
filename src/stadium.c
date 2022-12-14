@@ -33,6 +33,10 @@ static int _hb_jv_parse_disc(jv from, struct hb_disc **to, struct hb_trait **tra
 static int _hb_jv_parse_disc_list(jv from, struct hb_disc ***to, struct hb_trait **traits, struct hb_disc **ball_physics);
 static int _hb_jv_parse_plane(jv from, struct hb_plane **to, struct hb_trait **traits);
 static int _hb_jv_parse_plane_list(jv from, struct hb_plane ***to, struct hb_trait **traits);
+static int _hb_jv_parse_joint_length(jv from, struct hb_joint_length *to);
+static int _hb_jv_parse_joint_strength(jv from, struct hb_joint_strength *to);
+static int _hb_jv_parse_joint(jv from, struct hb_joint **to, struct hb_disc **discs);
+static int _hb_jv_parse_joint_list(jv from, struct hb_joint ***to, struct hb_disc **discs);
 
 static int _hb_jv_parse_string_and_free(jv from, char **to, const char *fallback);
 static int _hb_jv_parse_number_and_free(jv from, float *to, const float *fallback);
@@ -59,6 +63,10 @@ static int _hb_jv_parse_disc_and_free(jv from, struct hb_disc **to, struct hb_tr
 static int _hb_jv_parse_disc_list_and_free(jv from, struct hb_disc ***to, struct hb_trait **traits, struct hb_disc **ball_physics);
 static int _hb_jv_parse_plane_and_free(jv from, struct hb_plane **to, struct hb_trait **traits);
 static int _hb_jv_parse_plane_list_and_free(jv from, struct hb_plane ***to, struct hb_trait **traits);
+static int _hb_jv_parse_joint_length_and_free(jv from, struct hb_joint_length *to);
+static int _hb_jv_parse_joint_strength_and_free(jv from, struct hb_joint_strength *to);
+static int _hb_jv_parse_joint_and_free(jv from, struct hb_joint **to, struct hb_disc **discs);
+static int _hb_jv_parse_joint_list_and_free(jv from, struct hb_joint ***to, struct hb_disc **discs);
 
 static int
 _hb_trait_find_by_name(struct hb_trait **traits, struct hb_trait **trait, const char *name)
@@ -1293,6 +1301,144 @@ _hb_jv_parse_plane_list(jv from, struct hb_plane ***to, struct hb_trait **traits
 	}
 }
 
+static int
+_hb_jv_parse_joint_length(jv from, struct hb_joint_length *to)
+{
+	switch (jv_get_kind(from)) {
+	case JV_KIND_INVALID:
+	case JV_KIND_NULL:
+		to->kind = HB_JOINT_LENGTH_AUTO;
+		return 0;
+	case JV_KIND_NUMBER:
+		to->kind = HB_JOINT_LENGTH_FIXED;
+		if (_hb_jv_parse_number(from, &to->val.f, NULL) < 0)
+			return -1;
+		return 0;
+	case JV_KIND_ARRAY:
+		to->kind = HB_JOINT_LENGTH_RANGE;
+		if (_hb_jv_parse_vec2(from, to->val.range, NULL) < 0)
+			return -1;
+		return 0;
+	default:
+		return -1;
+	}
+}
+
+static int
+_hb_jv_parse_joint_strength(jv from, struct hb_joint_strength *to)
+{
+	const char *str;
+	switch (jv_get_kind(from)) {
+	case JV_KIND_STRING:
+		str = jv_string_value(from);
+		if (strcmp(str, "rigid")) return -1;
+		to->is_rigid = true;
+		return 0;
+	case JV_KIND_NUMBER:
+		if (_hb_jv_parse_number(from, &to->val, NULL) < 0)
+			return -1;
+		to->is_rigid = false;
+		return 0;
+	case JV_KIND_INVALID:
+		to->is_rigid = true;
+		return 0;
+	default:
+		return -1;
+	}
+}
+
+static int
+_hb_jv_parse_joint(jv from, struct hb_joint **to, struct hb_disc **discs)
+{
+	struct hb_joint *joint;
+	int disc_count;
+
+	if (jv_get_kind(from) != JV_KIND_OBJECT)
+		return -1;
+
+	disc_count = 0;
+	while (*discs) {
+		++disc_count;
+		++discs;
+	}
+
+	joint = *to = calloc(1, sizeof(struct hb_joint));
+
+	/////////////d0
+	{
+		jv d0;
+		float f;
+		d0 = jv_object_get(jv_copy(from), jv_string("d0"));
+		if (_hb_jv_parse_number_and_free(d0, &f, NULL) < 0)
+			return -1;
+		joint->d0 = f;
+		if (joint->d0 < 0 || joint->d0 >= disc_count)
+			return -1;
+	}
+
+	/////////////d1
+	{
+		jv d1;
+		float f;
+		d1 = jv_object_get(jv_copy(from), jv_string("d1"));
+		if (_hb_jv_parse_number_and_free(d1, &f, NULL) < 0)
+			return -1;
+		joint->d1 = f;
+		if (joint->d1 < 0 || joint->d1 >= disc_count)
+			return -1;
+	}
+
+	/////////////length
+	{
+		jv length;
+		length = jv_object_get(jv_copy(from), jv_string("length"));
+		if (_hb_jv_parse_joint_length_and_free(length, &joint->length) < 0)
+			return -1;
+	}
+
+	/////////////strength
+	{
+		jv strength;
+		strength = jv_object_get(jv_copy(from), jv_string("strength"));
+		if (_hb_jv_parse_joint_strength_and_free(strength, &joint->strength) < 0)
+			return -1;
+	}
+
+	/////////////color
+	{
+		jv color;
+		uint32_t fallback_color;
+		fallback_color = 0xff000000;
+		color = jv_object_get(jv_copy(from), jv_string("color"));
+		if (_hb_jv_parse_color_and_free(color, &joint->color, &fallback_color) < 0)
+			return -1;
+	}
+
+	return 0;
+}
+
+static int
+_hb_jv_parse_joint_list(jv from, struct hb_joint ***to, struct hb_disc **discs)
+{
+	int count;
+
+	switch (jv_get_kind(from)) {
+	case JV_KIND_ARRAY:
+		count = jv_array_length(jv_copy(from));
+		*to = calloc(count + 1, sizeof(struct hb_joint *));
+		jv_array_foreach(from, index, joint) {
+			if (_hb_jv_parse_joint_and_free(joint, &((*to)[index]), discs) < 0)
+				return -1;
+		}
+		return 0;
+	case JV_KIND_INVALID:
+		*to = calloc(1, sizeof(struct hb_joint *));
+		break;
+	default:
+		return -1;
+	}
+}
+
 //////////////////////////////////////////////
 //////////////PARSE + JV_FREE/////////////////
 //////////////////////////////////////////////
@@ -1534,6 +1680,42 @@ _hb_jv_parse_plane_list_and_free(jv from, struct hb_plane ***to, struct hb_trait
 	return ret;
 }
 
+static int
+_hb_jv_parse_joint_length_and_free(jv from, struct hb_joint_length *to)
+{
+	int ret;
+	ret = _hb_jv_parse_joint_length(from, to);
+	jv_free(from);
+	return ret;
+}
+
+static int
+_hb_jv_parse_joint_strength_and_free(jv from, struct hb_joint_strength *to)
+{
+	int ret;
+	ret = _hb_jv_parse_joint_strength(from, to);
+	jv_free(from);
+	return ret;
+}
+
+static int
+_hb_jv_parse_joint_and_free(jv from, struct hb_joint **to, struct hb_disc **discs)
+{
+	int ret;
+	ret = _hb_jv_parse_joint(from, to, discs);
+	jv_free(from);
+	return ret;
+}
+
+static int
+_hb_jv_parse_joint_list_and_free(jv from, struct hb_joint ***to, struct hb_disc **discs)
+{
+	int ret;
+	ret = _hb_jv_parse_joint_list(from, to, discs);
+	jv_free(from);
+	return ret;
+}
+
 extern struct hb_stadium *
 hb_stadium_parse(const char *in)
 {
@@ -1678,6 +1860,14 @@ hb_stadium_parse(const char *in)
 		jv planes;
 		planes = jv_object_get(jv_copy(root), jv_string("planes"));
 		if (_hb_jv_parse_plane_list_and_free(planes, &s->planes, s->traits) < 0)
+			goto err;
+	}
+
+	/////////////joints
+	{
+		jv joints;
+		joints = jv_object_get(jv_copy(root), jv_string("joints"));
+		if (_hb_jv_parse_joint_list_and_free(joints, &s->joints, s->discs) < 0)
 			goto err;
 	}
 
