@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <jv.h>
+#include <sb.h>
 
 static const float      HB_F_ZERO         = 0.0f;
 static const bool       HB_B_TRUE         = true;
@@ -1929,6 +1930,26 @@ hb_stadium_from_file(const char *file)
 	free(raw_data);
 
 	return s;
+}
+
+extern char *
+hb_stadium_to_json(const struct hb_stadium *s)
+{
+	StringBuilder *sb;
+	char *out;
+
+	sb = sb_create();
+
+	sb_append(sb, "{\n");
+	sb_appendf(sb, "\t\"name\": \"%s\",\n", s->name);
+	sb_appendf(sb, "\t\"cameraWidth\": %f,\n", s->camera_width);
+	sb_appendf(sb, "\t\"cameraHeight\": %f\n", s->camera_height);
+	sb_append(sb, "}");
+
+	out = sb_concat(sb);
+	sb_free(sb);
+
+	return out;
 }
 
 extern void

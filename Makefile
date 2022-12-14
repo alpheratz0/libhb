@@ -9,6 +9,7 @@ src/stadium.o: src/stadium.c
 stadium_print.o: stadium_print.c
 
 libhb.a: src/stadium.o
+	make -C third_party/c-stringbuilder -B
 	$(AR) -rcs libhb.a src/stadium.o
 
 stadium_print: stadium_print.o libhb.a

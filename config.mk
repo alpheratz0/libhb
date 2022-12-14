@@ -3,7 +3,7 @@
 
 AR        = ar
 CC        = cc
-INCS      = ./include
-CFLAGS    = -pedantic -Wall -Wextra -Os -I$(INCS)
-LDLIBS    = -ljq -lhb
-LDFLAGS   = -s -L.
+INCS      = -I./include -I./third_party/c-stringbuilder
+CFLAGS    = -pedantic -Wall -Wextra -Os $(INCS)
+LDLIBS    = -ljq -lhb -lsb
+LDFLAGS   = -s -L. -L./third_party/c-stringbuilder

@@ -51,6 +51,9 @@ hb_stadium_parse(const char *in);
 extern struct hb_stadium *
 hb_stadium_from_file(const char *file);
 
+extern char *
+hb_stadium_to_json(const struct hb_stadium *s);
+
 extern void
 hb_stadium_free(struct hb_stadium *s);
 
