@@ -17,3 +17,4 @@ stadium_print: stadium_print.o libhb.a
 
 clean:
 	rm -f src/*.o libhb.a stadium_print *.o
+	make -C third_party/c-stringbuilder clean
