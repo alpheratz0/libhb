@@ -57,6 +57,9 @@ extern char *
 hb_stadium_to_json(const struct hb_stadium *s);
 
 extern void
+hb_stadium_print(const struct hb_stadium *s);
+
+extern void
 hb_stadium_free(struct hb_stadium *s);
 
 #define hb_stadium_traits_foreach(s,v) \

@@ -1968,6 +1968,15 @@ hb_stadium_to_json(const struct hb_stadium *s)
 }
 
 extern void
+hb_stadium_print(const struct hb_stadium *s)
+{
+	char *json;
+	json = hb_stadium_to_json(s);
+	printf("%s\n", json);
+	free(json);
+}
+
+extern void
 hb_stadium_free(struct hb_stadium *s)
 {
 	free(s->name);
