@@ -527,7 +527,7 @@ _hb_jv_parse_trait_list(jv from, struct hb_trait ***to)
 		return 0;
 	case JV_KIND_INVALID:
 		*to = calloc(1, sizeof(struct hb_trait *));
-		break;
+		return 0;
 	default:
 		return -1;
 	}
@@ -632,7 +632,7 @@ _hb_jv_parse_vertex_list(jv from, struct hb_vertex ***to,
 		return 0;
 	case JV_KIND_INVALID:
 		*to = calloc(1, sizeof(struct hb_vertex *));
-		break;
+		return 0;
 	default:
 		return -1;
 	}
@@ -792,7 +792,7 @@ _hb_jv_parse_segment_list(jv from, struct hb_segment ***to,
 		return 0;
 	case JV_KIND_INVALID:
 		*to = calloc(1, sizeof(struct hb_segment *));
-		break;
+		return 0;
 	default:
 		return -1;
 	}
@@ -897,7 +897,7 @@ _hb_jv_parse_goal_list(jv from, struct hb_goal ***to)
 		return 0;
 	case JV_KIND_INVALID:
 		*to = calloc(1, sizeof(struct hb_goal *));
-		break;
+		return 0;
 	default:
 		return -1;
 	}
@@ -1299,7 +1299,7 @@ _hb_jv_parse_plane_list(jv from, struct hb_plane ***to, struct hb_trait **traits
 		return 0;
 	case JV_KIND_INVALID:
 		*to = calloc(1, sizeof(struct hb_plane *));
-		break;
+		return 0;
 	default:
 		return -1;
 	}
@@ -1437,7 +1437,7 @@ _hb_jv_parse_joint_list(jv from, struct hb_joint ***to, struct hb_disc **discs)
 		return 0;
 	case JV_KIND_INVALID:
 		*to = calloc(1, sizeof(struct hb_joint *));
-		break;
+		return 0;
 	default:
 		return -1;
 	}
@@ -1472,7 +1472,7 @@ _hb_jv_parse_point_list(jv from, struct hb_point ***to)
 		return 0;
 	case JV_KIND_INVALID:
 		*to = calloc(1, sizeof(struct hb_point *));
-		break;
+		return 0;
 	default:
 		return -1;
 	}
