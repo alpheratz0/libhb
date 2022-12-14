@@ -1,18 +1,18 @@
 .POSIX:
-.PHONY: all clean valgrind
+.PHONY: all clean stadium_print
 
 include config.mk
 
-all: valgrind
+all: libhb.a stadium_print
 
 src/stadium.o: src/stadium.c
+stadium_print.o: stadium_print.c
 
 libhb.a: src/stadium.o
 	$(AR) -rcs libhb.a src/stadium.o
 
-valgrind: 
-	cc src/stadium.c stadium_print.c -ljq -I./include -o stadium_print -g
-	valgrind --tool=memcheck --leak-check=yes --track-origins=yes ./stadium_print
+stadium_print: stadium_print.o libhb.a
+	$(CC) $(LDFLAGS) -o stadium_print stadium_print.o $(LDLIBS)
 
 clean:
-	rm -f src/*.o libhb.a stadium_print
+	rm -f src/*.o libhb.a stadium_print *.o

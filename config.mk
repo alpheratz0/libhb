@@ -4,5 +4,6 @@
 AR        = ar
 CC        = cc
 INCS      = ./include
-CFLAGS    = -Os -I$(INCS)
-LDFLAGS   = -jq
+CFLAGS    = -pedantic -Wall -Wextra -Os -I$(INCS)
+LDLIBS    = -ljq -lhb
+LDFLAGS   = -s -L.
