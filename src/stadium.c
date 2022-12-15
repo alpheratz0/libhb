@@ -587,7 +587,7 @@ _hb_jv_parse_vertex(jv from, struct hb_vertex **to,
 	{
 		jv b_coef;
 		float fallback_b_coef;
-		fallback_b_coef = 0.0f;
+		fallback_b_coef = 1.0f;
 		if (NULL != vert_trait && vert_trait->has_b_coef)
 			fallback_b_coef = vert_trait->b_coef;
 		b_coef = jv_object_get(jv_copy(from), jv_string("bCoef"));
@@ -609,10 +609,9 @@ _hb_jv_parse_vertex(jv from, struct hb_vertex **to,
 
 	/////////////cMask
 	{
-		// FIXME: is cMask fallback/default value 0?
 		jv c_mask;
 		enum hb_collision_flags fallback_c_mask;
-		fallback_c_mask = 0;
+		fallback_c_mask = HB_COLLISION_ALL;
 		if (NULL != vert_trait && vert_trait->has_c_mask)
 			fallback_c_mask = vert_trait->c_mask;
 		c_mask = jv_object_get(jv_copy(from), jv_string("cMask"));
@@ -701,7 +700,7 @@ _hb_jv_parse_segment(jv from, struct hb_segment **to,
 	{
 		jv b_coef;
 		float fallback_b_coef;
-		fallback_b_coef = 0.0f;
+		fallback_b_coef = 1.0f;
 		if (NULL != segm_trait && segm_trait->has_b_coef)
 			fallback_b_coef = segm_trait->b_coef;
 		b_coef = jv_object_get(jv_copy(from), jv_string("bCoef"));
@@ -739,10 +738,9 @@ _hb_jv_parse_segment(jv from, struct hb_segment **to,
 
 	/////////////cMask
 	{
-		// FIXME: is cMask fallback/default value 0?
 		jv c_mask;
 		enum hb_collision_flags fallback_c_mask;
-		fallback_c_mask = 0;
+		fallback_c_mask = HB_COLLISION_ALL;
 		if (NULL != segm_trait && segm_trait->has_c_mask)
 			fallback_c_mask = segm_trait->c_mask;
 		c_mask = jv_object_get(jv_copy(from), jv_string("cMask"));
@@ -1033,7 +1031,7 @@ _hb_jv_parse_ball_physics(jv from, struct hb_disc **to)
 		c_group = jv_object_get(jv_copy(from), jv_string("cGroup"));
 		if (_hb_jv_parse_collision_flags_and_free(c_group, &ball_physics->c_group, &fallback_c_group) < 0)
 			return -1;
-		ball_physics->c_group |= HB_COLLISION_KICK | HB_COLLISION_SCORE;
+		ball_physics->c_group |= HB_COLLISION_KICK | HB_COLLISION_SCORE | HB_COLLISION_BALL;
 	}
 
 	return 0;
@@ -1243,7 +1241,7 @@ _hb_jv_parse_plane(jv from, struct hb_plane **to, struct hb_trait **traits)
 	{
 		jv b_coef;
 		float fallback_b_coef;
-		fallback_b_coef = 0.0f;
+		fallback_b_coef = 1.0f;
 		if (NULL != plane_trait && plane_trait->has_b_coef)
 			fallback_b_coef = plane_trait->b_coef;
 		b_coef = jv_object_get(jv_copy(from), jv_string("bCoef"));
@@ -1255,7 +1253,7 @@ _hb_jv_parse_plane(jv from, struct hb_plane **to, struct hb_trait **traits)
 	{
 		jv c_mask;
 		enum hb_collision_flags fallback_c_mask;
-		fallback_c_mask = 0;
+		fallback_c_mask = HB_COLLISION_ALL;
 		if (NULL != plane_trait && plane_trait->has_c_mask)
 			fallback_c_mask = plane_trait->c_mask;
 		c_mask = jv_object_get(jv_copy(from), jv_string("cMask"));
