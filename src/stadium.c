@@ -2163,5 +2163,6 @@ hb_stadium_free(struct hb_stadium *s)
 	free(s->joints);
 	free(s->red_spawn_points);
 	free(s->blue_spawn_points);
+	free(s->player_physics);
 	free(s);
 }
