@@ -33,49 +33,65 @@
 #include <string.h>
 #include "sb.h"
 
+struct sb_string_fragment {
+	struct sb_string_fragment *next;
+	int length;
+	char *str;
+};
+
+struct sb_string_builder {
+	struct sb_string_fragment *root;
+	struct sb_string_fragment *trunk;
+	int length;
+};
+
 /*
- * sb_create returns a pointer to a new StringBuilder or NULL if memory is not
- * available.
+ * sb_create returns a pointer to a new struct sb_string_builder
+ * or NULL if memory is not available.
  */
-StringBuilder *sb_create()
+extern struct sb_string_builder *
+sb_create(void)
 {
-	StringBuilder *sb = (StringBuilder*) calloc(sizeof(StringBuilder), 1);
+	struct sb_string_builder *sb;
+	sb = calloc(1, sizeof(struct sb_string_builder));
 	return sb;
 }
 
 /*
- * sb_empty returns non-zero if the given StringBuilder is empty.
+ * sb_empty returns non-zero if the given struct sb_string_builder is empty.
  */
-int sb_empty(StringBuilder *sb)
+extern int
+sb_empty(struct sb_string_builder *sb)
 {
 	return (sb->root == NULL);
 }
 
 /*
- * sb_append adds a copy of the given string to a StringBuilder.
+ * sb_append adds a copy of the given string to a struct sb_string_builder.
  */
-int sb_append(StringBuilder *sb, const char *str)
+extern int
+sb_append(struct sb_string_builder *sb, const char *str)
 {
-	int				length = 0;
-	StringFragment	*frag = NULL;
+	int length;
+	struct sb_string_fragment *frag;
 
 	if (NULL == str || '\0' == *str)
 		return sb->length;
 
 	length = strlen(str);
-	frag = (StringFragment*) malloc(sizeof(StringFragment) + (sizeof(char) * length));
+	frag = malloc(sizeof(struct sb_string_fragment) + length);
+
 	if (NULL == frag)
 		return SB_FAILURE;
 
 	frag->next = NULL;
 	frag->length = length;
-	memcpy((void*) &frag->str, (const void*) str, sizeof(char) * (length + 1));
 
+	memcpy((void*) &frag->str, (const void*) str, length + 1);
 	sb->length += length;
-	if (NULL == sb->root)
-		sb->root = frag;
-	else
-		sb->trunk->next = frag;
+
+	if (NULL == sb->root) sb->root = frag;
+	else sb->trunk->next = frag;
 
 	sb->trunk = frag;
 
@@ -83,15 +99,18 @@ int sb_append(StringBuilder *sb, const char *str)
 }
 
 /*
- * sb_appendf adds a copy of the given formatted string to a StringBuilder.
+ * sb_appendf adds a copy of the given formatted string
+ * to a struct sb_string_builder.
  */
-int sb_appendf(StringBuilder *sb, const char *format, ...)
+extern int
+sb_appendf(struct sb_string_builder *sb, const char *format, ...)
 {
-	int			rc = 0;
-	char		buf[SB_MAX_FRAG_LENGTH];
-	va_list		args;
+	int rc;
+	char buf[SB_MAX_FRAG_LENGTH];
+	va_list args;
 
-	va_start (args, format);
+	rc = 0;
+	va_start(args, format);
 	rc = vsnprintf(&buf[0], SB_MAX_FRAG_LENGTH, format, args);
 	va_end(args);
 
@@ -102,26 +121,30 @@ int sb_appendf(StringBuilder *sb, const char *format, ...)
 }
 
 /*
- * sb_concat returns a concatenation of strings that have been appended to the
- * StringBuilder. It is the callers responsibility to free the returned
- * reference.
+ * sb_concat returns a concatenation of strings that have
+ * been appended to the struct sb_string_builder. It is the callers
+ * responsibility to free the returned reference.
  *
- * The StringBuilder is not modified by this function and can therefore continue
- * to be used.
+ * The struct sb_string_builder is not modified by this function and
+ * can therefore continue to be used.
  */
-char *sb_concat(StringBuilder *sb)
+extern char *
+sb_concat(struct sb_string_builder *sb)
 {
-	char			*buf = NULL;
-	char			*c = NULL;
-	StringFragment	*frag = NULL;
+	char *buf, *c;
+	struct sb_string_fragment *frag;
 
-	buf = (char *) malloc((sb->length + 1) * sizeof(char));
+	c = NULL;
+	frag = NULL;
+	buf = malloc(sb->length + 1);
+
 	if (NULL == buf)
 		return NULL;
 
 	c = buf;
+
 	for (frag = sb->root; frag; frag = frag->next) {
-		memcpy(c, &frag->str, sizeof(char) * frag->length);
+		memcpy(c, &frag->str, frag->length);
 		c += frag->length;
 	}
 
@@ -131,16 +154,18 @@ char *sb_concat(StringBuilder *sb)
 }
 
 /*
- * sb_reset resets the given StringBuilder, freeing all previously appended
- * strings.
+ * sb_reset resets the given struct sb_string_builder,
+ * freeing all previously appended strings.
  */
-void sb_reset(StringBuilder *sb)
+extern void
+sb_reset(struct sb_string_builder *sb)
 {
-	StringFragment *frag = NULL;
-	StringFragment *next = NULL;
+	struct sb_string_fragment *frag, *next;
 
 	frag = sb->root;
-	while(frag) {
+	next = NULL;
+
+	while (frag) {
 		next = frag->next;
 		free(frag);
 		frag = next;
@@ -152,9 +177,11 @@ void sb_reset(StringBuilder *sb)
 }
 
 /*
- * sb_free frees the given StringBuilder and all of its appended strings.
+ * sb_free frees the given struct sb_string_builder and all
+ * of its appended strings.
  */
-void sb_free(StringBuilder *sb)
+extern void
+sb_free(struct sb_string_builder *sb)
 {
 	sb_reset(sb);
 	free(sb);
