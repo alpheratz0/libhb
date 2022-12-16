@@ -1,10 +1,10 @@
-#!/bin/sh
+#!/bin/sh -e
 
-make -C .. >/dev/null
-make -C ../third_party/c-stringbuilder >/dev/null
-mv ../libhb.a .
-cc test.c -o test -I../include -L. -L../third_party/c-stringbuilder/ -ljq -lhb -lsb
+cd ..
+make >/dev/null
+mv libhb.a test
+make clean >/dev/null
+cd test
+cc test.c -o test -I../include -L. -ljq -lhb
 ./test
 rm -f test libhb.a
-make -C .. clean >/dev/null
-make -C ../third_party/c-stringbuilder clean >/dev/null
