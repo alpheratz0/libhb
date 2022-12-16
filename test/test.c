@@ -12,22 +12,22 @@ _test_load(const char *path)
 }
 
 static void
-test_invalid_hbs(void)
+test_invalid_json(void)
 {
-	assert(NULL == _test_load("test_invalid.hbs"));
+	assert(NULL == _test_load("test_invalid.json"));
 }
 
 static void
 test_name_missing(void)
 {
-	assert(NULL == _test_load("test_name_missing.hbs"));
+	assert(NULL == _test_load("test_name_missing.json"));
 }
 
 static void
 test_name(void)
 {
 	struct hb_stadium *s;
-	assert(NULL != (s = _test_load("test_name.hbs")));
+	assert(NULL != (s = _test_load("test_name.json")));
 	assert(!strcmp(s->name, "test_name"));
 	hb_stadium_free(s);
 }
@@ -35,7 +35,7 @@ test_name(void)
 int
 main(void)
 {
-	test_invalid_hbs();
+	test_invalid_json();
 	test_name_missing();
 	test_name();
 	return 0;
