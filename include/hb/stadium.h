@@ -64,40 +64,40 @@ hb_stadium_print(const struct hb_stadium *s);
 extern void
 hb_stadium_free(struct hb_stadium *s);
 
-#define hb_stadium_traits_foreach(s,v) \
+#define hb_stadium_traits_foreach(s,t) \
 	if (s->traits) \
-		for (struct hb_trait **v = s->traits; *v; ++v) \
+		for (struct hb_trait *t, **v = s->traits; (t = *v); ++v) \
 
-#define hb_stadium_vertexes_foreach(s,v) \
+#define hb_stadium_vertexes_foreach(s,t) \
 	if (s->vertexes) \
-		for (struct hb_vertex **v = s->vertexes; *v; ++v) \
+		for (struct hb_vertex *t, **v = s->vertexes; (t = *v); ++v) \
 
-#define hb_stadium_segments_foreach(s,v) \
+#define hb_stadium_segments_foreach(s,t) \
 	if (s->segments) \
-		for (struct hb_segment **v = s->segments; *v; ++v) \
+		for (struct hb_segment *t, **v = s->segments; (t = *v); ++v) \
 
-#define hb_stadium_goals_foreach(s,v) \
+#define hb_stadium_goals_foreach(s,t) \
 	if (s->goals) \
-		for (struct hb_goal **v = s->goals; *v; ++v) \
+		for (struct hb_goal *t, **v = s->goals; (t = *v); ++v) \
 
-#define hb_stadium_discs_foreach(s,v) \
+#define hb_stadium_discs_foreach(s,t) \
 	if (s->discs) \
-		for (struct hb_disc **v = s->discs; *v; ++v) \
+		for (struct hb_disc *t, **v = s->discs; (t = *v); ++v) \
 
-#define hb_stadium_planes_foreach(s,v) \
+#define hb_stadium_planes_foreach(s,t) \
 	if (s->planes) \
-		for (struct hb_plane **v = s->planes; *v; ++v)\
+		for (struct hb_plane *t, **v = s->planes; (t = *v); ++v)\
 
-#define hb_stadium_joints_foreach(s,v) \
+#define hb_stadium_joints_foreach(s,t) \
 	if (s->joints) \
-		for (struct hb_joint **v = s->joints; *v; ++v) \
+		for (struct hb_joint *t, **v = s->joints; (t = *v); ++v) \
 
-#define hb_stadium_red_spawn_points_foreach(s,v) \
+#define hb_stadium_red_spawn_points_foreach(s,t) \
 	if (s->red_spawn_points) \
-		for (struct hb_point **v = s->red_spawn_points; *v; ++v) \
+		for (struct hb_point *t, **v = s->red_spawn_points; (t = *v); ++v) \
 
-#define hb_stadium_blue_spawn_points_foreach(s,v) \
+#define hb_stadium_blue_spawn_points_foreach(s,t) \
 	if (s->blue_spawn_points) \
-		for (struct hb_point **v = s->blue_spawn_points; *v; ++v) \
+		for (struct hb_point *t, **v = s->blue_spawn_points; (t = *v); ++v) \
 
 #endif

@@ -2139,18 +2139,18 @@ hb_stadium_free(struct hb_stadium *s)
 	free(s->bg);
 
 	hb_stadium_traits_foreach(s, trait) {
-		free((*trait)->name);
-		free(*trait);
+		free(trait->name);
+		free(trait);
 	}
 
-	hb_stadium_vertexes_foreach(s, vertex) free(*vertex);
-	hb_stadium_segments_foreach(s, segment) free(*segment);
-	hb_stadium_goals_foreach(s, goal) free(*goal);
-	hb_stadium_discs_foreach(s, disc) free(*disc);
-	hb_stadium_planes_foreach(s, plane) free(*plane);
-	hb_stadium_joints_foreach(s, joint) free(*joint);
-	hb_stadium_red_spawn_points_foreach(s, point) free(*point);
-	hb_stadium_blue_spawn_points_foreach(s, point) free(*point);
+	hb_stadium_vertexes_foreach(s, vertex) free(vertex);
+	hb_stadium_segments_foreach(s, segment) free(segment);
+	hb_stadium_goals_foreach(s, goal) free(goal);
+	hb_stadium_discs_foreach(s, disc) free(disc);
+	hb_stadium_planes_foreach(s, plane) free(plane);
+	hb_stadium_joints_foreach(s, joint) free(joint);
+	hb_stadium_red_spawn_points_foreach(s, point) free(point);
+	hb_stadium_blue_spawn_points_foreach(s, point) free(point);
 
 	free(s->traits);
 	free(s->vertexes);
