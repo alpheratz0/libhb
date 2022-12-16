@@ -1,20 +1,24 @@
 .POSIX:
-.PHONY: all clean stadium_print
+.PHONY: all clean install uninstall
 
 include config.mk
 
-all: libhb.a stadium_print
+all: libhb.a
 
 src/stadium.o: src/stadium.c
-stadium_print.o: stadium_print.c
+src/sb.o: src/sb.c
 
-libhb.a: src/stadium.o
-	make -C third_party/c-stringbuilder -B
-	$(AR) -rcs libhb.a src/stadium.o
+libhb.a: src/stadium.o src/sb.o
+	$(AR) -rcs libhb.a src/stadium.o src/sb.o
 
-stadium_print: stadium_print.o libhb.a
-	$(CC) $(LDFLAGS) -o stadium_print stadium_print.o $(LDLIBS)
+install: libhb.a
+	rm -rf $(DESTDIR)$(PREFIX)/include/hb
+	cp -r include/hb $(DESTDIR)$(PREFIX)/include/hb
+	cp libhb.a $(DESTDIR)$(PREFIX)/lib
+
+uninstall:
+	rm -rf $(DESTDIR)$(PREFIX)/include/hb
+	rm -f $(DESTDIR)$(PREFIX)/lib/libhb.a
 
 clean:
-	rm -f src/*.o libhb.a stadium_print *.o
-	make -C third_party/c-stringbuilder clean
+	rm -f src/*.o libhb.a

@@ -3,7 +3,6 @@
 
 AR        = ar
 CC        = cc
-INCS      = -I./include -I./third_party/c-stringbuilder
+INCS      = -Iinclude
 CFLAGS    = -pedantic -Wall -Wextra -Os $(INCS)
-LDLIBS    = -ljq -lhb -lsb
-LDFLAGS   = -s -L. -L./third_party/c-stringbuilder
+PREFIX    = /usr/local
