@@ -1,0 +1,10 @@
+libhb is a library to parse haxball stuff such as stadiums and
+game recordings
+
+This library depends on libjq.
+In order to build this library you need to run `make`.
+
+This program is free software; you can redistribute it
+and/or modify it under the terms of the GNU General Public License
+version 2 as published by the Free Software Foundation.
+See COPYING for more details.
