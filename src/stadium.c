@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <jv.h>
-#include <sb.h>
 
 static const float      HB_F_ZERO         = 0.0f;
 static const bool       HB_B_TRUE         = true;
@@ -2106,30 +2105,443 @@ hb_stadium_from_file(const char *file)
 extern char *
 hb_stadium_to_json(const struct hb_stadium *s)
 {
-	struct sb_string_builder *sb;
-	char *out;
+	return "";
+}
 
-	sb = sb_create();
+static jv
+_hb_jv_to_json_camera_follow(enum hb_camera_follow from)
+{
+	switch (from) {
+	case HB_CAMERA_FOLLOW_BALL: return jv_string("ball");
+	case HB_CAMERA_FOLLOW_PLAYER: return jv_string("player");
+	default: return jv_string("unknown");
+	}
+}
 
-	sb_append(sb, "{\n");
-	sb_appendf(sb, "\t\"name\": \"%s\",\n", s->name);
-	sb_appendf(sb, "\t\"cameraWidth\": %f,\n", s->camera_width);
-	sb_appendf(sb, "\t\"cameraHeight\": %f\n", s->camera_height);
-	sb_append(sb, "}");
+static jv
+_hb_jv_to_json_kick_off_reset(enum hb_kick_off_reset from)
+{
+	switch (from) {
+	case HB_KICK_OFF_RESET_FULL: return jv_string("full");
+	case HB_KICK_OFF_RESET_PARTIAL: return jv_string("partial");
+	default: return jv_string("unknown");
+	}
+}
 
-	out = sb_concat(sb);
-	sb_free(sb);
+static jv
+_hb_jv_to_json_bg_type(enum hb_background_type from)
+{
+	switch (from) {
+	case HB_BACKGROUND_TYPE_NONE: return jv_string("none");
+	case HB_BACKGROUND_TYPE_GRASS: return jv_string("grass");
+	case HB_BACKGROUND_TYPE_HOCKEY: return jv_string("hockey");
+	default: return jv_string("unknown");
+	}
+}
 
+static jv
+_hb_jv_to_json_color(uint32_t from)
+{
+	if (from & (0xff << 24))
+		return jv_string_fmt("%06x", from & 0xffffff);
+	return jv_string("transparent");
+}
+
+static jv
+_hb_jv_to_json_bg(struct hb_background *from)
+{
+	jv out;
+	out = jv_object();
+
+	out = jv_object_set(out, jv_string("type"),
+			_hb_jv_to_json_bg_type(from->type));
+
+	out = jv_object_set(out, jv_string("width"),
+			jv_number(from->width));
+
+	out = jv_object_set(out, jv_string("height"),
+			jv_number(from->height));
+
+	out = jv_object_set(out, jv_string("kickOffRadius"),
+			jv_number(from->kick_off_radius));
+
+	out = jv_object_set(out, jv_string("cornerRadius"),
+			jv_number(from->corner_radius));
+
+	out = jv_object_set(out, jv_string("goalLine"),
+			jv_number(from->goal_line));
+
+	out = jv_object_set(out, jv_string("color"),
+			_hb_jv_to_json_color(from->color));
+
+	return out;
+}
+
+static jv
+_hb_jv_to_json_collision_flags(enum hb_collision_flags from)
+{
+	jv out;
+	out = jv_array();
+
+	if (hb_collision_flags_is_set(from, HB_COLLISION_ALL)) {
+		out = jv_array_append(out, jv_string("all"));
+		from ^= HB_COLLISION_ALL;
+	}
+
+	if (hb_collision_flags_is_set(from, HB_COLLISION_BALL))
+		out = jv_array_append(out, jv_string("ball"));
+
+	if (hb_collision_flags_is_set(from, HB_COLLISION_RED))
+		out = jv_array_append(out, jv_string("red"));
+
+	if (hb_collision_flags_is_set(from, HB_COLLISION_BLUE))
+		out = jv_array_append(out, jv_string("blue"));
+
+	if (hb_collision_flags_is_set(from, HB_COLLISION_RED_KO))
+		out = jv_array_append(out, jv_string("redKO"));
+
+	if (hb_collision_flags_is_set(from, HB_COLLISION_BLUE_KO))
+		out = jv_array_append(out, jv_string("blueKO"));
+
+	if (hb_collision_flags_is_set(from, HB_COLLISION_WALL))
+		out = jv_array_append(out, jv_string("wall"));
+
+	if (hb_collision_flags_is_set(from, HB_COLLISION_KICK))
+		out = jv_array_append(out, jv_string("kick"));
+
+	if (hb_collision_flags_is_set(from, HB_COLLISION_SCORE))
+		out = jv_array_append(out, jv_string("score"));
+
+	if (hb_collision_flags_is_set(from, HB_COLLISION_C0))
+		out = jv_array_append(out, jv_string("c0"));
+
+	if (hb_collision_flags_is_set(from, HB_COLLISION_C1))
+		out = jv_array_append(out, jv_string("c1"));
+
+	if (hb_collision_flags_is_set(from, HB_COLLISION_C2))
+		out = jv_array_append(out, jv_string("c2"));
+
+	if (hb_collision_flags_is_set(from, HB_COLLISION_C3))
+		out = jv_array_append(out, jv_string("c3"));
+
+	return out;
+}
+
+static jv
+_hb_jv_to_json_vertex(const struct hb_vertex *from)
+{
+	jv out;
+	out = jv_object();
+
+	out = jv_object_set(out, jv_string("x"), jv_number(from->x));
+	out = jv_object_set(out, jv_string("y"), jv_number(from->y));
+	out = jv_object_set(out, jv_string("bCoef"), jv_number(from->b_coef));
+	out = jv_object_set(out, jv_string("cGroup"), _hb_jv_to_json_collision_flags(from->c_group));
+	out = jv_object_set(out, jv_string("cMask"), _hb_jv_to_json_collision_flags(from->c_mask));
+
+	return out;
+}
+
+static jv
+_hb_jv_to_json_segment(const struct hb_segment *from)
+{
+	jv out;
+	out = jv_object();
+
+	out = jv_object_set(out, jv_string("v0"), jv_number(from->v0));
+	out = jv_object_set(out, jv_string("v1"), jv_number(from->v1));
+	out = jv_object_set(out, jv_string("bCoef"), jv_number(from->b_coef));
+	out = jv_object_set(out, jv_string("curve"), jv_number(from->curve));
+	out = jv_object_set(out, jv_string("bias"), jv_number(from->bias));
+	out = jv_object_set(out, jv_string("cGroup"), _hb_jv_to_json_collision_flags(from->c_group));
+	out = jv_object_set(out, jv_string("cMask"), _hb_jv_to_json_collision_flags(from->c_mask));
+	out = jv_object_set(out, jv_string("vis"), jv_bool(from->vis));
+	out = jv_object_set(out, jv_string("color"), _hb_jv_to_json_color(from->color));
+
+	return out;
+}
+
+static jv
+_hb_jv_to_json_player_physics(const struct hb_player_physics *from)
+{
+	jv out;
+	out = jv_object();
+
+	out = jv_object_set(out, jv_string("gravity"), JV_ARRAY_2(jv_number(from->gravity[0]), jv_number(from->gravity[1])));
+	out = jv_object_set(out, jv_string("radius"), jv_number(from->radius));
+	out = jv_object_set(out, jv_string("invMass"), jv_number(from->inv_mass));
+	out = jv_object_set(out, jv_string("bCoef"), jv_number(from->b_coef));
+	out = jv_object_set(out, jv_string("damping"), jv_number(from->damping));
+	out = jv_object_set(out, jv_string("cGroup"), _hb_jv_to_json_collision_flags(from->c_group));
+	out = jv_object_set(out, jv_string("acceleration"), jv_number(from->acceleration));
+	out = jv_object_set(out, jv_string("kickingAcceleration"), jv_number(from->kicking_acceleration));
+	out = jv_object_set(out, jv_string("kickingDamping"), jv_number(from->kicking_damping));
+	out = jv_object_set(out, jv_string("kickStrength"), jv_number(from->kick_strength));
+	out = jv_object_set(out, jv_string("kickback"), jv_number(from->kickback));
+
+	return out;
+}
+
+static jv
+_hb_jv_to_json_team(enum hb_team from)
+{
+	switch (from) {
+	case HB_TEAM_RED: return jv_string("red");
+	case HB_TEAM_BLUE: return jv_string("blue");
+	case HB_TEAM_SPECTATOR: return jv_string("spectator");
+	default: return jv_string("unknown");
+	}
+}
+
+static jv
+_hb_jv_to_json_goal(const struct hb_goal *from)
+{
+	jv out;
+	out = jv_object();
+
+	out = jv_object_set(out, jv_string("p0"), JV_ARRAY_2(jv_number(from->p0[0]), jv_number(from->p0[1])));
+	out = jv_object_set(out, jv_string("p1"), JV_ARRAY_2(jv_number(from->p1[0]), jv_number(from->p1[1])));
+	out = jv_object_set(out, jv_string("team"), _hb_jv_to_json_team(from->team));
+
+	return out;
+}
+
+static jv
+_hb_jv_to_json_disc(const struct hb_disc *from)
+{
+	jv out;
+	out = jv_object();
+
+	out = jv_object_set(out, jv_string("pos"), JV_ARRAY_2(jv_number(from->pos[0]), jv_number(from->pos[1])));
+	out = jv_object_set(out, jv_string("speed"), JV_ARRAY_2(jv_number(from->speed[0]), jv_number(from->speed[1])));
+	out = jv_object_set(out, jv_string("gravity"), JV_ARRAY_2(jv_number(from->gravity[0]), jv_number(from->gravity[1])));
+	out = jv_object_set(out, jv_string("radius"), jv_number(from->radius));
+	out = jv_object_set(out, jv_string("invMass"), jv_number(from->inv_mass));
+	out = jv_object_set(out, jv_string("damping"), jv_number(from->damping));
+	out = jv_object_set(out, jv_string("color"), _hb_jv_to_json_color(from->color));
+	out = jv_object_set(out, jv_string("bCoef"), jv_number(from->b_coef));
+	out = jv_object_set(out, jv_string("cMask"), _hb_jv_to_json_collision_flags(from->c_mask));
+	out = jv_object_set(out, jv_string("cGroup"), _hb_jv_to_json_collision_flags(from->c_group));
+
+	return out;
+}
+
+static jv
+_hb_jv_to_json_plane(const struct hb_plane *from)
+{
+	jv out;
+	out = jv_object();
+
+	out = jv_object_set(out, jv_string("normal"), JV_ARRAY_2(jv_number(from->normal[0]), jv_number(from->normal[1])));
+	out = jv_object_set(out, jv_string("dist"), jv_number(from->dist));
+	out = jv_object_set(out, jv_string("bCoef"), jv_number(from->b_coef));
+	out = jv_object_set(out, jv_string("cMask"), _hb_jv_to_json_collision_flags(from->c_mask));
+	out = jv_object_set(out, jv_string("cGroup"), _hb_jv_to_json_collision_flags(from->c_group));
+
+	return out;
+}
+
+static jv
+_hb_jv_to_json_joint_length(const struct hb_joint_length *from)
+{
+	switch (from->kind) {
+	case HB_JOINT_LENGTH_FIXED: return jv_number(from->val.f);
+	case HB_JOINT_LENGTH_RANGE: return JV_ARRAY_2(jv_number(from->val.range[0]), jv_number(from->val.range[1]));
+	case HB_JOINT_LENGTH_AUTO: return jv_null();
+	default: return jv_null();
+	}
+}
+
+static jv
+_hb_jv_to_json_joint_strength(const struct hb_joint_strength *from)
+{
+	if (from->is_rigid) return jv_string("rigid");
+	return jv_number(from->val);
+}
+
+static jv
+_hb_jv_to_json_joint(const struct hb_joint *from)
+{
+	jv out;
+	out = jv_object();
+
+	out = jv_object_set(out, jv_string("d0"), jv_number(from->d0));
+	out = jv_object_set(out, jv_string("d1"), jv_number(from->d1));
+	out = jv_object_set(out, jv_string("length"), _hb_jv_to_json_joint_length(&from->length));
+	out = jv_object_set(out, jv_string("strength"), _hb_jv_to_json_joint_strength(&from->strength));
+	out = jv_object_set(out, jv_string("color"), _hb_jv_to_json_color(from->color));
+
+	return out;
+}
+
+static jv
+_hb_jv_to_json_point(const struct hb_point *from)
+{
+	jv out;
+	out = jv_array();
+	out = jv_array_append(out, jv_number(from->x));
+	out = jv_array_append(out, jv_number(from->y));
 	return out;
 }
 
 extern void
 hb_stadium_print(const struct hb_stadium *s)
 {
-	char *json;
-	json = hb_stadium_to_json(s);
-	printf("%s\n", json);
-	free(json);
+	jv root, out;
+
+	root = jv_object();
+
+	root = jv_object_set(root, jv_string("name"), jv_string(s->name));
+	root = jv_object_set(root, jv_string("width"), jv_number(s->width));
+	root = jv_object_set(root, jv_string("height"), jv_number(s->height));
+
+	if (s->camera_width > 0 && s->camera_width > 0) {
+		root = jv_object_set(root, jv_string("cameraWidth"),
+				jv_number(s->camera_width));
+		root = jv_object_set(root, jv_string("cameraHeight"),
+				jv_number(s->camera_height));
+	}
+
+	root = jv_object_set(root, jv_string("maxViewWidth"),
+			jv_number(s->max_view_width));
+
+	root = jv_object_set(root, jv_string("cameraFollow"),
+			_hb_jv_to_json_camera_follow(s->camera_follow));
+
+	root = jv_object_set(root, jv_string("spawnDistance"),
+			jv_number(s->spawn_distance));
+
+	root = jv_object_set(root, jv_string("canBeStored"),
+			jv_bool(s->can_be_stored));
+
+	root = jv_object_set(root, jv_string("kickOffReset"),
+			_hb_jv_to_json_kick_off_reset(s->kick_off_reset));
+
+	root = jv_object_set(root, jv_string("ballPhysics"),
+			jv_string("disc0"));
+
+	root = jv_object_set(root, jv_string("playerPhysics"),
+			_hb_jv_to_json_player_physics(s->player_physics));
+
+	root = jv_object_set(root, jv_string("bg"),
+			_hb_jv_to_json_bg(s->bg));
+
+	/////////////vertexes
+	{
+		jv vertexes;
+		vertexes = jv_array();
+
+		hb_stadium_vertexes_foreach(s, vertex) {
+			vertexes = jv_array_append(vertexes,
+					_hb_jv_to_json_vertex(vertex));
+		}
+
+		root = jv_object_set(root, jv_string("vertexes"),
+			vertexes);
+	}
+
+	/////////////segments
+	{
+		jv segments;
+		segments = jv_array();
+
+		hb_stadium_segments_foreach(s, segment) {
+			segments = jv_array_append(segments,
+					_hb_jv_to_json_segment(segment));
+		}
+
+		root = jv_object_set(root, jv_string("segments"),
+			segments);
+	}
+
+	/////////////goals
+	{
+		jv goals;
+		goals = jv_array();
+
+		hb_stadium_goals_foreach(s, goal) {
+			goals = jv_array_append(goals,
+					_hb_jv_to_json_goal(goal));
+		}
+
+		root = jv_object_set(root, jv_string("goals"),
+			goals);
+	}
+
+	/////////////discs
+	{
+		jv discs;
+		discs = jv_array();
+
+		hb_stadium_discs_foreach(s, disc) {
+			discs = jv_array_append(discs,
+					_hb_jv_to_json_disc(disc));
+		}
+
+		root = jv_object_set(root, jv_string("discs"),
+			discs);
+	}
+
+	/////////////planes
+	{
+		jv planes;
+		planes = jv_array();
+
+		hb_stadium_planes_foreach(s, plane) {
+			planes = jv_array_append(planes,
+					_hb_jv_to_json_plane(plane));
+		}
+
+		root = jv_object_set(root, jv_string("planes"),
+			planes);
+	}
+
+	///////////joints
+	{
+		jv joints;
+		joints = jv_array();
+
+		hb_stadium_joints_foreach(s, joint) {
+			joints = jv_array_append(joints,
+					_hb_jv_to_json_joint(joint));
+		}
+
+		root = jv_object_set(root, jv_string("joints"),
+			joints);
+	}
+
+	/////////////redSpawnPoints
+	{
+		jv red_spawn_points;
+		red_spawn_points = jv_array();
+
+		hb_stadium_red_spawn_points_foreach(s, point) {
+			red_spawn_points = jv_array_append(red_spawn_points,
+					_hb_jv_to_json_point(point));
+		}
+
+		root = jv_object_set(root, jv_string("redSpawnPoints"),
+			red_spawn_points);
+	}
+
+	/////////////blueSpawnPoints
+	{
+		jv blue_spawn_points;
+		blue_spawn_points = jv_array();
+
+		hb_stadium_blue_spawn_points_foreach(s, point) {
+			blue_spawn_points = jv_array_append(blue_spawn_points,
+					_hb_jv_to_json_point(point));
+		}
+
+		root = jv_object_set(root, jv_string("blueSpawnPoints"),
+			blue_spawn_points);
+	}
+
+	out = jv_dump_string(root, 0);
+	printf("%s\n", jv_string_value(out));
+
+	jv_free(out);
 }
 
 extern void
