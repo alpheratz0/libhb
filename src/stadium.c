@@ -2102,12 +2102,6 @@ hb_stadium_from_file(const char *file)
 	return s;
 }
 
-extern char *
-hb_stadium_to_json(const struct hb_stadium *s)
-{
-	return "";
-}
-
 static jv
 _hb_jv_to_json_camera_follow(enum hb_camera_follow from)
 {
@@ -2384,10 +2378,10 @@ _hb_jv_to_json_point(const struct hb_point *from)
 	return out;
 }
 
-extern void
-hb_stadium_print(const struct hb_stadium *s)
+static jv
+_hb_jv_to_json_stadium(const struct hb_stadium *s)
 {
-	jv root, out;
+	jv root;
 
 	root = jv_object();
 
@@ -2538,9 +2532,31 @@ hb_stadium_print(const struct hb_stadium *s)
 			blue_spawn_points);
 	}
 
+	return root;
+}
+
+extern char *
+hb_stadium_to_json(const struct hb_stadium *s)
+{
+	jv root, out;
+	char *str;
+
+	root = _hb_jv_to_json_stadium(s);
+	out = jv_dump_string(root, 0);
+	str = strdup(jv_string_value(out));
+	jv_free(out);
+
+	return str;
+}
+
+extern void
+hb_stadium_print(const struct hb_stadium *s)
+{
+	jv root, out;
+
+	root = _hb_jv_to_json_stadium(s);
 	out = jv_dump_string(root, 0);
 	printf("%s\n", jv_string_value(out));
-
 	jv_free(out);
 }
 
