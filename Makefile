@@ -1,14 +1,18 @@
 .POSIX:
-.PHONY: all clean install uninstall
+.PHONY: all clean install uninstall shared
 
 include config.mk
 
 all: libhb.a
+shared: libhb.so
 
 src/stadium.o: src/stadium.c
 
 libhb.a: src/stadium.o
 	$(AR) -rcs libhb.a src/stadium.o
+
+libhb.so: src/stadium.o
+	$(CC) -shared -fPIC src/stadium.o -o libhb.so -ljq
 
 install: libhb.a
 	rm -rf $(DESTDIR)$(PREFIX)/include/hb
@@ -20,4 +24,4 @@ uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/lib/libhb.a
 
 clean:
-	rm -f src/*.o libhb.a
+	rm -f src/*.o libhb.a libhb.so
