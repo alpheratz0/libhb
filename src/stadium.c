@@ -4,9 +4,9 @@
 #include <string.h>
 #include <jv.h>
 
-static const double     HB_F_ZERO         = 0.0f;
-static const bool       HB_B_TRUE         = true;
-static const double      HB_V2_ZERO[2]     = { 0.0f, 0.0f };
+static const double HB_F_ZERO = 0.0f;
+static const bool HB_B_TRUE = true;
+static const double HB_V2_ZERO[2] = { 0.0f, 0.0f };
 
 static int _hb_jv_parse_string(jv from, char **to, const char *fallback);
 static int _hb_jv_parse_number(jv from, double *to, const double *fallback);
