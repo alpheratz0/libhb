@@ -4,9 +4,9 @@
 #include <hb/collision_flags.h>
 
 struct hb_vertex {
-	float                                 x;
-	float                                 y;
-	float                            b_coef;
+	double                                x;
+	double                                y;
+	double                           b_coef;
 	enum hb_collision_flags         c_group;
 	enum hb_collision_flags          c_mask;
 };

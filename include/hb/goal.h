@@ -4,8 +4,8 @@
 #include <hb/team.h>
 
 struct hb_goal {
-	float                             p0[2];
-	float                             p1[2];
+	double                            p0[2];
+	double                            p1[2];
 	enum hb_team                       team;
 };
 

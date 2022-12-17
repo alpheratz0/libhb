@@ -11,11 +11,11 @@ enum hb_background_type {
 
 struct hb_background {
 	enum hb_background_type            type;
-	float                             width;
-	float                            height;
-	float                   kick_off_radius;
-	float                     corner_radius;
-	float                         goal_line;
+	double                            width;
+	double                           height;
+	double                  kick_off_radius;
+	double                    corner_radius;
+	double                        goal_line;
 	uint32_t                          color;
 };
 

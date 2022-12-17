@@ -5,14 +5,14 @@
 #include <hb/collision_flags.h>
 
 struct hb_disc {
-	float                            pos[2];
-	float                          speed[2];
-	float                        gravity[2];
-	float                            radius;
-	float                          inv_mass;
-	float                           damping;
+	double                           pos[2];
+	double                         speed[2];
+	double                       gravity[2];
+	double                           radius;
+	double                         inv_mass;
+	double                          damping;
 	uint32_t                          color;
-	float                            b_coef;
+	double                           b_coef;
 	enum hb_collision_flags          c_mask;
 	enum hb_collision_flags         c_group;
 };

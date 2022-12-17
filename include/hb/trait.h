@@ -7,15 +7,15 @@
 struct hb_trait {
 	char                              *name;
 	bool                          has_curve;
-	float                             curve;
+	double                            curve;
 	bool                        has_damping;
-	float                           damping;
+	double                          damping;
 	bool                       has_inv_mass;
-	float                          inv_mass;
+	double                         inv_mass;
 	bool                         has_radius;
-	float                            radius;
+	double                           radius;
 	bool                         has_b_coef;
-	float                            b_coef;
+	double                           b_coef;
 	bool                          has_color;
 	uint32_t                          color;
 	bool                            has_vis;

@@ -26,13 +26,13 @@ enum hb_kick_off_reset {
 
 struct hb_stadium {
 	char                                  *name;
-	float                                 width;
-	float                                height;
-	float                          camera_width;
-	float                         camera_height;
-	float                        max_view_width;
+	double                                width;
+	double                               height;
+	double                         camera_width;
+	double                        camera_height;
+	double                       max_view_width;
 	enum hb_camera_follow         camera_follow;
-	float                        spawn_distance;
+	double                       spawn_distance;
 	bool                          can_be_stored;
 	enum hb_kick_off_reset       kick_off_reset;
 	struct hb_background                    *bg;

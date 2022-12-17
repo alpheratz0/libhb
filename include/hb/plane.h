@@ -4,9 +4,9 @@
 #include <hb/collision_flags.h>
 
 struct hb_plane {
-	float                         normal[2];
-	float                              dist;
-	float                            b_coef;
+	double                        normal[2];
+	double                             dist;
+	double                           b_coef;
 	enum hb_collision_flags          c_mask;
 	enum hb_collision_flags         c_group;
 };

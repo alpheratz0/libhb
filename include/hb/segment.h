@@ -8,9 +8,9 @@
 struct hb_segment {
 	int                                  v0;
 	int                                  v1;
-	float                            b_coef;
-	float                             curve;
-	float                              bias;
+	double                           b_coef;
+	double                            curve;
+	double                             bias;
 	enum hb_collision_flags         c_group;
 	enum hb_collision_flags          c_mask;
 	bool                                vis;

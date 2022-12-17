@@ -4,12 +4,12 @@
 #include <string.h>
 #include <jv.h>
 
-static const float      HB_F_ZERO         = 0.0f;
+static const double     HB_F_ZERO         = 0.0f;
 static const bool       HB_B_TRUE         = true;
-static const float      HB_V2_ZERO[2]     = { 0.0f, 0.0f };
+static const double      HB_V2_ZERO[2]     = { 0.0f, 0.0f };
 
 static int _hb_jv_parse_string(jv from, char **to, const char *fallback);
-static int _hb_jv_parse_number(jv from, float *to, const float *fallback);
+static int _hb_jv_parse_number(jv from, double *to, const double *fallback);
 static int _hb_jv_parse_boolean(jv from, bool *to, const bool *fallback);
 static int _hb_jv_parse_camera_follow(jv from, enum hb_camera_follow *to, const enum hb_camera_follow *fallback);
 static int _hb_jv_parse_kick_off_reset(jv from, enum hb_kick_off_reset *to, const enum hb_kick_off_reset *fallback);
@@ -25,7 +25,7 @@ static int _hb_jv_parse_vertex(jv from, struct hb_vertex **to, struct hb_trait *
 static int _hb_jv_parse_vertex_list(jv from, struct hb_vertex ***to, struct hb_trait **traits);
 static int _hb_jv_parse_segment(jv from, struct hb_segment **to, struct hb_vertex **vertexes, struct hb_trait **traits);
 static int _hb_jv_parse_segment_list(jv from, struct hb_segment ***to, struct hb_vertex **vertexes, struct hb_trait **traits);
-static int _hb_jv_parse_vec2(jv from, float to[2], const float fallback[2]);
+static int _hb_jv_parse_vec2(jv from, double to[2], const double fallback[2]);
 static int _hb_jv_parse_team(jv from, enum hb_team *to, const enum hb_team *fallback);
 static int _hb_jv_parse_goal(jv from, struct hb_goal **to);
 static int _hb_jv_parse_goal_list(jv from, struct hb_goal ***to);
@@ -43,7 +43,7 @@ static int _hb_jv_parse_point_list(jv from, struct hb_point ***to);
 static int _hb_jv_parse_player_physics(jv from, struct hb_player_physics **to);
 
 static int _hb_jv_parse_string_and_free(jv from, char **to, const char *fallback);
-static int _hb_jv_parse_number_and_free(jv from, float *to, const float *fallback);
+static int _hb_jv_parse_number_and_free(jv from, double *to, const double *fallback);
 static int _hb_jv_parse_boolean_and_free(jv from, bool *to, const bool *fallback);
 static int _hb_jv_parse_camera_follow_and_free(jv from, enum hb_camera_follow *to, const enum hb_camera_follow *fallback);
 static int _hb_jv_parse_kick_off_reset_and_free(jv from, enum hb_kick_off_reset *to, const enum hb_kick_off_reset *fallback);
@@ -59,7 +59,7 @@ static int _hb_jv_parse_vertex_and_free(jv from, struct hb_vertex **to, struct h
 static int _hb_jv_parse_vertex_list_and_free(jv from, struct hb_vertex ***to, struct hb_trait **traits);
 static int _hb_jv_parse_segment_and_free(jv from, struct hb_segment **to, struct hb_vertex **vertexes, struct hb_trait **traits);
 static int _hb_jv_parse_segment_list_and_free(jv from, struct hb_segment ***to, struct hb_vertex **vertexes, struct hb_trait **traits);
-static int _hb_jv_parse_vec2_and_free(jv from, float to[2], const float fallback[2]);
+static int _hb_jv_parse_vec2_and_free(jv from, double to[2], const double fallback[2]);
 static int _hb_jv_parse_team_and_free(jv from, enum hb_team *to, const enum hb_team *fallback);
 static int _hb_jv_parse_goal_and_free(jv from, struct hb_goal **to);
 static int _hb_jv_parse_goal_list_and_free(jv from, struct hb_goal ***to);
@@ -98,7 +98,7 @@ _hb_jv_parse_string(jv from, char **to, const char *fallback)
 }
 
 static int
-_hb_jv_parse_number(jv from, float *to, const float *fallback)
+_hb_jv_parse_number(jv from, double *to, const double *fallback)
 {
 	switch (jv_get_kind(from)) {
 	case JV_KIND_NUMBER:
@@ -585,7 +585,7 @@ _hb_jv_parse_vertex(jv from, struct hb_vertex **to,
 	/////////////bCoef
 	{
 		jv b_coef;
-		float fallback_b_coef;
+		double fallback_b_coef;
 		fallback_b_coef = 1.0f;
 		if (NULL != vert_trait && vert_trait->has_b_coef)
 			fallback_b_coef = vert_trait->b_coef;
@@ -666,7 +666,7 @@ _hb_jv_parse_segment(jv from, struct hb_segment **to,
 	/////////////v0
 	{
 		jv v0;
-		float f;
+		double f;
 		v0 = jv_object_get(jv_copy(from), jv_string("v0"));
 		if (_hb_jv_parse_number_and_free(v0, &f, NULL) < 0)
 			return -1;
@@ -678,7 +678,7 @@ _hb_jv_parse_segment(jv from, struct hb_segment **to,
 	/////////////v1
 	{
 		jv v1;
-		float f;
+		double f;
 		v1 = jv_object_get(jv_copy(from), jv_string("v1"));
 		if (_hb_jv_parse_number_and_free(v1, &f, NULL) < 0)
 			return -1;
@@ -698,7 +698,7 @@ _hb_jv_parse_segment(jv from, struct hb_segment **to,
 	/////////////bCoef
 	{
 		jv b_coef;
-		float fallback_b_coef;
+		double fallback_b_coef;
 		fallback_b_coef = 1.0f;
 		if (NULL != segm_trait && segm_trait->has_b_coef)
 			fallback_b_coef = segm_trait->b_coef;
@@ -798,7 +798,7 @@ _hb_jv_parse_segment_list(jv from, struct hb_segment ***to,
 }
 
 static int
-_hb_jv_parse_vec2(jv from, float to[2], const float fallback[2])
+_hb_jv_parse_vec2(jv from, double to[2], const double fallback[2])
 {
 	switch (jv_get_kind(from)) {
 	case JV_KIND_ARRAY:
@@ -965,7 +965,7 @@ _hb_jv_parse_ball_physics(jv from, struct hb_disc **to)
 	/////////////radius
 	{
 		jv radius;
-		float fallback_radius;
+		double fallback_radius;
 		fallback_radius = 10.0f;
 		radius = jv_object_get(jv_copy(from), jv_string("radius"));
 		if (_hb_jv_parse_number_and_free(radius, &ball_physics->radius, &fallback_radius) < 0)
@@ -975,7 +975,7 @@ _hb_jv_parse_ball_physics(jv from, struct hb_disc **to)
 	/////////////invMass
 	{
 		jv inv_mass;
-		float fallback_inv_mass;
+		double fallback_inv_mass;
 		fallback_inv_mass = 1.0f;
 		inv_mass = jv_object_get(jv_copy(from), jv_string("invMass"));
 		if (_hb_jv_parse_number_and_free(inv_mass, &ball_physics->inv_mass, &fallback_inv_mass) < 0)
@@ -985,7 +985,7 @@ _hb_jv_parse_ball_physics(jv from, struct hb_disc **to)
 	/////////////damping
 	{
 		jv damping;
-		float fallback_damping;
+		double fallback_damping;
 		fallback_damping = 0.99f;
 		damping = jv_object_get(jv_copy(from), jv_string("damping"));
 		if (_hb_jv_parse_number_and_free(damping, &ball_physics->damping, &fallback_damping) < 0)
@@ -1005,7 +1005,7 @@ _hb_jv_parse_ball_physics(jv from, struct hb_disc **to)
 	/////////////bCoef
 	{
 		jv b_coef;
-		float fallback_b_coef;
+		double fallback_b_coef;
 		fallback_b_coef = 0.5f;
 		b_coef = jv_object_get(jv_copy(from), jv_string("bCoef"));
 		if (_hb_jv_parse_number_and_free(b_coef, &ball_physics->b_coef, &fallback_b_coef) < 0)
@@ -1083,7 +1083,7 @@ _hb_jv_parse_disc(jv from, struct hb_disc **to,
 	/////////////radius
 	{
 		jv radius;
-		float fallback_radius;
+		double fallback_radius;
 		fallback_radius = 10.0f;
 		radius = jv_object_get(jv_copy(from), jv_string("radius"));
 		if (disc_trait != NULL && disc_trait->has_radius)
@@ -1095,7 +1095,7 @@ _hb_jv_parse_disc(jv from, struct hb_disc **to,
 	/////////////invMass
 	{
 		jv inv_mass;
-		float fallback_inv_mass;
+		double fallback_inv_mass;
 		fallback_inv_mass = 1.0f;
 		inv_mass = jv_object_get(jv_copy(from), jv_string("invMass"));
 		if (disc_trait != NULL && disc_trait->has_inv_mass)
@@ -1107,7 +1107,7 @@ _hb_jv_parse_disc(jv from, struct hb_disc **to,
 	/////////////damping
 	{
 		jv damping;
-		float fallback_damping;
+		double fallback_damping;
 		fallback_damping =  0.99;
 		damping = jv_object_get(jv_copy(from), jv_string("damping"));
 		if (_hb_jv_parse_number_and_free(damping, &disc->damping, &fallback_damping) < 0)
@@ -1129,7 +1129,7 @@ _hb_jv_parse_disc(jv from, struct hb_disc **to,
 	/////////////bCoef
 	{
 		jv b_coef;
-		float fallback_b_coef;
+		double fallback_b_coef;
 		fallback_b_coef = 0.5f;
 		if (NULL != disc_trait && disc_trait->has_b_coef)
 			fallback_b_coef = disc_trait->b_coef;
@@ -1239,7 +1239,7 @@ _hb_jv_parse_plane(jv from, struct hb_plane **to, struct hb_trait **traits)
 	/////////////bCoef
 	{
 		jv b_coef;
-		float fallback_b_coef;
+		double fallback_b_coef;
 		fallback_b_coef = 1.0f;
 		if (NULL != plane_trait && plane_trait->has_b_coef)
 			fallback_b_coef = plane_trait->b_coef;
@@ -1363,7 +1363,7 @@ _hb_jv_parse_joint(jv from, struct hb_joint **to, struct hb_disc **discs)
 	/////////////d0
 	{
 		jv d0;
-		float f;
+		double f;
 		d0 = jv_object_get(jv_copy(from), jv_string("d0"));
 		if (_hb_jv_parse_number_and_free(d0, &f, NULL) < 0)
 			return -1;
@@ -1375,7 +1375,7 @@ _hb_jv_parse_joint(jv from, struct hb_joint **to, struct hb_disc **discs)
 	/////////////d1
 	{
 		jv d1;
-		float f;
+		double f;
 		d1 = jv_object_get(jv_copy(from), jv_string("d1"));
 		if (_hb_jv_parse_number_and_free(d1, &f, NULL) < 0)
 			return -1;
@@ -1439,7 +1439,7 @@ static int
 _hb_jv_parse_point(jv from, struct hb_point **to)
 {
 	struct hb_point *point;
-	float v2[2];
+	double v2[2];
 	if (_hb_jv_parse_vec2(from, v2, NULL) < 0)
 		return -1;
 	point = *to = malloc(sizeof(struct hb_point));
@@ -1511,7 +1511,7 @@ _hb_jv_parse_player_physics(jv from, struct hb_player_physics **to)
 	/////////////radius
 	{
 		jv radius;
-		float fallback_radius;
+		double fallback_radius;
 		fallback_radius = 15.0f;
 		radius = jv_object_get(jv_copy(from), jv_string("radius"));
 		if (_hb_jv_parse_number_and_free(radius, &player_physics->radius, &fallback_radius) < 0)
@@ -1521,7 +1521,7 @@ _hb_jv_parse_player_physics(jv from, struct hb_player_physics **to)
 	/////////////invMass
 	{
 		jv inv_mass;
-		float fallback_inv_mass;
+		double fallback_inv_mass;
 		fallback_inv_mass = 0.5f;
 		inv_mass = jv_object_get(jv_copy(from), jv_string("invMass"));
 		if (_hb_jv_parse_number_and_free(inv_mass, &player_physics->inv_mass, &fallback_inv_mass) < 0)
@@ -1531,7 +1531,7 @@ _hb_jv_parse_player_physics(jv from, struct hb_player_physics **to)
 	/////////////bCoef
 	{
 		jv b_coef;
-		float fallback_b_coef;
+		double fallback_b_coef;
 		fallback_b_coef = 0.5f;
 		b_coef = jv_object_get(jv_copy(from), jv_string("bCoef"));
 		if (_hb_jv_parse_number_and_free(b_coef, &player_physics->b_coef, &fallback_b_coef) < 0)
@@ -1541,7 +1541,7 @@ _hb_jv_parse_player_physics(jv from, struct hb_player_physics **to)
 	/////////////damping
 	{
 		jv damping;
-		float fallback_damping;
+		double fallback_damping;
 		fallback_damping = 0.96f;
 		damping = jv_object_get(jv_copy(from), jv_string("damping"));
 		if (_hb_jv_parse_number_and_free(damping, &player_physics->damping, &fallback_damping) < 0)
@@ -1561,7 +1561,7 @@ _hb_jv_parse_player_physics(jv from, struct hb_player_physics **to)
 	/////////////acceleration
 	{
 		jv acceleration;
-		float fallback_acceleration;
+		double fallback_acceleration;
 		fallback_acceleration = 0.1f;
 		acceleration = jv_object_get(jv_copy(from), jv_string("acceleration"));
 		if (_hb_jv_parse_number_and_free(acceleration, &player_physics->acceleration, &fallback_acceleration) < 0)
@@ -1571,7 +1571,7 @@ _hb_jv_parse_player_physics(jv from, struct hb_player_physics **to)
 	/////////////kickingAcceleration
 	{
 		jv kicking_acceleration;
-		float fallback_kicking_acceleration;
+		double fallback_kicking_acceleration;
 		fallback_kicking_acceleration = 0.07f;
 		kicking_acceleration = jv_object_get(jv_copy(from), jv_string("kickingAcceleration"));
 		if (_hb_jv_parse_number_and_free(kicking_acceleration, &player_physics->kicking_acceleration, &fallback_kicking_acceleration) < 0)
@@ -1581,7 +1581,7 @@ _hb_jv_parse_player_physics(jv from, struct hb_player_physics **to)
 	/////////////kickingDamping
 	{
 		jv kicking_damping;
-		float fallback_kicking_damping;
+		double fallback_kicking_damping;
 		fallback_kicking_damping = 0.96f;
 		kicking_damping = jv_object_get(jv_copy(from), jv_string("kickingDamping"));
 		if (_hb_jv_parse_number_and_free(kicking_damping, &player_physics->kicking_damping, &fallback_kicking_damping) < 0)
@@ -1591,7 +1591,7 @@ _hb_jv_parse_player_physics(jv from, struct hb_player_physics **to)
 	/////////////kickStrength
 	{
 		jv kick_strength;
-		float fallback_kick_strength;
+		double fallback_kick_strength;
 		fallback_kick_strength = 5.0f;
 		kick_strength = jv_object_get(jv_copy(from), jv_string("kickStrength"));
 		if (_hb_jv_parse_number_and_free(kick_strength, &player_physics->kick_strength, &fallback_kick_strength) < 0)
@@ -1601,7 +1601,7 @@ _hb_jv_parse_player_physics(jv from, struct hb_player_physics **to)
 	/////////////kickback
 	{
 		jv kickback;
-		float fallback_kickback;
+		double fallback_kickback;
 		fallback_kickback = 0.0f;
 		kickback = jv_object_get(jv_copy(from), jv_string("kickback"));
 		if (_hb_jv_parse_number_and_free(kickback, &player_physics->kickback, &fallback_kickback) < 0)
@@ -1637,7 +1637,7 @@ _hb_jv_parse_string_and_free(jv from, char **to, const char *fallback)
 }
 
 static int
-_hb_jv_parse_number_and_free(jv from, float *to, const float *fallback)
+_hb_jv_parse_number_and_free(jv from, double *to, const double *fallback)
 {
 	return _hb_jv_parse_xxx_and_free_wrapper_1(
 			_hb_jv_parse_number(from, to, fallback), from);
@@ -1758,7 +1758,7 @@ _hb_jv_parse_segment_list_and_free(jv from, struct hb_segment ***to,
 }
 
 static int
-_hb_jv_parse_vec2_and_free(jv from, float to[2], const float fallback[2])
+_hb_jv_parse_vec2_and_free(jv from, double to[2], const double fallback[2])
 {
 	return _hb_jv_parse_xxx_and_free_wrapper_1(
 			_hb_jv_parse_vec2(from, to, fallback), from);

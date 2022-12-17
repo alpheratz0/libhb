@@ -11,8 +11,8 @@ enum hb_joint_length_kind {
 };
 
 union hb_joint_length_value {
-	float                                 f;
-	float                          range[2];
+	double                                f;
+	double                         range[2];
 };
 
 struct hb_joint_length {
@@ -22,7 +22,7 @@ struct hb_joint_length {
 
 struct hb_joint_strength {
 	bool                           is_rigid;
-	float                               val;
+	double                              val;
 };
 
 struct hb_joint {
