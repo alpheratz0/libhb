@@ -1,0 +1,10 @@
+#!/bin/sh -e
+
+cd ..
+make >/dev/null
+mv libhb.a benchmark
+make clean >/dev/null
+cd benchmark
+cc benchmark.c -o benchmark -I../include -L. -ljq -lhb
+./benchmark
+rm -f benchmark libhb.a
