@@ -17,4 +17,7 @@ enum hb_collision_flags {
 	HB_COLLISION_C3 =     (int)(1u << 31)
 };
 
+#define hb_collision_flags_is_set(flags, flag) \
+	((flags & flag) == flag)
+
 #endif
