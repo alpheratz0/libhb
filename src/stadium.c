@@ -924,7 +924,7 @@ _hb_jv_parse_ball_physics(jv from, struct hb_disc **to)
 		ball_physics->damping = 0.99f;
 		ball_physics->color = 0xffffffff;
 		ball_physics->c_mask = HB_COLLISION_ALL;
-		ball_physics->c_group = HB_COLLISION_BALL;
+		ball_physics->c_group = HB_COLLISION_KICK | HB_COLLISION_SCORE | HB_COLLISION_BALL;
 		ball_physics->speed[0] = ball_physics->speed[1] = 0.0f;
 		return 0;
 	}
