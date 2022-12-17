@@ -6,10 +6,9 @@ include config.mk
 all: libhb.a
 
 src/stadium.o: src/stadium.c
-src/sb.o: src/sb.c
 
-libhb.a: src/stadium.o src/sb.o
-	$(AR) -rcs libhb.a src/stadium.o src/sb.o
+libhb.a: src/stadium.o
+	$(AR) -rcs libhb.a src/stadium.o
 
 install: libhb.a
 	rm -rf $(DESTDIR)$(PREFIX)/include/hb
