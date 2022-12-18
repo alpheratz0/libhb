@@ -1,5 +1,5 @@
 .POSIX:
-.PHONY: all clean install uninstall shared
+.PHONY: all clean install uninstall shared benchmark test
 
 include config.mk
 
@@ -14,6 +14,14 @@ libhb.a: src/stadium.o
 libhb.so: src/stadium.o
 	$(CC) -shared -fPIC src/stadium.o -o libhb.so -ljq
 
+benchmark: benchmark/benchmark.o libhb.a
+	$(CC) benchmark/benchmark.o -o benchmark/benchmark libhb.a -ljq
+	@benchmark/benchmark
+
+test: test/test.o libhb.a
+	$(CC) test/test.o -o test/test libhb.a -ljq
+	@test/test
+
 install: libhb.a
 	rm -rf $(DESTDIR)$(PREFIX)/include/hb
 	cp -r include/hb $(DESTDIR)$(PREFIX)/include/hb
@@ -24,4 +32,4 @@ uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/lib/libhb.a
 
 clean:
-	rm -f src/*.o libhb.a libhb.so
+	rm -f */*.o libhb.a libhb.so benchmark/benchmark test/test

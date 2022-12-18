@@ -14,20 +14,20 @@ _test_load(const char *path)
 static void
 test_invalid_json(void)
 {
-	assert(NULL == _test_load("test_invalid.json"));
+	assert(NULL == _test_load("test/test_invalid.json"));
 }
 
 static void
 test_name_missing(void)
 {
-	assert(NULL == _test_load("test_name_missing.json"));
+	assert(NULL == _test_load("test/test_name_missing.json"));
 }
 
 static void
 test_name(void)
 {
 	struct hb_stadium *s;
-	assert(NULL != (s = _test_load("test_name.json")));
+	assert(NULL != (s = _test_load("test/test_name.json")));
 	assert(!strcmp(s->name, "test_name"));
 	hb_stadium_free(s);
 }
@@ -35,6 +35,7 @@ test_name(void)
 int
 main(void)
 {
+	printf("\n");
 	test_invalid_json();
 	test_name_missing();
 	test_name();

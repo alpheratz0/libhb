@@ -21,15 +21,16 @@ parse_stadium_and_free(const char *p)
 
 static void
 parse_big_stadium(void) {
-	parse_stadium_and_free("../stadiums/big.json"); }
+	parse_stadium_and_free("stadiums/big.json"); }
 
 static void
 parse_fish_hunt_stadium(void) {
-	parse_stadium_and_free("../stadiums/fish_hunt.json"); }
+	parse_stadium_and_free("stadiums/fish_hunt.json"); }
 
 int
 main(void)
 {
+	printf("\n");
 	benchmark(parse_big_stadium);
 	benchmark(parse_fish_hunt_stadium);
 	return 0;
