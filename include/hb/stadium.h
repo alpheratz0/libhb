@@ -2,7 +2,6 @@
 #define __LIBHB_STADIUM_H__
 
 #include <stdbool.h>
-#include <stdint.h>
 #include <hb/background.h>
 #include <hb/trait.h>
 #include <hb/vertex.h>
