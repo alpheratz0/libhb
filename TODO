@@ -1,0 +1,17 @@
+[] comments
+[] cleanup
+	[] _hb_jv_parse_bg
+	[] _hb_jv_parse_trait
+	[] _hb_jv_parse_vertex
+	[] _hb_jv_parse_segment
+	[] _hb_jv_parse_goal
+	[] _hb_jv_parse_ball_physics
+	[] _hb_jv_parse_disc
+	[] _hb_jv_parse_plane
+	[] _hb_jv_parse_joint
+	[] _hb_jv_parse_player_physics
+	[] _hb_jv_to_json_stadium
+	[] hb_stadium_parse
+[] tests
+	[] check all fallback/default values
+	[] check edge cases (no ball physics and no 0 discs)
