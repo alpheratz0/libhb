@@ -4,10 +4,6 @@
 #include <string.h>
 #include <jv.h>
 
-static const double HB_F_ZERO = 0.0f;
-static const bool HB_B_TRUE = true;
-static const double HB_V2_ZERO[2] = { 0.0f, 0.0f };
-
 static int _hb_jv_parse_string(jv from, char **to, const char *fallback);
 static int _hb_jv_parse_number(jv from, double *to, const double *fallback);
 static int _hb_jv_parse_boolean(jv from, bool *to, const bool *fallback);
@@ -20,7 +16,7 @@ static int _hb_jv_parse_collision_flag(jv from, enum hb_collision_flags *to, con
 static int _hb_jv_parse_collision_flags(jv from, enum hb_collision_flags *to, const enum hb_collision_flags *fallback);
 static int _hb_jv_parse_trait(jv from, jv name, struct hb_trait **to);
 static int _hb_jv_parse_trait_list(jv from, struct hb_trait ***to);
-static int _hb_jv_find_trait_by_name(jv from, struct hb_trait **to, struct hb_trait **traits);
+static int _hb_jv_parse_trait_name_and_find(jv from, struct hb_trait **to, struct hb_trait **traits);
 static int _hb_jv_parse_vertex(jv from, struct hb_vertex **to, struct hb_trait **traits);
 static int _hb_jv_parse_vertex_list(jv from, struct hb_vertex ***to, struct hb_trait **traits);
 static int _hb_jv_parse_segment(jv from, struct hb_segment **to, struct hb_vertex **vertexes, struct hb_trait **traits);
@@ -54,7 +50,7 @@ static int _hb_jv_parse_collision_flag_and_free(jv from, enum hb_collision_flags
 static int _hb_jv_parse_collision_flags_and_free(jv from, enum hb_collision_flags *to, const enum hb_collision_flags *fallback);
 static int _hb_jv_parse_trait_and_free(jv from, jv name, struct hb_trait **to);
 static int _hb_jv_parse_trait_list_and_free(jv from, struct hb_trait ***to);
-static int _hb_jv_find_trait_by_name_and_free(jv from, struct hb_trait **to, struct hb_trait **traits);
+static int _hb_jv_parse_trait_name_and_find_and_free(jv from, struct hb_trait **to, struct hb_trait **traits);
 static int _hb_jv_parse_vertex_and_free(jv from, struct hb_vertex **to, struct hb_trait **traits);
 static int _hb_jv_parse_vertex_list_and_free(jv from, struct hb_vertex ***to, struct hb_trait **traits);
 static int _hb_jv_parse_segment_and_free(jv from, struct hb_segment **to, struct hb_vertex **vertexes, struct hb_trait **traits);
@@ -75,10 +71,6 @@ static int _hb_jv_parse_joint_list_and_free(jv from, struct hb_joint ***to, stru
 static int _hb_jv_parse_point_and_free(jv from, struct hb_point **to);
 static int _hb_jv_parse_point_list_and_free(jv from, struct hb_point ***to);
 static int _hb_jv_parse_player_physics_and_free(jv from, struct hb_player_physics **to);
-
-//////////////////////////////////////////////
-//////////////////PARSE///////////////////////
-//////////////////////////////////////////////
 
 static int
 _hb_jv_parse_string(jv from, char **to, const char *fallback)
@@ -138,12 +130,12 @@ static int
 _hb_jv_parse_camera_follow(jv from, enum hb_camera_follow *to,
 		const enum hb_camera_follow *fallback)
 {
-	const char *camera_follow_str;
+	const char *str;
 	switch (jv_get_kind(from)) {
 	case JV_KIND_STRING:
-		camera_follow_str = jv_string_value(from);
-		if (!strcmp(camera_follow_str, "ball")) *to = HB_CAMERA_FOLLOW_BALL;
-		else if (!strcmp(camera_follow_str, "player")) *to = HB_CAMERA_FOLLOW_PLAYER;
+		str = jv_string_value(from);
+		if (!strcmp(str, "ball")) *to = HB_CAMERA_FOLLOW_BALL;
+		else if (!strcmp(str, "player")) *to = HB_CAMERA_FOLLOW_PLAYER;
 		else return -1;
 		return 0;
 	case JV_KIND_INVALID:
@@ -160,12 +152,12 @@ static int
 _hb_jv_parse_kick_off_reset(jv from, enum hb_kick_off_reset *to,
 		const enum hb_kick_off_reset *fallback)
 {
-	const char *kick_off_reset_str;
+	const char *str;
 	switch (jv_get_kind(from)) {
 	case JV_KIND_STRING:
-		kick_off_reset_str = jv_string_value(from);
-		if (!strcmp(kick_off_reset_str, "partial")) *to = HB_KICK_OFF_RESET_PARTIAL;
-		else if (!strcmp(kick_off_reset_str, "full")) *to = HB_KICK_OFF_RESET_FULL;
+		str = jv_string_value(from);
+		if (!strcmp(str, "partial")) *to = HB_KICK_OFF_RESET_PARTIAL;
+		else if (!strcmp(str, "full")) *to = HB_KICK_OFF_RESET_FULL;
 		else return -1;
 		return 0;
 	case JV_KIND_INVALID:
@@ -182,12 +174,12 @@ static int
 _hb_jv_parse_bg_type(jv from, enum hb_background_type *to,
 		const enum hb_background_type *fallback)
 {
-	const char *type_str;
+	const char *str;
 	switch (jv_get_kind(from)) {
 	case JV_KIND_STRING:
-		type_str = jv_string_value(from);
-		if (!strcmp(type_str, "grass")) *to = HB_BACKGROUND_TYPE_GRASS;
-		else if (!strcmp(type_str, "hockey")) *to = HB_BACKGROUND_TYPE_HOCKEY;
+		str = jv_string_value(from);
+		if (!strcmp(str, "grass")) *to = HB_BACKGROUND_TYPE_GRASS;
+		else if (!strcmp(str, "hockey")) *to = HB_BACKGROUND_TYPE_HOCKEY;
 		else *to = HB_BACKGROUND_TYPE_NONE;
 		return 0;
 	case JV_KIND_INVALID:
@@ -203,33 +195,21 @@ _hb_jv_parse_bg_type(jv from, enum hb_background_type *to,
 static int
 _hb_jv_parse_color(jv from, uint32_t *to, const uint32_t *fallback)
 {
-	jv_kind kind;
-	const char *color_str;
-	char *color_str_end;
-
-	kind = jv_get_kind(from);
-
-	if (kind == JV_KIND_INVALID) {
-		if (NULL == fallback)
-			return -1;
-		*to = *fallback;
-		return 0;
-	}
-
-	if (kind == JV_KIND_STRING) {
-		color_str = jv_string_value(from);
-		if (!strcmp(color_str, "transparent")) *to = 0x00000000;
+	const char *str;
+	char *str_parsed_end;
+	switch (jv_get_kind(from)) {
+	case JV_KIND_STRING:
+		str = jv_string_value(from);
+		if (!strcmp(str, "transparent")) *to = 0x00000000;
 		else {
-			*to = strtol(color_str, &color_str_end, 16);
+			*to = strtol(str, &str_parsed_end, 16);
 			*to |= 0xff << 24;
-			if (color_str_end - color_str > 8 ||
-					color_str_end[0] != '\0')
+			if (str_parsed_end - str > 8 ||
+					str_parsed_end[0] != '\0')
 				return -1;
 		}
 		return 0;
-	}
-
-	if (kind == JV_KIND_ARRAY) {
+	case JV_KIND_ARRAY:
 		if (jv_array_length(jv_copy(from)) != 3)
 			return -1;
 		*to = 0xff << 24;
@@ -240,9 +220,14 @@ _hb_jv_parse_color(jv from, uint32_t *to, const uint32_t *fallback)
 			jv_free(value);
 		}
 		return 0;
+	case JV_KIND_INVALID:
+		if (NULL == fallback)
+			return -1;
+		*to = *fallback;
+		return 0;
+	default:
+		return -1;
 	}
-
-	return -1;
 }
 
 static int
@@ -281,40 +266,50 @@ _hb_jv_parse_bg(jv from, struct hb_background **to)
 	/////////////width
 	{
 		jv width;
+		double fallback_width;
+		fallback_width = 0;
 		width = jv_object_get(jv_copy(from), jv_string("width"));
-		if (_hb_jv_parse_number_and_free(width, &bg->width, &HB_F_ZERO) < 0)
+		if (_hb_jv_parse_number_and_free(width, &bg->width, &fallback_width) < 0)
 			return -1;
 	}
 
 	/////////////height
 	{
 		jv height;
+		double fallback_height;
+		fallback_height = 0;
 		height = jv_object_get(jv_copy(from), jv_string("height"));
-		if (_hb_jv_parse_number_and_free(height, &bg->height, &HB_F_ZERO) < 0)
+		if (_hb_jv_parse_number_and_free(height, &bg->height, &fallback_height) < 0)
 			return -1;
 	}
 
 	/////////////kickOffRadius
 	{
 		jv kick_off_radius;
+		double fallback_kick_off_radius;
+		fallback_kick_off_radius = 0;
 		kick_off_radius = jv_object_get(jv_copy(from), jv_string("kickOffRadius"));
-		if (_hb_jv_parse_number_and_free(kick_off_radius, &bg->kick_off_radius, &HB_F_ZERO) < 0)
+		if (_hb_jv_parse_number_and_free(kick_off_radius, &bg->kick_off_radius, &fallback_kick_off_radius) < 0)
 			return -1;
 	}
 
 	/////////////cornerRadius
 	{
 		jv corner_radius;
+		double fallback_corner_radius;
+		fallback_corner_radius = 0.0f;
 		corner_radius = jv_object_get(jv_copy(from), jv_string("cornerRadius"));
-		if (_hb_jv_parse_number_and_free(corner_radius, &bg->corner_radius, &HB_F_ZERO) < 0)
+		if (_hb_jv_parse_number_and_free(corner_radius, &bg->corner_radius, &fallback_corner_radius) < 0)
 			return -1;
 	}
 
 	/////////////goalLine
 	{
 		jv goal_line;
+		double fallback_goal_line;
+		fallback_goal_line = 0;
 		goal_line = jv_object_get(jv_copy(from), jv_string("goalLine"));
-		if (_hb_jv_parse_number_and_free(goal_line, &bg->goal_line, &HB_F_ZERO) < 0)
+		if (_hb_jv_parse_number_and_free(goal_line, &bg->goal_line, &fallback_goal_line) < 0)
 			return -1;
 	}
 
@@ -336,33 +331,32 @@ _hb_jv_parse_collision_flag(jv from, enum hb_collision_flags *to,
 		const enum hb_collision_flags *fallback)
 {
 	const char *str;
-
-	if (jv_get_kind(from) == JV_KIND_INVALID) {
+	switch (jv_get_kind(from)) {
+	case JV_KIND_STRING:
+		str = jv_string_value(from);
+		if (!strcmp(str, "ball")) *to = HB_COLLISION_BALL;
+		else if (!strcmp(str, "red")) *to = HB_COLLISION_RED;
+		else if (!strcmp(str, "blue")) *to = HB_COLLISION_BLUE;
+		else if (!strcmp(str, "redKO")) *to = HB_COLLISION_RED_KO;
+		else if (!strcmp(str, "blueKO")) *to = HB_COLLISION_BLUE_KO;
+		else if (!strcmp(str, "wall")) *to = HB_COLLISION_WALL;
+		else if (!strcmp(str, "all")) *to = HB_COLLISION_ALL;
+		else if (!strcmp(str, "kick")) *to = HB_COLLISION_KICK;
+		else if (!strcmp(str, "score")) *to = HB_COLLISION_SCORE;
+		else if (!strcmp(str, "c0")) *to = HB_COLLISION_C0;
+		else if (!strcmp(str, "c1")) *to = HB_COLLISION_C1;
+		else if (!strcmp(str, "c2")) *to = HB_COLLISION_C2;
+		else if (!strcmp(str, "c3")) *to = HB_COLLISION_C3;
+		else *to = 0;
+		return 0;
+	case JV_KIND_INVALID:
 		if (NULL == fallback)
 			return -1;
 		*to = *fallback;
 		return 0;
-	}
-
-	if (jv_get_kind(from) != JV_KIND_STRING)
+	default:
 		return -1;
-
-	str = jv_string_value(from);
-	if (!strcmp(str, "ball")) *to = HB_COLLISION_BALL;
-	else if (!strcmp(str, "red")) *to = HB_COLLISION_RED;
-	else if (!strcmp(str, "blue")) *to = HB_COLLISION_BLUE;
-	else if (!strcmp(str, "redKO")) *to = HB_COLLISION_RED_KO;
-	else if (!strcmp(str, "blueKO")) *to = HB_COLLISION_BLUE_KO;
-	else if (!strcmp(str, "wall")) *to = HB_COLLISION_WALL;
-	else if (!strcmp(str, "all")) *to = HB_COLLISION_ALL;
-	else if (!strcmp(str, "kick")) *to = HB_COLLISION_KICK;
-	else if (!strcmp(str, "score")) *to = HB_COLLISION_SCORE;
-	else if (!strcmp(str, "c0")) *to = HB_COLLISION_C0;
-	else if (!strcmp(str, "c1")) *to = HB_COLLISION_C1;
-	else if (!strcmp(str, "c2")) *to = HB_COLLISION_C2;
-	else if (!strcmp(str, "c3")) *to = HB_COLLISION_C3;
-	else *to = 0;
-	return 0;
+	}
 }
 
 static int
@@ -372,6 +366,7 @@ _hb_jv_parse_collision_flags(jv from, enum hb_collision_flags *to,
 	enum hb_collision_flags flag;
 	switch (jv_get_kind(from)) {
 	case JV_KIND_ARRAY:
+		*to = 0;
 		jv_array_foreach(from, index, value) {
 			if (_hb_jv_parse_collision_flag_and_free(value, &flag, NULL) < 0)
 				return -1;
@@ -505,15 +500,15 @@ _hb_jv_parse_trait(jv from, jv name, struct hb_trait **to)
 static int
 _hb_jv_parse_trait_list(jv from, struct hb_trait ***to)
 {
-	int count, index;
-
+	size_t index;
+	int count;
 	switch (jv_get_kind(from)) {
 	case JV_KIND_OBJECT:
 		index = 0;
 		count = jv_object_length(jv_copy(from));
 		*to = calloc(count + 1, sizeof(struct hb_trait *));
-		jv_object_foreach(from, name, trait) {
-			if (_hb_jv_parse_trait_and_free(trait, name, &((*to)[index++])) < 0)
+		jv_object_foreach(from, key, value) {
+			if (_hb_jv_parse_trait_and_free(value, key, &((*to)[index++])) < 0)
 				return -1;
 		}
 		return 0;
@@ -526,7 +521,7 @@ _hb_jv_parse_trait_list(jv from, struct hb_trait ***to)
 }
 
 static int
-_hb_jv_find_trait_by_name(jv from, struct hb_trait **to, struct hb_trait **traits)
+_hb_jv_parse_trait_name_and_find(jv from, struct hb_trait **to, struct hb_trait **traits)
 {
 	const char *str;
 	switch (jv_get_kind(from)) {
@@ -578,7 +573,7 @@ _hb_jv_parse_vertex(jv from, struct hb_vertex **to,
 	{
 		jv trait;
 		trait = jv_object_get(jv_copy(from), jv_string("trait"));
-		if (_hb_jv_find_trait_by_name_and_free(trait, &vert_trait, traits) < 0)
+		if (_hb_jv_parse_trait_name_and_find_and_free(trait, &vert_trait, traits) < 0)
 			return -1;
 	}
 
@@ -626,13 +621,12 @@ _hb_jv_parse_vertex_list(jv from, struct hb_vertex ***to,
 		struct hb_trait **traits)
 {
 	int count;
-
 	switch (jv_get_kind(from)) {
 	case JV_KIND_ARRAY:
 		count = jv_array_length(jv_copy(from));
 		*to = calloc(count + 1, sizeof(struct hb_vertex *));
-		jv_array_foreach(from, index, vertex) {
-			if (_hb_jv_parse_vertex_and_free(vertex, &((*to)[index]), traits) < 0)
+		jv_array_foreach(from, index, value) {
+			if (_hb_jv_parse_vertex_and_free(value, &((*to)[index]), traits) < 0)
 				return -1;
 		}
 		return 0;
@@ -691,7 +685,7 @@ _hb_jv_parse_segment(jv from, struct hb_segment **to,
 	{
 		jv trait;
 		trait = jv_object_get(jv_copy(from), jv_string("trait"));
-		if (_hb_jv_find_trait_by_name_and_free(trait, &segm_trait, traits) < 0)
+		if (_hb_jv_parse_trait_name_and_find_and_free(trait, &segm_trait, traits) < 0)
 			return -1;
 	}
 
@@ -710,16 +704,20 @@ _hb_jv_parse_segment(jv from, struct hb_segment **to,
 	/////////////curve
 	{
 		jv curve;
+		double fallback_curve;
+		fallback_curve = 0;
 		curve = jv_object_get(jv_copy(from), jv_string("curve"));
-		if (_hb_jv_parse_number_and_free(curve, &segm->curve, &HB_F_ZERO) < 0)
+		if (_hb_jv_parse_number_and_free(curve, &segm->curve, &fallback_curve) < 0)
 			return -1;
 	}
 
 	/////////////bias
 	{
 		jv bias;
+		double fallback_bias;
+		fallback_bias = 0;
 		bias = jv_object_get(jv_copy(from), jv_string("bias"));
-		if (_hb_jv_parse_number_and_free(bias, &segm->bias, &HB_F_ZERO) < 0)
+		if (_hb_jv_parse_number_and_free(bias, &segm->bias, &fallback_bias) < 0)
 			return -1;
 	}
 
@@ -779,13 +777,12 @@ _hb_jv_parse_segment_list(jv from, struct hb_segment ***to,
 		struct hb_vertex **vertexes, struct hb_trait **traits)
 {
 	int count;
-
 	switch (jv_get_kind(from)) {
 	case JV_KIND_ARRAY:
 		count = jv_array_length(jv_copy(from));
 		*to = calloc(count + 1, sizeof(struct hb_segment *));
-		jv_array_foreach(from, index, segment) {
-			if (_hb_jv_parse_segment_and_free(segment, &((*to)[index]), vertexes, traits) < 0)
+		jv_array_foreach(from, index, value) {
+			if (_hb_jv_parse_segment_and_free(value, &((*to)[index]), vertexes, traits) < 0)
 				return -1;
 		}
 		return 0;
@@ -804,8 +801,8 @@ _hb_jv_parse_vec2(jv from, double to[2], const double fallback[2])
 	case JV_KIND_ARRAY:
 		if (jv_array_length(jv_copy(from)) != 2)
 			return -1;
-		jv_array_foreach(from, index, v) {
-			if (_hb_jv_parse_number_and_free(v, &to[index], NULL) < 0)
+		jv_array_foreach(from, index, value) {
+			if (_hb_jv_parse_number_and_free(value, &to[index], NULL) < 0)
 				return -1;
 		}
 		return 0;
@@ -884,13 +881,12 @@ static int
 _hb_jv_parse_goal_list(jv from, struct hb_goal ***to)
 {
 	int count;
-
 	switch (jv_get_kind(from)) {
 	case JV_KIND_ARRAY:
 		count = jv_array_length(jv_copy(from));
 		*to = calloc(count + 1, sizeof(struct hb_goal *));
-		jv_array_foreach(from, index, goal) {
-			if (_hb_jv_parse_goal_and_free(goal, &((*to)[index])) < 0)
+		jv_array_foreach(from, index, value) {
+			if (_hb_jv_parse_goal_and_free(value, &((*to)[index])) < 0)
 				return -1;
 		}
 		return 0;
@@ -941,24 +937,30 @@ _hb_jv_parse_ball_physics(jv from, struct hb_disc **to)
 	/////////////pos
 	{
 		jv pos;
+		double fallback_pos[2];
+		fallback_pos[0] = fallback_pos[1] = 0;
 		pos = jv_object_get(jv_copy(from), jv_string("pos"));
-		if (_hb_jv_parse_vec2_and_free(pos, ball_physics->pos, HB_V2_ZERO) < 0)
+		if (_hb_jv_parse_vec2_and_free(pos, ball_physics->pos, fallback_pos) < 0)
 			return -1;
 	}
 
 	/////////////speed
 	{
 		jv speed;
+		double fallback_speed[2];
+		fallback_speed[0] = fallback_speed[1] = 0;
 		speed = jv_object_get(jv_copy(from), jv_string("speed"));
-		if (_hb_jv_parse_vec2_and_free(speed, ball_physics->speed, HB_V2_ZERO) < 0)
+		if (_hb_jv_parse_vec2_and_free(speed, ball_physics->speed, fallback_speed) < 0)
 			return -1;
 	}
 
 	/////////////gravity
 	{
 		jv gravity;
+		double fallback_gravity[2];
+		fallback_gravity[0] = fallback_gravity[1] = 0;
 		gravity = jv_object_get(jv_copy(from), jv_string("gravity"));
-		if (_hb_jv_parse_vec2_and_free(gravity, ball_physics->gravity, HB_V2_ZERO) < 0)
+		if (_hb_jv_parse_vec2_and_free(gravity, ball_physics->gravity, fallback_gravity) < 0)
 			return -1;
 	}
 
@@ -1051,24 +1053,30 @@ _hb_jv_parse_disc(jv from, struct hb_disc **to,
 	/////////////pos
 	{
 		jv pos;
+		double fallback_pos[2];
+		fallback_pos[0] = fallback_pos[1] = 0;
 		pos = jv_object_get(jv_copy(from), jv_string("pos"));
-		if (_hb_jv_parse_vec2_and_free(pos, disc->pos, HB_V2_ZERO) < 0)
+		if (_hb_jv_parse_vec2_and_free(pos, disc->pos, fallback_pos) < 0)
 			return -1;
 	}
 
 	/////////////speed
 	{
 		jv speed;
+		double fallback_speed[2];
+		fallback_speed[0] = fallback_speed[1] = 0;
 		speed = jv_object_get(jv_copy(from), jv_string("speed"));
-		if (_hb_jv_parse_vec2_and_free(speed, disc->speed, HB_V2_ZERO) < 0)
+		if (_hb_jv_parse_vec2_and_free(speed, disc->speed, fallback_speed) < 0)
 			return -1;
 	}
 
 	/////////////gravity
 	{
 		jv gravity;
+		double fallback_gravity[2];
+		fallback_gravity[0] = fallback_gravity[1] = 0;
 		gravity = jv_object_get(jv_copy(from), jv_string("gravity"));
-		if (_hb_jv_parse_vec2_and_free(gravity, disc->gravity, HB_V2_ZERO) < 0)
+		if (_hb_jv_parse_vec2_and_free(gravity, disc->gravity, fallback_gravity) < 0)
 			return -1;
 	}
 
@@ -1076,7 +1084,7 @@ _hb_jv_parse_disc(jv from, struct hb_disc **to,
 	{
 		jv trait;
 		trait = jv_object_get(jv_copy(from), jv_string("trait"));
-		if (_hb_jv_find_trait_by_name_and_free(trait, &disc_trait, traits) < 0)
+		if (_hb_jv_parse_trait_name_and_find_and_free(trait, &disc_trait, traits) < 0)
 			return -1;
 	}
 
@@ -1170,7 +1178,6 @@ _hb_jv_parse_disc_list(jv from, struct hb_disc ***to,
 		struct hb_trait **traits, struct hb_disc **ball_physics)
 {
 	int count;
-
 	switch (jv_get_kind(from)) {
 	case JV_KIND_ARRAY:
 		count = jv_array_length(jv_copy(from));
@@ -1178,11 +1185,11 @@ _hb_jv_parse_disc_list(jv from, struct hb_disc ***to,
 		if (*ball_physics != NULL) ++count;
 		*to = calloc(count + 1, sizeof(struct hb_disc *));
 		if (*ball_physics != NULL) (*to)[0] = *ball_physics;
-		jv_array_foreach(from, index, disc) {
+		jv_array_foreach(from, index, value) {
 			if (*ball_physics == NULL && index == 0) {
-				if (_hb_jv_parse_ball_physics_and_free(disc, &((*to)[0])) < 0)
+				if (_hb_jv_parse_ball_physics_and_free(value, &((*to)[0])) < 0)
 					return -1;
-			} else if (_hb_jv_parse_disc_and_free(disc,
+			} else if (_hb_jv_parse_disc_and_free(value,
 						&((*to)[index + (*ball_physics != NULL)]), traits) < 0) {
 				return -1;
 			}
@@ -1217,7 +1224,6 @@ _hb_jv_parse_plane(jv from, struct hb_plane **to, struct hb_trait **traits)
 		normal = jv_object_get(jv_copy(from), jv_string("normal"));
 		if (_hb_jv_parse_vec2_and_free(normal, plane->normal, NULL) < 0)
 			return -1;
-
 	}
 
 	/////////////dist
@@ -1232,7 +1238,7 @@ _hb_jv_parse_plane(jv from, struct hb_plane **to, struct hb_trait **traits)
 	{
 		jv trait;
 		trait = jv_object_get(jv_copy(from), jv_string("trait"));
-		if (_hb_jv_find_trait_by_name_and_free(trait, &plane_trait, traits) < 0)
+		if (_hb_jv_parse_trait_name_and_find_and_free(trait, &plane_trait, traits) < 0)
 			return -1;
 	}
 
@@ -1279,13 +1285,12 @@ static int
 _hb_jv_parse_plane_list(jv from, struct hb_plane ***to, struct hb_trait **traits)
 {
 	int count;
-
 	switch (jv_get_kind(from)) {
 	case JV_KIND_ARRAY:
 		count = jv_array_length(jv_copy(from));
 		*to = calloc(count + 1, sizeof(struct hb_plane *));
-		jv_array_foreach(from, index, plane) {
-			if (_hb_jv_parse_plane_and_free(plane, &((*to)[index]), traits) < 0)
+		jv_array_foreach(from, index, value) {
+			if (_hb_jv_parse_plane_and_free(value, &((*to)[index]), traits) < 0)
 				return -1;
 		}
 		return 0;
@@ -1301,10 +1306,6 @@ static int
 _hb_jv_parse_joint_length(jv from, struct hb_joint_length *to)
 {
 	switch (jv_get_kind(from)) {
-	case JV_KIND_INVALID:
-	case JV_KIND_NULL:
-		to->kind = HB_JOINT_LENGTH_AUTO;
-		return 0;
 	case JV_KIND_NUMBER:
 		to->kind = HB_JOINT_LENGTH_FIXED;
 		if (_hb_jv_parse_number(from, &to->val.f, NULL) < 0)
@@ -1314,6 +1315,10 @@ _hb_jv_parse_joint_length(jv from, struct hb_joint_length *to)
 		to->kind = HB_JOINT_LENGTH_RANGE;
 		if (_hb_jv_parse_vec2(from, to->val.range, NULL) < 0)
 			return -1;
+		return 0;
+	case JV_KIND_INVALID:
+	case JV_KIND_NULL:
+		to->kind = HB_JOINT_LENGTH_AUTO;
 		return 0;
 	default:
 		return -1;
@@ -1327,7 +1332,8 @@ _hb_jv_parse_joint_strength(jv from, struct hb_joint_strength *to)
 	switch (jv_get_kind(from)) {
 	case JV_KIND_STRING:
 		str = jv_string_value(from);
-		if (strcmp(str, "rigid")) return -1;
+		if (strcmp(str, "rigid"))
+			return -1;
 		to->is_rigid = true;
 		return 0;
 	case JV_KIND_NUMBER:
@@ -1417,13 +1423,12 @@ static int
 _hb_jv_parse_joint_list(jv from, struct hb_joint ***to, struct hb_disc **discs)
 {
 	int count;
-
 	switch (jv_get_kind(from)) {
 	case JV_KIND_ARRAY:
 		count = jv_array_length(jv_copy(from));
 		*to = calloc(count + 1, sizeof(struct hb_joint *));
-		jv_array_foreach(from, index, joint) {
-			if (_hb_jv_parse_joint_and_free(joint, &((*to)[index]), discs) < 0)
+		jv_array_foreach(from, index, value) {
+			if (_hb_jv_parse_joint_and_free(value, &((*to)[index]), discs) < 0)
 				return -1;
 		}
 		return 0;
@@ -1452,13 +1457,12 @@ static int
 _hb_jv_parse_point_list(jv from, struct hb_point ***to)
 {
 	int count;
-
 	switch (jv_get_kind(from)) {
 	case JV_KIND_ARRAY:
 		count = jv_array_length(jv_copy(from));
 		*to = calloc(count + 1, sizeof(struct hb_point *));
-		jv_array_foreach(from, index, point) {
-			if (_hb_jv_parse_point_and_free(point, &((*to)[index])) < 0)
+		jv_array_foreach(from, index, value) {
+			if (_hb_jv_parse_point_and_free(value, &((*to)[index])) < 0)
 				return -1;
 		}
 		return 0;
@@ -1503,8 +1507,10 @@ _hb_jv_parse_player_physics(jv from, struct hb_player_physics **to)
 	/////////////gravity
 	{
 		jv gravity;
+		double fallback_gravity[2];
+		fallback_gravity[0] = fallback_gravity[1] = 0;
 		gravity = jv_object_get(jv_copy(from), jv_string("gravity"));
-		if (_hb_jv_parse_vec2_and_free(gravity, player_physics->gravity, HB_V2_ZERO) < 0)
+		if (_hb_jv_parse_vec2_and_free(gravity, player_physics->gravity, fallback_gravity) < 0)
 			return -1;
 	}
 
@@ -1611,10 +1617,6 @@ _hb_jv_parse_player_physics(jv from, struct hb_player_physics **to)
 	return 0;
 }
 
-//////////////////////////////////////////////
-//////////////PARSE + JV_FREE/////////////////
-//////////////////////////////////////////////
-
 static inline int
 _hb_jv_parse_xxx_and_free_wrapper_1(int ret, jv v)
 {
@@ -1625,250 +1627,635 @@ _hb_jv_parse_xxx_and_free_wrapper_1(int ret, jv v)
 static inline int
 _hb_jv_parse_xxx_and_free_wrapper_2(int ret, jv v, jv w)
 {
-	jv_free(v); jv_free(w);
+	jv_free(v);
+	jv_free(w);
 	return ret;
 }
 
 static int
 _hb_jv_parse_string_and_free(jv from, char **to, const char *fallback)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_string(from, to, fallback), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_string(from, to, fallback), from); }
 
 static int
 _hb_jv_parse_number_and_free(jv from, double *to, const double *fallback)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_number(from, to, fallback), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_number(from, to, fallback), from); }
 
 static int
 _hb_jv_parse_boolean_and_free(jv from, bool *to, const bool *fallback)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_boolean(from, to, fallback), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_boolean(from, to, fallback), from); }
 
 static int
 _hb_jv_parse_camera_follow_and_free(jv from, enum hb_camera_follow *to,
 		const enum hb_camera_follow *fallback)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_camera_follow(from, to, fallback), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_camera_follow(from, to, fallback), from); }
 
 static int
 _hb_jv_parse_kick_off_reset_and_free(jv from, enum hb_kick_off_reset *to,
 		const enum hb_kick_off_reset *fallback)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_kick_off_reset(from, to, fallback), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_kick_off_reset(from, to, fallback), from); }
 
 static int
 _hb_jv_parse_bg_type_and_free(jv from, enum hb_background_type *to,
 		const enum hb_background_type *fallback)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_bg_type(from, to, fallback), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_bg_type(from, to, fallback), from); }
 
 static int
 _hb_jv_parse_color_and_free(jv from, uint32_t *to, const uint32_t *fallback)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_color(from, to, fallback), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_color(from, to, fallback), from); }
 
 static int
 _hb_jv_parse_bg_and_free(jv from, struct hb_background **to)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_bg(from, to), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_bg(from, to), from); }
 
 static int
 _hb_jv_parse_collision_flag_and_free(jv from, enum hb_collision_flags *to,
 		const enum hb_collision_flags *fallback)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_collision_flag(from, to, fallback), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_collision_flag(from, to, fallback), from); }
 
 static int
 _hb_jv_parse_collision_flags_and_free(jv from, enum hb_collision_flags *to,
 		const enum hb_collision_flags *fallback)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_collision_flags(from, to, fallback), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_collision_flags(from, to, fallback), from); }
 
 static int
 _hb_jv_parse_trait_and_free(jv from, jv name, struct hb_trait **to)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_2(
-			_hb_jv_parse_trait(from, name, to), from, name);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_2(
+			_hb_jv_parse_trait(from, name, to), from, name); }
 
 static int
 _hb_jv_parse_trait_list_and_free(jv from, struct hb_trait ***to)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_trait_list(from, to), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_trait_list(from, to), from); }
 
 static int
-_hb_jv_find_trait_by_name_and_free(jv from, struct hb_trait **to, struct hb_trait **traits)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_find_trait_by_name(from, to, traits), from);
-}
+_hb_jv_parse_trait_name_and_find_and_free(jv from, struct hb_trait **to, struct hb_trait **traits)
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_trait_name_and_find(from, to, traits), from); }
 
 static int
 _hb_jv_parse_vertex_and_free(jv from, struct hb_vertex **to,
 		struct hb_trait **traits)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_vertex(from, to, traits), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_vertex(from, to, traits), from); }
 
 static int
 _hb_jv_parse_vertex_list_and_free(jv from, struct hb_vertex ***to,
 		struct hb_trait **traits)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_vertex_list(from, to, traits), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_vertex_list(from, to, traits), from); }
 
 static int
 _hb_jv_parse_segment_and_free(jv from, struct hb_segment **to,
 	   struct hb_vertex **vertexes, struct hb_trait **traits)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_segment(from, to, vertexes, traits), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_segment(from, to, vertexes, traits), from); }
 
 static int
 _hb_jv_parse_segment_list_and_free(jv from, struct hb_segment ***to,
 		struct hb_vertex **vertexes, struct hb_trait **traits)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_segment_list(from, to, vertexes, traits), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_segment_list(from, to, vertexes, traits), from); }
 
 static int
 _hb_jv_parse_vec2_and_free(jv from, double to[2], const double fallback[2])
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_vec2(from, to, fallback), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_vec2(from, to, fallback), from); }
 
 static int
 _hb_jv_parse_team_and_free(jv from, enum hb_team *to, const enum hb_team *fallback)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_team(from, to, fallback), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_team(from, to, fallback), from); }
 
 static int
 _hb_jv_parse_goal_and_free(jv from, struct hb_goal **to)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_goal(from, to), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_goal(from, to), from); }
 
 static int
 _hb_jv_parse_goal_list_and_free(jv from, struct hb_goal ***to)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_goal_list(from, to), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_goal_list(from, to), from); }
 
 static int
 _hb_jv_parse_ball_physics_and_free(jv from, struct hb_disc **to)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_ball_physics(from, to), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_ball_physics(from, to), from); }
 
 static int
 _hb_jv_parse_disc_and_free(jv from, struct hb_disc **to,
 		struct hb_trait **traits)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_disc(from, to, traits), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_disc(from, to, traits), from); }
 
 static int
 _hb_jv_parse_disc_list_and_free(jv from, struct hb_disc ***to,
 		struct hb_trait **traits, struct hb_disc **ball_physics)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_disc_list(from, to, traits, ball_physics), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_disc_list(from, to, traits, ball_physics), from); }
 
 static int
 _hb_jv_parse_plane_and_free(jv from, struct hb_plane **to, struct hb_trait **traits)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_plane(from, to, traits), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_plane(from, to, traits), from); }
 
 static int
 _hb_jv_parse_plane_list_and_free(jv from, struct hb_plane ***to, struct hb_trait **traits)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_plane_list(from, to, traits), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_plane_list(from, to, traits), from); }
 
 static int
 _hb_jv_parse_joint_length_and_free(jv from, struct hb_joint_length *to)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_joint_length(from, to), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_joint_length(from, to), from); }
 
 static int
 _hb_jv_parse_joint_strength_and_free(jv from, struct hb_joint_strength *to)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_joint_strength(from, to), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_joint_strength(from, to), from); }
 
 static int
 _hb_jv_parse_joint_and_free(jv from, struct hb_joint **to, struct hb_disc **discs)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_joint(from, to, discs), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_joint(from, to, discs), from); }
 
 static int
 _hb_jv_parse_joint_list_and_free(jv from, struct hb_joint ***to, struct hb_disc **discs)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_joint_list(from, to, discs), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_joint_list(from, to, discs), from); }
 
 static int
 _hb_jv_parse_point_and_free(jv from, struct hb_point **to)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_point(from, to), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_point(from, to), from); }
 
 static int
 _hb_jv_parse_point_list_and_free(jv from, struct hb_point ***to)
-{
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_point_list(from, to), from);
-}
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_point_list(from, to), from); }
 
 static int
 _hb_jv_parse_player_physics_and_free(jv from, struct hb_player_physics **to)
+{ return _hb_jv_parse_xxx_and_free_wrapper_1(
+			_hb_jv_parse_player_physics(from, to), from); }
+
+static jv
+_hb_jv_to_json_camera_follow(enum hb_camera_follow from)
 {
-	return _hb_jv_parse_xxx_and_free_wrapper_1(
-			_hb_jv_parse_player_physics(from, to), from);
+	switch (from) {
+	case HB_CAMERA_FOLLOW_BALL: return jv_string("ball");
+	case HB_CAMERA_FOLLOW_PLAYER: return jv_string("player");
+	default: return jv_string("unknown");
+	}
+}
+
+static jv
+_hb_jv_to_json_kick_off_reset(enum hb_kick_off_reset from)
+{
+	switch (from) {
+	case HB_KICK_OFF_RESET_FULL: return jv_string("full");
+	case HB_KICK_OFF_RESET_PARTIAL: return jv_string("partial");
+	default: return jv_string("unknown");
+	}
+}
+
+static jv
+_hb_jv_to_json_bg_type(enum hb_background_type from)
+{
+	switch (from) {
+	case HB_BACKGROUND_TYPE_NONE: return jv_string("none");
+	case HB_BACKGROUND_TYPE_GRASS: return jv_string("grass");
+	case HB_BACKGROUND_TYPE_HOCKEY: return jv_string("hockey");
+	default: return jv_string("unknown");
+	}
+}
+
+static jv
+_hb_jv_to_json_color(uint32_t from)
+{
+	if (from & (0xff << 24))
+		return jv_string_fmt("%06x", from & 0xffffff);
+	return jv_string("transparent");
+}
+
+static jv
+_hb_jv_to_json_bg(struct hb_background *from)
+{
+	jv out;
+	out = jv_object();
+	out = jv_object_set(out, jv_string("type"),
+			_hb_jv_to_json_bg_type(from->type));
+	out = jv_object_set(out, jv_string("width"),
+			jv_number(from->width));
+	out = jv_object_set(out, jv_string("height"),
+			jv_number(from->height));
+	out = jv_object_set(out, jv_string("kickOffRadius"),
+			jv_number(from->kick_off_radius));
+	out = jv_object_set(out, jv_string("cornerRadius"),
+			jv_number(from->corner_radius));
+	out = jv_object_set(out, jv_string("goalLine"),
+			jv_number(from->goal_line));
+	out = jv_object_set(out, jv_string("color"),
+			_hb_jv_to_json_color(from->color));
+	return out;
+}
+
+static jv
+_hb_jv_to_json_collision_flags(enum hb_collision_flags from)
+{
+	jv out;
+	out = jv_array();
+	if (hb_collision_flags_is_set(from, HB_COLLISION_ALL)) {
+		out = jv_array_append(out, jv_string("all"));
+		from ^= HB_COLLISION_ALL;
+	}
+	if (hb_collision_flags_is_set(from, HB_COLLISION_BALL))
+		out = jv_array_append(out, jv_string("ball"));
+	if (hb_collision_flags_is_set(from, HB_COLLISION_RED))
+		out = jv_array_append(out, jv_string("red"));
+	if (hb_collision_flags_is_set(from, HB_COLLISION_BLUE))
+		out = jv_array_append(out, jv_string("blue"));
+	if (hb_collision_flags_is_set(from, HB_COLLISION_RED_KO))
+		out = jv_array_append(out, jv_string("redKO"));
+	if (hb_collision_flags_is_set(from, HB_COLLISION_BLUE_KO))
+		out = jv_array_append(out, jv_string("blueKO"));
+	if (hb_collision_flags_is_set(from, HB_COLLISION_WALL))
+		out = jv_array_append(out, jv_string("wall"));
+	if (hb_collision_flags_is_set(from, HB_COLLISION_KICK))
+		out = jv_array_append(out, jv_string("kick"));
+	if (hb_collision_flags_is_set(from, HB_COLLISION_SCORE))
+		out = jv_array_append(out, jv_string("score"));
+	if (hb_collision_flags_is_set(from, HB_COLLISION_C0))
+		out = jv_array_append(out, jv_string("c0"));
+	if (hb_collision_flags_is_set(from, HB_COLLISION_C1))
+		out = jv_array_append(out, jv_string("c1"));
+	if (hb_collision_flags_is_set(from, HB_COLLISION_C2))
+		out = jv_array_append(out, jv_string("c2"));
+	if (hb_collision_flags_is_set(from, HB_COLLISION_C3))
+		out = jv_array_append(out, jv_string("c3"));
+	return out;
+}
+
+static jv
+_hb_jv_to_json_vertex(const struct hb_vertex *from)
+{
+	jv out;
+	out = jv_object();
+	out = jv_object_set(out, jv_string("x"),
+			jv_number(from->x));
+	out = jv_object_set(out, jv_string("y"),
+			jv_number(from->y));
+	out = jv_object_set(out, jv_string("bCoef"),
+			jv_number(from->b_coef));
+	out = jv_object_set(out, jv_string("cGroup"),
+			_hb_jv_to_json_collision_flags(from->c_group));
+	out = jv_object_set(out, jv_string("cMask"),
+			_hb_jv_to_json_collision_flags(from->c_mask));
+	return out;
+}
+
+static jv
+_hb_jv_to_json_segment(const struct hb_segment *from)
+{
+	jv out;
+	out = jv_object();
+	out = jv_object_set(out, jv_string("v0"),
+			jv_number(from->v0));
+	out = jv_object_set(out, jv_string("v1"),
+			jv_number(from->v1));
+	out = jv_object_set(out, jv_string("bCoef"),
+			jv_number(from->b_coef));
+	out = jv_object_set(out, jv_string("curve"),
+			jv_number(from->curve));
+	out = jv_object_set(out, jv_string("bias"),
+			jv_number(from->bias));
+	out = jv_object_set(out, jv_string("cGroup"),
+			_hb_jv_to_json_collision_flags(from->c_group));
+	out = jv_object_set(out, jv_string("cMask"),
+			_hb_jv_to_json_collision_flags(from->c_mask));
+	out = jv_object_set(out, jv_string("vis"),
+			jv_bool(from->vis));
+	out = jv_object_set(out, jv_string("color"),
+			_hb_jv_to_json_color(from->color));
+	return out;
+}
+
+static jv
+_hb_jv_to_json_player_physics(const struct hb_player_physics *from)
+{
+	jv out;
+	out = jv_object();
+	out = jv_object_set(out, jv_string("gravity"),
+			JV_ARRAY_2(jv_number(from->gravity[0]),
+				jv_number(from->gravity[1])));
+	out = jv_object_set(out, jv_string("radius"),
+			jv_number(from->radius));
+	out = jv_object_set(out, jv_string("invMass"),
+			jv_number(from->inv_mass));
+	out = jv_object_set(out, jv_string("bCoef"),
+			jv_number(from->b_coef));
+	out = jv_object_set(out, jv_string("damping"),
+			jv_number(from->damping));
+	out = jv_object_set(out, jv_string("cGroup"),
+			_hb_jv_to_json_collision_flags(from->c_group));
+	out = jv_object_set(out, jv_string("acceleration"),
+			jv_number(from->acceleration));
+	out = jv_object_set(out, jv_string("kickingAcceleration"),
+			jv_number(from->kicking_acceleration));
+	out = jv_object_set(out, jv_string("kickingDamping"),
+			jv_number(from->kicking_damping));
+	out = jv_object_set(out, jv_string("kickStrength"),
+			jv_number(from->kick_strength));
+	out = jv_object_set(out, jv_string("kickback"),
+			jv_number(from->kickback));
+	return out;
+}
+
+static jv
+_hb_jv_to_json_team(enum hb_team from)
+{
+	switch (from) {
+	case HB_TEAM_RED: return jv_string("red");
+	case HB_TEAM_BLUE: return jv_string("blue");
+	case HB_TEAM_SPECTATOR: return jv_string("spectator");
+	default: return jv_string("unknown");
+	}
+}
+
+static jv
+_hb_jv_to_json_goal(const struct hb_goal *from)
+{
+	jv out;
+	out = jv_object();
+	out = jv_object_set(out, jv_string("p0"),
+			JV_ARRAY_2(jv_number(from->p0[0]),
+				jv_number(from->p0[1])));
+	out = jv_object_set(out, jv_string("p1"),
+			JV_ARRAY_2(jv_number(from->p1[0]),
+				jv_number(from->p1[1])));
+	out = jv_object_set(out, jv_string("team"),
+			_hb_jv_to_json_team(from->team));
+	return out;
+}
+
+static jv
+_hb_jv_to_json_disc(const struct hb_disc *from)
+{
+	jv out;
+	out = jv_object();
+	out = jv_object_set(out, jv_string("pos"),
+			JV_ARRAY_2(jv_number(from->pos[0]),
+				jv_number(from->pos[1])));
+	out = jv_object_set(out, jv_string("speed"),
+			JV_ARRAY_2(jv_number(from->speed[0]),
+				jv_number(from->speed[1])));
+	out = jv_object_set(out, jv_string("gravity"),
+			JV_ARRAY_2(jv_number(from->gravity[0]),
+				jv_number(from->gravity[1])));
+	out = jv_object_set(out, jv_string("radius"),
+			jv_number(from->radius));
+	out = jv_object_set(out, jv_string("invMass"),
+			jv_number(from->inv_mass));
+	out = jv_object_set(out, jv_string("damping"),
+			jv_number(from->damping));
+	out = jv_object_set(out, jv_string("color"),
+			_hb_jv_to_json_color(from->color));
+	out = jv_object_set(out, jv_string("bCoef"),
+			jv_number(from->b_coef));
+	out = jv_object_set(out, jv_string("cMask"),
+			_hb_jv_to_json_collision_flags(from->c_mask));
+	out = jv_object_set(out, jv_string("cGroup"),
+			_hb_jv_to_json_collision_flags(from->c_group));
+	return out;
+}
+
+static jv
+_hb_jv_to_json_plane(const struct hb_plane *from)
+{
+	jv out;
+	out = jv_object();
+	out = jv_object_set(out, jv_string("normal"),
+			JV_ARRAY_2(jv_number(from->normal[0]),
+				jv_number(from->normal[1])));
+	out = jv_object_set(out, jv_string("dist"),
+			jv_number(from->dist));
+	out = jv_object_set(out, jv_string("bCoef"),
+			jv_number(from->b_coef));
+	out = jv_object_set(out, jv_string("cMask"),
+			_hb_jv_to_json_collision_flags(from->c_mask));
+	out = jv_object_set(out, jv_string("cGroup"),
+			_hb_jv_to_json_collision_flags(from->c_group));
+	return out;
+}
+
+static jv
+_hb_jv_to_json_joint_length(const struct hb_joint_length *from)
+{
+	switch (from->kind) {
+	case HB_JOINT_LENGTH_FIXED:
+		return jv_number(from->val.f);
+	case HB_JOINT_LENGTH_RANGE:
+		return JV_ARRAY_2(jv_number(from->val.range[0]),
+				jv_number(from->val.range[1]));
+	case HB_JOINT_LENGTH_AUTO:
+		return jv_null();
+	default:
+		return jv_null();
+	}
+}
+
+static jv
+_hb_jv_to_json_joint_strength(const struct hb_joint_strength *from)
+{
+	if (from->is_rigid)
+		return jv_string("rigid");
+	return jv_number(from->val);
+}
+
+static jv
+_hb_jv_to_json_joint(const struct hb_joint *from)
+{
+	jv out;
+	out = jv_object();
+	out = jv_object_set(out, jv_string("d0"),
+			jv_number(from->d0));
+	out = jv_object_set(out, jv_string("d1"),
+			jv_number(from->d1));
+	out = jv_object_set(out, jv_string("length"),
+			_hb_jv_to_json_joint_length(&from->length));
+	out = jv_object_set(out, jv_string("strength"),
+			_hb_jv_to_json_joint_strength(&from->strength));
+	out = jv_object_set(out, jv_string("color"),
+			_hb_jv_to_json_color(from->color));
+	return out;
+}
+
+static jv
+_hb_jv_to_json_point(const struct hb_point *from)
+{
+	jv out;
+	out = jv_array();
+	out = jv_array_append(out, jv_number(from->x));
+	out = jv_array_append(out, jv_number(from->y));
+	return out;
+}
+
+static jv
+_hb_jv_to_json_stadium(const struct hb_stadium *s)
+{
+	jv root;
+	root = jv_object();
+	root = jv_object_set(root, jv_string("name"),
+			jv_string(s->name));
+	root = jv_object_set(root, jv_string("width"),
+			jv_number(s->width));
+	root = jv_object_set(root, jv_string("height"),
+			jv_number(s->height));
+	if (s->camera_width > 0 && s->camera_width > 0) {
+		root = jv_object_set(root, jv_string("cameraWidth"),
+				jv_number(s->camera_width));
+		root = jv_object_set(root, jv_string("cameraHeight"),
+				jv_number(s->camera_height));
+	}
+	root = jv_object_set(root, jv_string("maxViewWidth"),
+			jv_number(s->max_view_width));
+	root = jv_object_set(root, jv_string("cameraFollow"),
+			_hb_jv_to_json_camera_follow(s->camera_follow));
+	root = jv_object_set(root, jv_string("spawnDistance"),
+			jv_number(s->spawn_distance));
+	root = jv_object_set(root, jv_string("canBeStored"),
+			jv_bool(s->can_be_stored));
+	root = jv_object_set(root, jv_string("kickOffReset"),
+			_hb_jv_to_json_kick_off_reset(s->kick_off_reset));
+	root = jv_object_set(root, jv_string("ballPhysics"),
+			jv_string("disc0"));
+	root = jv_object_set(root, jv_string("playerPhysics"),
+			_hb_jv_to_json_player_physics(s->player_physics));
+	root = jv_object_set(root, jv_string("bg"),
+			_hb_jv_to_json_bg(s->bg));
+
+	/////////////vertexes
+	{
+		jv vertexes;
+		vertexes = jv_array();
+
+		hb_stadium_vertexes_foreach(s, vertex) {
+			vertexes = jv_array_append(vertexes,
+					_hb_jv_to_json_vertex(vertex));
+		}
+
+		root = jv_object_set(root, jv_string("vertexes"),
+			vertexes);
+	}
+
+	/////////////segments
+	{
+		jv segments;
+		segments = jv_array();
+
+		hb_stadium_segments_foreach(s, segment) {
+			segments = jv_array_append(segments,
+					_hb_jv_to_json_segment(segment));
+		}
+
+		root = jv_object_set(root, jv_string("segments"),
+			segments);
+	}
+
+	/////////////goals
+	{
+		jv goals;
+		goals = jv_array();
+
+		hb_stadium_goals_foreach(s, goal) {
+			goals = jv_array_append(goals,
+					_hb_jv_to_json_goal(goal));
+		}
+
+		root = jv_object_set(root, jv_string("goals"),
+			goals);
+	}
+
+	/////////////discs
+	{
+		jv discs;
+		discs = jv_array();
+
+		hb_stadium_discs_foreach(s, disc) {
+			discs = jv_array_append(discs,
+					_hb_jv_to_json_disc(disc));
+		}
+
+		root = jv_object_set(root, jv_string("discs"),
+			discs);
+	}
+
+	/////////////planes
+	{
+		jv planes;
+		planes = jv_array();
+
+		hb_stadium_planes_foreach(s, plane) {
+			planes = jv_array_append(planes,
+					_hb_jv_to_json_plane(plane));
+		}
+
+		root = jv_object_set(root, jv_string("planes"),
+			planes);
+	}
+
+	///////////joints
+	{
+		jv joints;
+		joints = jv_array();
+
+		hb_stadium_joints_foreach(s, joint) {
+			joints = jv_array_append(joints,
+					_hb_jv_to_json_joint(joint));
+		}
+
+		root = jv_object_set(root, jv_string("joints"),
+			joints);
+	}
+
+	/////////////redSpawnPoints
+	{
+		jv red_spawn_points;
+		red_spawn_points = jv_array();
+
+		hb_stadium_red_spawn_points_foreach(s, point) {
+			red_spawn_points = jv_array_append(red_spawn_points,
+					_hb_jv_to_json_point(point));
+		}
+
+		root = jv_object_set(root, jv_string("redSpawnPoints"),
+			red_spawn_points);
+	}
+
+	/////////////blueSpawnPoints
+	{
+		jv blue_spawn_points;
+		blue_spawn_points = jv_array();
+
+		hb_stadium_blue_spawn_points_foreach(s, point) {
+			blue_spawn_points = jv_array_append(blue_spawn_points,
+					_hb_jv_to_json_point(point));
+		}
+
+		root = jv_object_set(root, jv_string("blueSpawnPoints"),
+			blue_spawn_points);
+	}
+
+	return root;
 }
 
 extern struct hb_stadium *
@@ -1911,24 +2298,30 @@ hb_stadium_parse(const char *in)
 	/////////////cameraWidth
 	{
 		jv cam_width;
+		double fallback_cam_width;
+		fallback_cam_width = 0;
 		cam_width = jv_object_get(jv_copy(root), jv_string("cameraWidth"));
-		if (_hb_jv_parse_number_and_free(cam_width, &s->camera_width, &HB_F_ZERO) < 0)
+		if (_hb_jv_parse_number_and_free(cam_width, &s->camera_width, &fallback_cam_width) < 0)
 			goto err;
 	}
 
 	/////////////cameraHeight
 	{
 		jv cam_height;
+		double fallback_cam_height;
+		fallback_cam_height = 0;
 		cam_height = jv_object_get(jv_copy(root), jv_string("cameraHeight"));
-		if (_hb_jv_parse_number_and_free(cam_height, &s->camera_height, &HB_F_ZERO) < 0)
+		if (_hb_jv_parse_number_and_free(cam_height, &s->camera_height, &fallback_cam_height) < 0)
 			goto err;
 	}
 
 	/////////////maxViewWidth
 	{
 		jv max_view_width;
+		double fallback_max_view_width;
+		fallback_max_view_width = 0;
 		max_view_width = jv_object_get(jv_copy(root), jv_string("maxViewWidth"));
-		if (_hb_jv_parse_number_and_free(max_view_width, &s->max_view_width, &HB_F_ZERO) < 0)
+		if (_hb_jv_parse_number_and_free(max_view_width, &s->max_view_width, &fallback_max_view_width) < 0)
 			goto err;
 	}
 
@@ -1946,16 +2339,20 @@ hb_stadium_parse(const char *in)
 	/////////////spawnDistance
 	{
 		jv spawn_distance;
+		double fallback_spawn_distance;
+		fallback_spawn_distance = 0;
 		spawn_distance = jv_object_get(jv_copy(root), jv_string("spawnDistance"));
-		if (_hb_jv_parse_number_and_free(spawn_distance, &s->spawn_distance, &HB_F_ZERO) < 0)
+		if (_hb_jv_parse_number_and_free(spawn_distance, &s->spawn_distance, &fallback_spawn_distance) < 0)
 			goto err;
 	}
 
 	/////////////canBeStored
 	{
 		jv can_be_stored;
+		bool fallback_can_be_stored;
+		fallback_can_be_stored = true;
 		can_be_stored = jv_object_get(jv_copy(root), jv_string("canBeStored"));
-		if (_hb_jv_parse_boolean_and_free(can_be_stored, &s->can_be_stored, &HB_B_TRUE) < 0)
+		if (_hb_jv_parse_boolean_and_free(can_be_stored, &s->can_be_stored, &fallback_can_be_stored) < 0)
 			goto err;
 	}
 
@@ -2100,439 +2497,6 @@ hb_stadium_from_file(const char *file)
 	free(raw_data);
 
 	return s;
-}
-
-static jv
-_hb_jv_to_json_camera_follow(enum hb_camera_follow from)
-{
-	switch (from) {
-	case HB_CAMERA_FOLLOW_BALL: return jv_string("ball");
-	case HB_CAMERA_FOLLOW_PLAYER: return jv_string("player");
-	default: return jv_string("unknown");
-	}
-}
-
-static jv
-_hb_jv_to_json_kick_off_reset(enum hb_kick_off_reset from)
-{
-	switch (from) {
-	case HB_KICK_OFF_RESET_FULL: return jv_string("full");
-	case HB_KICK_OFF_RESET_PARTIAL: return jv_string("partial");
-	default: return jv_string("unknown");
-	}
-}
-
-static jv
-_hb_jv_to_json_bg_type(enum hb_background_type from)
-{
-	switch (from) {
-	case HB_BACKGROUND_TYPE_NONE: return jv_string("none");
-	case HB_BACKGROUND_TYPE_GRASS: return jv_string("grass");
-	case HB_BACKGROUND_TYPE_HOCKEY: return jv_string("hockey");
-	default: return jv_string("unknown");
-	}
-}
-
-static jv
-_hb_jv_to_json_color(uint32_t from)
-{
-	if (from & (0xff << 24))
-		return jv_string_fmt("%06x", from & 0xffffff);
-	return jv_string("transparent");
-}
-
-static jv
-_hb_jv_to_json_bg(struct hb_background *from)
-{
-	jv out;
-	out = jv_object();
-
-	out = jv_object_set(out, jv_string("type"),
-			_hb_jv_to_json_bg_type(from->type));
-
-	out = jv_object_set(out, jv_string("width"),
-			jv_number(from->width));
-
-	out = jv_object_set(out, jv_string("height"),
-			jv_number(from->height));
-
-	out = jv_object_set(out, jv_string("kickOffRadius"),
-			jv_number(from->kick_off_radius));
-
-	out = jv_object_set(out, jv_string("cornerRadius"),
-			jv_number(from->corner_radius));
-
-	out = jv_object_set(out, jv_string("goalLine"),
-			jv_number(from->goal_line));
-
-	out = jv_object_set(out, jv_string("color"),
-			_hb_jv_to_json_color(from->color));
-
-	return out;
-}
-
-static jv
-_hb_jv_to_json_collision_flags(enum hb_collision_flags from)
-{
-	jv out;
-	out = jv_array();
-
-	if (hb_collision_flags_is_set(from, HB_COLLISION_ALL)) {
-		out = jv_array_append(out, jv_string("all"));
-		from ^= HB_COLLISION_ALL;
-	}
-
-	if (hb_collision_flags_is_set(from, HB_COLLISION_BALL))
-		out = jv_array_append(out, jv_string("ball"));
-
-	if (hb_collision_flags_is_set(from, HB_COLLISION_RED))
-		out = jv_array_append(out, jv_string("red"));
-
-	if (hb_collision_flags_is_set(from, HB_COLLISION_BLUE))
-		out = jv_array_append(out, jv_string("blue"));
-
-	if (hb_collision_flags_is_set(from, HB_COLLISION_RED_KO))
-		out = jv_array_append(out, jv_string("redKO"));
-
-	if (hb_collision_flags_is_set(from, HB_COLLISION_BLUE_KO))
-		out = jv_array_append(out, jv_string("blueKO"));
-
-	if (hb_collision_flags_is_set(from, HB_COLLISION_WALL))
-		out = jv_array_append(out, jv_string("wall"));
-
-	if (hb_collision_flags_is_set(from, HB_COLLISION_KICK))
-		out = jv_array_append(out, jv_string("kick"));
-
-	if (hb_collision_flags_is_set(from, HB_COLLISION_SCORE))
-		out = jv_array_append(out, jv_string("score"));
-
-	if (hb_collision_flags_is_set(from, HB_COLLISION_C0))
-		out = jv_array_append(out, jv_string("c0"));
-
-	if (hb_collision_flags_is_set(from, HB_COLLISION_C1))
-		out = jv_array_append(out, jv_string("c1"));
-
-	if (hb_collision_flags_is_set(from, HB_COLLISION_C2))
-		out = jv_array_append(out, jv_string("c2"));
-
-	if (hb_collision_flags_is_set(from, HB_COLLISION_C3))
-		out = jv_array_append(out, jv_string("c3"));
-
-	return out;
-}
-
-static jv
-_hb_jv_to_json_vertex(const struct hb_vertex *from)
-{
-	jv out;
-	out = jv_object();
-
-	out = jv_object_set(out, jv_string("x"), jv_number(from->x));
-	out = jv_object_set(out, jv_string("y"), jv_number(from->y));
-	out = jv_object_set(out, jv_string("bCoef"), jv_number(from->b_coef));
-	out = jv_object_set(out, jv_string("cGroup"), _hb_jv_to_json_collision_flags(from->c_group));
-	out = jv_object_set(out, jv_string("cMask"), _hb_jv_to_json_collision_flags(from->c_mask));
-
-	return out;
-}
-
-static jv
-_hb_jv_to_json_segment(const struct hb_segment *from)
-{
-	jv out;
-	out = jv_object();
-
-	out = jv_object_set(out, jv_string("v0"), jv_number(from->v0));
-	out = jv_object_set(out, jv_string("v1"), jv_number(from->v1));
-	out = jv_object_set(out, jv_string("bCoef"), jv_number(from->b_coef));
-	out = jv_object_set(out, jv_string("curve"), jv_number(from->curve));
-	out = jv_object_set(out, jv_string("bias"), jv_number(from->bias));
-	out = jv_object_set(out, jv_string("cGroup"), _hb_jv_to_json_collision_flags(from->c_group));
-	out = jv_object_set(out, jv_string("cMask"), _hb_jv_to_json_collision_flags(from->c_mask));
-	out = jv_object_set(out, jv_string("vis"), jv_bool(from->vis));
-	out = jv_object_set(out, jv_string("color"), _hb_jv_to_json_color(from->color));
-
-	return out;
-}
-
-static jv
-_hb_jv_to_json_player_physics(const struct hb_player_physics *from)
-{
-	jv out;
-	out = jv_object();
-
-	out = jv_object_set(out, jv_string("gravity"), JV_ARRAY_2(jv_number(from->gravity[0]), jv_number(from->gravity[1])));
-	out = jv_object_set(out, jv_string("radius"), jv_number(from->radius));
-	out = jv_object_set(out, jv_string("invMass"), jv_number(from->inv_mass));
-	out = jv_object_set(out, jv_string("bCoef"), jv_number(from->b_coef));
-	out = jv_object_set(out, jv_string("damping"), jv_number(from->damping));
-	out = jv_object_set(out, jv_string("cGroup"), _hb_jv_to_json_collision_flags(from->c_group));
-	out = jv_object_set(out, jv_string("acceleration"), jv_number(from->acceleration));
-	out = jv_object_set(out, jv_string("kickingAcceleration"), jv_number(from->kicking_acceleration));
-	out = jv_object_set(out, jv_string("kickingDamping"), jv_number(from->kicking_damping));
-	out = jv_object_set(out, jv_string("kickStrength"), jv_number(from->kick_strength));
-	out = jv_object_set(out, jv_string("kickback"), jv_number(from->kickback));
-
-	return out;
-}
-
-static jv
-_hb_jv_to_json_team(enum hb_team from)
-{
-	switch (from) {
-	case HB_TEAM_RED: return jv_string("red");
-	case HB_TEAM_BLUE: return jv_string("blue");
-	case HB_TEAM_SPECTATOR: return jv_string("spectator");
-	default: return jv_string("unknown");
-	}
-}
-
-static jv
-_hb_jv_to_json_goal(const struct hb_goal *from)
-{
-	jv out;
-	out = jv_object();
-
-	out = jv_object_set(out, jv_string("p0"), JV_ARRAY_2(jv_number(from->p0[0]), jv_number(from->p0[1])));
-	out = jv_object_set(out, jv_string("p1"), JV_ARRAY_2(jv_number(from->p1[0]), jv_number(from->p1[1])));
-	out = jv_object_set(out, jv_string("team"), _hb_jv_to_json_team(from->team));
-
-	return out;
-}
-
-static jv
-_hb_jv_to_json_disc(const struct hb_disc *from)
-{
-	jv out;
-	out = jv_object();
-
-	out = jv_object_set(out, jv_string("pos"), JV_ARRAY_2(jv_number(from->pos[0]), jv_number(from->pos[1])));
-	out = jv_object_set(out, jv_string("speed"), JV_ARRAY_2(jv_number(from->speed[0]), jv_number(from->speed[1])));
-	out = jv_object_set(out, jv_string("gravity"), JV_ARRAY_2(jv_number(from->gravity[0]), jv_number(from->gravity[1])));
-	out = jv_object_set(out, jv_string("radius"), jv_number(from->radius));
-	out = jv_object_set(out, jv_string("invMass"), jv_number(from->inv_mass));
-	out = jv_object_set(out, jv_string("damping"), jv_number(from->damping));
-	out = jv_object_set(out, jv_string("color"), _hb_jv_to_json_color(from->color));
-	out = jv_object_set(out, jv_string("bCoef"), jv_number(from->b_coef));
-	out = jv_object_set(out, jv_string("cMask"), _hb_jv_to_json_collision_flags(from->c_mask));
-	out = jv_object_set(out, jv_string("cGroup"), _hb_jv_to_json_collision_flags(from->c_group));
-
-	return out;
-}
-
-static jv
-_hb_jv_to_json_plane(const struct hb_plane *from)
-{
-	jv out;
-	out = jv_object();
-
-	out = jv_object_set(out, jv_string("normal"), JV_ARRAY_2(jv_number(from->normal[0]), jv_number(from->normal[1])));
-	out = jv_object_set(out, jv_string("dist"), jv_number(from->dist));
-	out = jv_object_set(out, jv_string("bCoef"), jv_number(from->b_coef));
-	out = jv_object_set(out, jv_string("cMask"), _hb_jv_to_json_collision_flags(from->c_mask));
-	out = jv_object_set(out, jv_string("cGroup"), _hb_jv_to_json_collision_flags(from->c_group));
-
-	return out;
-}
-
-static jv
-_hb_jv_to_json_joint_length(const struct hb_joint_length *from)
-{
-	switch (from->kind) {
-	case HB_JOINT_LENGTH_FIXED: return jv_number(from->val.f);
-	case HB_JOINT_LENGTH_RANGE: return JV_ARRAY_2(jv_number(from->val.range[0]), jv_number(from->val.range[1]));
-	case HB_JOINT_LENGTH_AUTO: return jv_null();
-	default: return jv_null();
-	}
-}
-
-static jv
-_hb_jv_to_json_joint_strength(const struct hb_joint_strength *from)
-{
-	if (from->is_rigid) return jv_string("rigid");
-	return jv_number(from->val);
-}
-
-static jv
-_hb_jv_to_json_joint(const struct hb_joint *from)
-{
-	jv out;
-	out = jv_object();
-
-	out = jv_object_set(out, jv_string("d0"), jv_number(from->d0));
-	out = jv_object_set(out, jv_string("d1"), jv_number(from->d1));
-	out = jv_object_set(out, jv_string("length"), _hb_jv_to_json_joint_length(&from->length));
-	out = jv_object_set(out, jv_string("strength"), _hb_jv_to_json_joint_strength(&from->strength));
-	out = jv_object_set(out, jv_string("color"), _hb_jv_to_json_color(from->color));
-
-	return out;
-}
-
-static jv
-_hb_jv_to_json_point(const struct hb_point *from)
-{
-	jv out;
-	out = jv_array();
-	out = jv_array_append(out, jv_number(from->x));
-	out = jv_array_append(out, jv_number(from->y));
-	return out;
-}
-
-static jv
-_hb_jv_to_json_stadium(const struct hb_stadium *s)
-{
-	jv root;
-
-	root = jv_object();
-
-	root = jv_object_set(root, jv_string("name"), jv_string(s->name));
-	root = jv_object_set(root, jv_string("width"), jv_number(s->width));
-	root = jv_object_set(root, jv_string("height"), jv_number(s->height));
-
-	if (s->camera_width > 0 && s->camera_width > 0) {
-		root = jv_object_set(root, jv_string("cameraWidth"),
-				jv_number(s->camera_width));
-		root = jv_object_set(root, jv_string("cameraHeight"),
-				jv_number(s->camera_height));
-	}
-
-	root = jv_object_set(root, jv_string("maxViewWidth"),
-			jv_number(s->max_view_width));
-
-	root = jv_object_set(root, jv_string("cameraFollow"),
-			_hb_jv_to_json_camera_follow(s->camera_follow));
-
-	root = jv_object_set(root, jv_string("spawnDistance"),
-			jv_number(s->spawn_distance));
-
-	root = jv_object_set(root, jv_string("canBeStored"),
-			jv_bool(s->can_be_stored));
-
-	root = jv_object_set(root, jv_string("kickOffReset"),
-			_hb_jv_to_json_kick_off_reset(s->kick_off_reset));
-
-	root = jv_object_set(root, jv_string("ballPhysics"),
-			jv_string("disc0"));
-
-	root = jv_object_set(root, jv_string("playerPhysics"),
-			_hb_jv_to_json_player_physics(s->player_physics));
-
-	root = jv_object_set(root, jv_string("bg"),
-			_hb_jv_to_json_bg(s->bg));
-
-	/////////////vertexes
-	{
-		jv vertexes;
-		vertexes = jv_array();
-
-		hb_stadium_vertexes_foreach(s, vertex) {
-			vertexes = jv_array_append(vertexes,
-					_hb_jv_to_json_vertex(vertex));
-		}
-
-		root = jv_object_set(root, jv_string("vertexes"),
-			vertexes);
-	}
-
-	/////////////segments
-	{
-		jv segments;
-		segments = jv_array();
-
-		hb_stadium_segments_foreach(s, segment) {
-			segments = jv_array_append(segments,
-					_hb_jv_to_json_segment(segment));
-		}
-
-		root = jv_object_set(root, jv_string("segments"),
-			segments);
-	}
-
-	/////////////goals
-	{
-		jv goals;
-		goals = jv_array();
-
-		hb_stadium_goals_foreach(s, goal) {
-			goals = jv_array_append(goals,
-					_hb_jv_to_json_goal(goal));
-		}
-
-		root = jv_object_set(root, jv_string("goals"),
-			goals);
-	}
-
-	/////////////discs
-	{
-		jv discs;
-		discs = jv_array();
-
-		hb_stadium_discs_foreach(s, disc) {
-			discs = jv_array_append(discs,
-					_hb_jv_to_json_disc(disc));
-		}
-
-		root = jv_object_set(root, jv_string("discs"),
-			discs);
-	}
-
-	/////////////planes
-	{
-		jv planes;
-		planes = jv_array();
-
-		hb_stadium_planes_foreach(s, plane) {
-			planes = jv_array_append(planes,
-					_hb_jv_to_json_plane(plane));
-		}
-
-		root = jv_object_set(root, jv_string("planes"),
-			planes);
-	}
-
-	///////////joints
-	{
-		jv joints;
-		joints = jv_array();
-
-		hb_stadium_joints_foreach(s, joint) {
-			joints = jv_array_append(joints,
-					_hb_jv_to_json_joint(joint));
-		}
-
-		root = jv_object_set(root, jv_string("joints"),
-			joints);
-	}
-
-	/////////////redSpawnPoints
-	{
-		jv red_spawn_points;
-		red_spawn_points = jv_array();
-
-		hb_stadium_red_spawn_points_foreach(s, point) {
-			red_spawn_points = jv_array_append(red_spawn_points,
-					_hb_jv_to_json_point(point));
-		}
-
-		root = jv_object_set(root, jv_string("redSpawnPoints"),
-			red_spawn_points);
-	}
-
-	/////////////blueSpawnPoints
-	{
-		jv blue_spawn_points;
-		blue_spawn_points = jv_array();
-
-		hb_stadium_blue_spawn_points_foreach(s, point) {
-			blue_spawn_points = jv_array_append(blue_spawn_points,
-					_hb_jv_to_json_point(point));
-		}
-
-		root = jv_object_set(root, jv_string("blueSpawnPoints"),
-			blue_spawn_points);
-	}
-
-	return root;
 }
 
 extern char *
