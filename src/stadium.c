@@ -214,8 +214,10 @@ _hb_jv_parse_color(jv from, uint32_t *to, const uint32_t *fallback)
 			return -1;
 		*to = 0xff << 24;
 		jv_array_foreach(from, index, value) {
-			if (jv_get_kind(value) != JV_KIND_NUMBER)
+			if (jv_get_kind(value) != JV_KIND_NUMBER) {
+				jv_free(value);
 				return -1;
+			}
 			*to |= ((int)(jv_number_value(value)) & 0xff) << (8*(2-index));
 			jv_free(value);
 		}
