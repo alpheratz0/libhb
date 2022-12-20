@@ -1,0 +1,3 @@
+- won't support maps exported using json5 features (comments, etc)
+- won't support vis property of "1"
+- won't support invalid colors (ie: FF0AKZ) and other invalid properties
