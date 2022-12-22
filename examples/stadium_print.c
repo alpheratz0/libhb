@@ -11,7 +11,7 @@ main(int argc, char **argv)
 {
 	struct hb_stadium *stadium;
 	if (argc <= 1)
-		return -1
+		return 1
 	stadium = hb_stadium_from_file(argv[1]);
 	if (!stadium)
 		return 1;
