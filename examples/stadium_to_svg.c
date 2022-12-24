@@ -113,6 +113,7 @@ cairo_render_stadium_segment_curve(cairo_t *cr, struct hb_vertex *v0,
 	double cx, cy;
 	double radius;
 	double angle0, angle1;
+	int dir;
 
 	cairo_set_line_width(cr, 3);
 	cairo_set_source_rgb_uint32(cr, color);
@@ -132,8 +133,9 @@ cairo_render_stadium_segment_curve(cairo_t *cr, struct hb_vertex *v0,
 		radius = dist(v0, v1) / (2 * sin(deg2rad(curve)/2));
 		a = dist(v0, v1) / 2;
 		b = sqrt(radius*radius-a*a);
-		cx = mx - (b*((v1->y - v0->y) / 2))/a;
-		cy = my + (b*((v1->x - v0->x) / 2))/a;
+		dir = curve > 180 ? -1 : 1;
+		cx = mx - dir * (b*((v1->y - v0->y) / 2))/a;
+		cy = my + dir * (b*((v1->x - v0->x) / 2))/a;
 	}
 
 	angle0 = atan2(v0->y - cy, v0->x - cx);
