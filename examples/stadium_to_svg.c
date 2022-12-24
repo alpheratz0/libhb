@@ -181,20 +181,21 @@ int
 main(int argc, char **argv)
 {
 	struct hb_stadium *stadium;
-	const char *stadium_path, *out_svg_path;
 	cairo_surface_t *surface;
 	cairo_t *cr;
 
-	stadium_path = argc > 1 ? argv[1] : "stadium.hbs";
-	out_svg_path = argc > 2 ? argv[2] : "stadium.svg";
-
-	if (NULL == (stadium = hb_stadium_from_file(stadium_path))) {
-		fprintf(stderr, "stadium_to_svg: couldn't load %s\n",
-				stadium_path);
+	if (argc < 2) {
+		fprintf(stderr, "stadium_to_svg: expected a stadium path\n");
 		exit(1);
 	}
 
-	surface = cairo_svg_surface_create(out_svg_path, stadium->width * 2,
+	if (NULL == (stadium = hb_stadium_from_file(argv[1]))) {
+		fprintf(stderr, "stadium_to_svg: couldn't load %s\n",
+				argv[1]);
+		exit(1);
+	}
+
+	surface = cairo_svg_surface_create("/dev/stdout", stadium->width * 2,
 			stadium->height * 2);
 
 	cr = cairo_create(surface);
