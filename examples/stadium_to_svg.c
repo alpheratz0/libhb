@@ -4,7 +4,6 @@
 			-o stadium_to_svg stadium_to_svg.c -lcairo -ljq -lhb -lm
 
 	TODO:
-		stadium:segments:curve
 		stadium:bg:type:grass
 		stadium:bg:type:hockey
 		stadium:bg:cornerRadius
@@ -23,6 +22,17 @@
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
+
+#define deg2rad(deg) ((deg*M_PI)/180)
+
+static inline double
+dist(struct hb_vertex *a, struct hb_vertex *b)
+{
+	double dx, dy;
+	dx = b->x - a->x;
+	dy = b->y - a->y;
+	return sqrt(dx*dx+dy*dy);
+}
 
 static void
 cairo_set_source_rgb_uint32(cairo_t *cr, uint32_t color)
@@ -83,19 +93,72 @@ cairo_render_stadium_bg(cairo_t *cr, struct hb_stadium *s)
 }
 
 static void
+cairo_render_stadium_segment_line(cairo_t *cr, struct hb_vertex *v0,
+		struct hb_vertex *v1, uint32_t color)
+{
+	cairo_set_line_width(cr, 3);
+	cairo_set_source_rgb_uint32(cr, color);
+	cairo_move_to(cr, v0->x, v0->y);
+	cairo_line_to(cr, v1->x, v1->y);
+	cairo_stroke(cr);
+}
+
+static void
+cairo_render_stadium_segment_curve(cairo_t *cr, struct hb_vertex *v0,
+		struct hb_vertex *v1, double curve, uint32_t color)
+{
+	double a, b;
+	double mx, my;
+	double cx, cy;
+	double radius;
+	double angle0, angle1;
+
+	cairo_set_line_width(cr, 3);
+	cairo_set_source_rgb_uint32(cr, color);
+
+	if (curve < 0) {
+		struct hb_vertex *tmp;
+		curve *= -1;
+		tmp = v0;
+		v0 = v1;
+		v1 = tmp;
+	}
+
+	mx = (v0->x + v1->x) / 2;
+	my = (v0->y + v1->y) / 2;
+
+	if (curve == 180) {
+		cx = mx; cy = my;
+		radius = dist(v0, v1) / 2;
+		angle0 = atan2(v0->y - my, v0->x - mx);
+		angle1 = atan2(v1->y - my, v1->x - mx);
+	} else {
+		radius = dist(v0, v1) / (2 * sin(deg2rad(curve)/2));
+		a = dist(v0, v1) / 2;
+		b = sqrt(radius*radius-a*a);
+		cx = mx - (b*((v1->y - v0->y) / 2))/a;
+		cy = my + (b*((v1->x - v0->x) / 2))/a;
+		angle0 = atan2(v0->y - cy, v0->x - cx);
+		angle1 = atan2(v1->y - cy, v1->x - cx);
+	}
+
+	cairo_arc(cr, cx, cy, radius, angle0, angle1);
+	cairo_stroke(cr);
+}
+
+static void
 cairo_render_stadium_segments(cairo_t *cr, struct hb_stadium *s)
 {
-	struct hb_vertex *v0, *v1;
-	cairo_set_line_width(cr, 3);
 	hb_stadium_segments_foreach(s, segment) {
-		if (!segment->vis || segment->curve != 0)
-			continue;
-		v0 = s->vertexes[segment->v0];
-		v1 = s->vertexes[segment->v1];
-		cairo_set_source_rgb_uint32(cr, segment->color);
-		cairo_move_to(cr, v0->x, v0->y);
-		cairo_line_to(cr, v1->x, v1->y);
-		cairo_stroke(cr);
+		if (segment->vis) {
+			if (segment->curve == 0) {
+				cairo_render_stadium_segment_line(cr, s->vertexes[segment->v0],
+						s->vertexes[segment->v1], segment->color);
+			} else {
+				cairo_render_stadium_segment_curve(cr, s->vertexes[segment->v0],
+						s->vertexes[segment->v1], segment->curve, segment->color);
+			}
+		}
 	}
 }
 
