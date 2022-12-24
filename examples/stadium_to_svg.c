@@ -24,6 +24,7 @@
 #endif
 
 #define deg2rad(deg) ((deg*M_PI)/180)
+#define swap(type, a, b) do { type ____a = a; a = b; b = ____a; } while (0)
 
 static inline double
 dist(struct hb_vertex *a, struct hb_vertex *b)
@@ -117,11 +118,8 @@ cairo_render_stadium_segment_curve(cairo_t *cr, struct hb_vertex *v0,
 	cairo_set_source_rgb_uint32(cr, color);
 
 	if (curve < 0) {
-		struct hb_vertex *tmp;
+		swap(struct hb_vertex *, v0, v1);
 		curve *= -1;
-		tmp = v0;
-		v0 = v1;
-		v1 = tmp;
 	}
 
 	mx = (v0->x + v1->x) / 2;
