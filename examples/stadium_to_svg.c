@@ -164,9 +164,11 @@ static void
 cairo_render_stadium_discs(cairo_t *cr, struct hb_stadium *s)
 {
 	hb_stadium_discs_foreach(s, disc) {
-		cairo_set_source_rgb_uint32(cr, disc->color);
-		cairo_arc(cr, disc->pos[0], disc->pos[1], disc->radius, 0, M_PI*2);
-		cairo_fill(cr);
+		if (disc->color & (0xff << 24)) {
+			cairo_set_source_rgb_uint32(cr, disc->color);
+			cairo_arc(cr, disc->pos[0], disc->pos[1], disc->radius, 0, M_PI*2);
+			cairo_fill(cr);
+		}
 		cairo_set_source_rgb_uint32(cr, 0);
 		cairo_set_line_width(cr, 2);
 		cairo_arc(cr, disc->pos[0], disc->pos[1], disc->radius, 0, M_PI*2);
