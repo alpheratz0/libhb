@@ -7,7 +7,6 @@
 		stadium:bg:type:grass
 		stadium:bg:type:hockey
 		stadium:bg:cornerRadius
-		stadium:planes
 		stadium:joints
 
 */
