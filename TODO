@@ -18,3 +18,4 @@
 	[] check edge cases (no ball physics and no 0 discs)
 [] misc
 	[] convert negative curves to positive curves when parsing segments
+	[] convert curveF to curve
