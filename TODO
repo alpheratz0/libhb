@@ -19,3 +19,4 @@
 [] misc
 	[] convert negative curves to positive curves when parsing segments
 	[] convert curveF to curve
+	[] move from make to premake
