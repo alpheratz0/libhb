@@ -5,6 +5,10 @@
 #include <string.h>
 #include <jv.h>
 
+#define _HB_CURVEF_TO_CURVE(curvef) \
+	curvef == 0 ? 180 : \
+		fmod(((2 * atan(1 / curvef) / 0.017453292519943295) + 360), 360)
+
 static int _hb_jv_parse_string(jv from, char **to, const char *fallback);
 static int _hb_jv_parse_number(jv from, double *to, const double *fallback);
 static int _hb_jv_parse_boolean(jv from, bool *to, const bool *fallback);
@@ -417,7 +421,7 @@ _hb_jv_parse_trait(jv from, jv name, struct hb_trait **to)
 			if (_hb_jv_parse_number_and_free(curvef, &trait->curve, NULL) < 0)
 				return -1;
 			trait->has_curve = true;
-			trait->curve = (1-(1/(1+pow(M_E, -trait->curve))))*360;
+			trait->curve = _HB_CURVEF_TO_CURVE(trait->curve);
 		}
 	}
 
@@ -733,7 +737,7 @@ _hb_jv_parse_segment(jv from, struct hb_segment **to,
 		if (jv_get_kind(curvef) != JV_KIND_INVALID) {
 			if (_hb_jv_parse_number_and_free(curvef, &segm->curve, NULL) < 0)
 				return -1;
-			segm->curve = (1-(1/(1+pow(M_E, -segm->curve))))*360;
+			segm->curve = _HB_CURVEF_TO_CURVE(segm->curve);
 		}
 	}
 
