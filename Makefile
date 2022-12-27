@@ -12,14 +12,14 @@ libhb.a: src/stadium.o
 	$(AR) -rcs libhb.a src/stadium.o
 
 libhb.so: src/stadium.o
-	$(CC) -shared -fPIC src/stadium.o -o libhb.so -ljq
+	$(CC) -shared -fPIC src/stadium.o -o libhb.so -ljq -lm
 
 benchmark: benchmark/benchmark.o libhb.a
-	$(CC) benchmark/benchmark.o -o benchmark/benchmark libhb.a -ljq
+	$(CC) benchmark/benchmark.o -o benchmark/benchmark libhb.a -ljq -lm
 	@benchmark/benchmark
 
 test: test/test.o libhb.a
-	$(CC) test/test.o -o test/test libhb.a -ljq
+	$(CC) test/test.o -o test/test libhb.a -ljq -lm
 	@test/test
 
 install: libhb.a
