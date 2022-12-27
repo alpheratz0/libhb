@@ -1,7 +1,7 @@
 /*
    
 	cc -std=c99 -pedantic -Wall -Wextra -Os -s \
-   			-o stadium_print stadium_print.c -ljq -lhb
+   			-o stadium_print stadium_print.c -ljq -lhb -lm
 
 */
 #include <hb/stadium.h>
