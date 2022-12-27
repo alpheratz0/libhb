@@ -7,7 +7,7 @@
 
 #define _HB_CURVEF_TO_CURVE(curvef) \
 	curvef == 0 ? 180 : \
-		fmod(((2 * atan(1 / curvef) / 0.017453292519943295) + 360), 360)
+		fmod((((360 / M_PI) * atan(1 / curvef)) + 360), 360)
 
 static int _hb_jv_parse_string(jv from, char **to, const char *fallback);
 static int _hb_jv_parse_number(jv from, double *to, const double *fallback);
