@@ -14,7 +14,7 @@
 	[] hb_stadium_parse
 [] tests
 	[] check all fallback/default values
-	[] check edge cases (no ball physics and no 0 discs)
+	[] check edge cases (ball physics set to disc0 and no discs)
 [] misc
 	[] convert negative curves to positive curves when parsing segments
 	[x] convert curveF to curve
