@@ -1,3 +1,4 @@
+#include <math.h>
 #include <hb/stadium.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -408,6 +409,18 @@ _hb_jv_parse_trait(jv from, jv name, struct hb_trait **to)
 		}
 	}
 
+	/////////////curveF
+	{
+		jv curvef;
+		curvef = jv_object_get(jv_copy(from), jv_string("curveF"));
+		if (jv_get_kind(curvef) != JV_KIND_INVALID) {
+			if (_hb_jv_parse_number_and_free(curvef, &trait->curve, NULL) < 0)
+				return -1;
+			trait->has_curve = true;
+			trait->curve = (1-(1/(1+pow(M_E, -trait->curve))))*360;
+		}
+	}
+
 	/////////////damping
 	{
 		jv damping;
@@ -711,6 +724,17 @@ _hb_jv_parse_segment(jv from, struct hb_segment **to,
 		curve = jv_object_get(jv_copy(from), jv_string("curve"));
 		if (_hb_jv_parse_number_and_free(curve, &segm->curve, &fallback_curve) < 0)
 			return -1;
+	}
+
+	/////////////curveF
+	{
+		jv curvef;
+		curvef = jv_object_get(jv_copy(from), jv_string("curveF"));
+		if (jv_get_kind(curvef) != JV_KIND_INVALID) {
+			if (_hb_jv_parse_number_and_free(curvef, &segm->curve, NULL) < 0)
+				return -1;
+			segm->curve = (1-(1/(1+pow(M_E, -segm->curve))))*360;
+		}
 	}
 
 	/////////////bias
